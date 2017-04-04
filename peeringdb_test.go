@@ -1,7 +1,7 @@
 package main
 
 import (
-	"IXgenerator/peeringdb"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"net/http"
 	"testing"
 )

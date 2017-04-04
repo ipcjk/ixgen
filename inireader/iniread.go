@@ -1,7 +1,7 @@
 package inireader
 
 import (
-	"IXgenerator/ixtypes"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"bufio"
 	"fmt"
 	"io"
@@ -14,7 +14,6 @@ var PossibleOptions = map[string]bool{
 	"routeserver":        true,
 	"routeserver_group":  true,
 	"peer_group":         true,
-	"routeserver6":       true,
 	"routeserver_group6": true,
 	"peer_group6":        true,
 	"wildcard":           true,
@@ -41,6 +40,7 @@ func ReadPeeringConfig(r io.Reader) ixtypes.IXs {
 	for {
 		line, err := reader.ReadString('\n')
 		lineNum++
+
 		if line == "\n" {
 			continue
 		}

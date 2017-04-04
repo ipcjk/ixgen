@@ -31,8 +31,8 @@ Before the first usage, you may want to download the peeringdb start files, else
     ixgen -buildcache
 
 ### peering.ini ###
-The _peering.ini_ is an almost self-explainable configuration file, that is using
-sectors and lists for configuration.
+The _peering.ini_ is an easy configuration file, that is using
+sectors and lists.
 
 For every Internet Exchange that needs to be configured, a
  section head combination with the original record name of the Exchange and a possible network name , that can be both 
@@ -61,11 +61,17 @@ a new line after the _[peers]_-section.
     [peers]
     196922
     [options]
+    
 
 ### Run ixgen ###
 
 Starting ixgen with default options will now print out the peering bgp configuration for DE-CIX
-with the wished neighbor statements for all ipv4 and ipv6 routers:
+with the wished neighbor statements for all ipv4 and ipv6 routers. Be sure to start with the argument 
+_-apiservice_ to profit from the local json cache.
+
+    ./ixgen.mac -apiservice
+    
+The program will 
 
     router bgp
     neighbor 80.81.194.25 remote-as 196922
@@ -100,7 +106,7 @@ By default IXgen will output on the standard output channel. The output can be a
   the provided templates in the _templates_-folder and set the _-style_ parameter to your flavor, e.g.
    _-juniper/set_ for Junos set exchange format.
    
-   For special output like JSON, there will be a JSON output function soon.
+   Special output like Juniper JSON is integrated in code.  
   
 ### templates for router snippets ###
 
@@ -108,12 +114,11 @@ The templates directory is very easy structured and has a separate layer for ven
  
  - brocade 
    - netiron
-   - slx
  - juniper
    - set
    - json (fixed in code, no template)
  - cisco
-   - (not available right now)
+   - (currently almost an one-to-one-copy from the Brocade-template)
    
    The last layer always has a _router.tt_-, an optional _header.tt_-  and _footer.tt_-file. 
    
@@ -126,17 +131,18 @@ The templates directory is very easy structured and has a separate layer for ven
 ### exchange configuration parameters ###
 
 When adding an exchange, there are several options and parameters you can add each on a separate line in the 
-_[options]_-subsection.
+_[options]_-subsection. Please avoid special characters or whitespaces. 
 
 #### ipv4 ####
- - routeserver= (0=disable, 1=auto-detect and configure neighbor statements for route-servers)
  - routeserver_group=$rs_group (group used for peering with $rs_group )
  - peer_group=$peer_group (group used for peering with neighbors for the _[peers]_-list)
 
 #### ipv6  ####
- - routeserver6= (0=disable, 1=auto-detect and configure neighbor statements for route-servers with ipv6)
  - routeserver_group6=$rs_group6 (group used for ipv6-peering with $rs_group6 )
  - peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
+ 
+#### v6&v4 ####
+ - routeserver=(0=disable, 1=auto-detect and configure neighbor statements for route-servers)
 
 #### wildcard ####
  - wildcard= (0=disable [default], 1=enable, 2=enableAll)
@@ -153,16 +159,17 @@ peer configurations.
    
 ### peer configuration parameters ###
    
-   When adding a peer ASN to a _[peers]_-section, there are several options and parameters you can add-on the same line:
+   When adding a peer ASN to a _[peers]_-section, there are several options and parameters you can add-on the same line. All options or parameters are 
+   delimited by a single space. Future reader will be improved. 
    
     - ipv4=0 (0 = disable neighbor commands with ipv4 addresses, 1 = enable [default])
     - ipv6=0 (0 = disable neighbor commands with ipv6 addresses, 1 = enable [default])
-    - active=0 (0=ignore the ASN for configuration)
-    - group4=0 (0=dont generate peer-group-statement inside IPv4 template, 1=create [default] )
-    - group6=0 (0=dont generate peer-group-statement inside IPv6 template, 1=create [default] )
+    - active=0 (0 = ignore the ASN for configuration)
+    - group4=0 (0 = dont generate peer-group-statement inside IPv4 template, 1=create [default] )
+    - group6=0 (0 = dont generate peer-group-statement inside IPv6 template, 1=create [default] )
     - peer_group=$string (if group4 is enabled, don't take the peer-group-name from the exchange options, instead take $string)
     - peer_group6=$string (if group6 is enabled, don't take the peer-group-name from the exchange options, instead take $string)
-    - dontpeer=0 (0=dont generate configuration in wildcard-mode for this peer, default=1, generate config)
+    - dontpeer=0 (not implemented yet: 0=dont generate configuration in wildcard-mode for this peer, default=1, generate config)
     - prefix_filter=1 (not implemented yet: build prefix filter )
     - ipv4_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)
     - ipv6_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)
@@ -205,6 +212,7 @@ peer configurations.
  - implement fixed ip4/6 addr peering,  localPref
  - merge wildcardpeer + configuredpeer, too many double code
  - add webUI
+ - try out some alternative for INI (yaml?)
 
  
  

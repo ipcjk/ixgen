@@ -4,10 +4,10 @@ package main
 // see LICENSE for LICENSING,  TERMS AND CONDITIONS
 
 import (
-	"IXgenerator/inireader"
-	"IXgenerator/ixtypes"
-	"IXgenerator/peergen"
-	"IXgenerator/peeringdb"
+	"github.com/ipcjk/ixgen/inireader"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/peergen"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"flag"
 	"fmt"
 	"io"
@@ -17,6 +17,7 @@ import (
 	"sync"
 )
 
+/* Some globals for flag-parsing */
 var exchangeOnly string
 var peeringConfigFileName string
 var peerStyleGenerator string
@@ -106,6 +107,8 @@ func workerMergePeerConfiguration() {
 			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
 				return
 			}
+			_, rs_auto := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
+
 			myPeers := peerDB.GetPeersOnIXByIxName(exchanges[i].IxName)
 			for _, peer := range myPeers.Data {
 				peerASN := strconv.FormatInt(peer.Asn, 10)
@@ -148,7 +151,9 @@ func workerMergePeerConfiguration() {
 					}
 					rsPeer.InfoPrefixes4 = peerDbNetwork.Data[0].InfoPrefixes4
 					rsPeer.InfoPrefixes6 = peerDbNetwork.Data[0].InfoPrefixes6
-					exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
+					if rs_auto {
+						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
+					}
 					continue
 				}
 				_, ok := exchanges[i].PeersINI[exchanges[i].IxName][peerASN]

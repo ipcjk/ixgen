@@ -1,7 +1,7 @@
 package peergen
 
 import (
-	"IXgenerator/ixtypes"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"html/template"
 	"io"
 	"log"

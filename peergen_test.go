@@ -1,8 +1,8 @@
 package main
 
 import (
-	"IXgenerator/ixtypes"
-	"IXgenerator/peergen"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/peergen"
 	"bufio"
 	"bytes"
 	"html/template"

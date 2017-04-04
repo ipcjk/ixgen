@@ -1,8 +1,8 @@
 package main
 
 import (
-	"IXgenerator/inireader"
-	"IXgenerator/ixtypes"
+	"github.com/ipcjk/ixgen/inireader"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"testing"
 )
 

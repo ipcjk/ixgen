@@ -12,10 +12,11 @@ no neighbor {{.Ipv4Addr}} shutdown
 exit-address-family
 {{- end}}
 {{ if .Ipv6Enabled }}neighbor {{.Ipv6Addr}} remote-as {{ .ASN }}{{if .Group6Enabled }}
-neighbor {{.Ipv6Addr}} peer-group {{.Group6}}{{- end}}
 address-family ipv6 unicast
+neighbor {{.Ipv6Addr}} peer-group {{.Group6}}{{- end}}
 neighbor {{.Ipv6Addr}} maximum-prefix {{.InfoPrefixes6}}
 no neighbor {{.Ipv6Addr}} shutdown
+neighbor {{.Ipv6Addr}}  activate
 exit-address-family{{- end}}{{- end}}
 {{- end}}
 end
