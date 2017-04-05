@@ -1,14 +1,19 @@
 package inireader
 
 import (
-	"github.com/ipcjk/ixgen/ixtypes"
 	"bufio"
 	"fmt"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"io"
 	"log"
 	"strconv"
 	"strings"
+	"regexp"
 )
+
+var splitBy = `\s+`
+var splitReg = regexp.MustCompile(splitBy)
+
 
 var PossibleOptions = map[string]bool{
 	"routeserver":        true,
@@ -46,6 +51,7 @@ func ReadPeeringConfig(r io.Reader) ixtypes.IXs {
 		}
 
 		line = strings.Replace(line, "\n", "", 1)
+		line = strings.TrimSpace(line)
 
 		if strings.HasPrefix(line, "#") {
 			continue
@@ -135,7 +141,7 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 	var Peer = ixtypes.ExchangePeer{Active: true, Ipv4Enabled: true, Ipv6Enabled: true,
 		PrefixFilter: false, GroupEnabled: true, Group6Enabled: true}
 
-	for index, value := range strings.Split(line, " ") {
+	for index, value := range splitReg.Split(line, -1) {
 		if index == 0 {
 			_, err := strconv.Atoi(value)
 			if err != nil {
@@ -145,6 +151,7 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.ASN = value
 			continue
 		}
+		value := strings.Replace(value, "\"", "", -1)
 		if value == "ipv4=0" {
 			Peer.Ipv4Enabled = false
 		} else if value == "ipv6=0" {
@@ -176,7 +183,6 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Group = strings.TrimPrefix(value, "peer_group=")
 		} else if strings.HasPrefix(value, "peer_group6=") {
 			Peer.Group6 = strings.TrimPrefix(value, "peer_group6=")
-
 		} else if value == "group=0" {
 			Peer.GroupEnabled = false
 		} else if value == "group6=0" {

@@ -131,7 +131,7 @@ The templates directory is very easy structured and has a separate layer for ven
 ### exchange configuration parameters ###
 
 When adding an exchange, there are several options and parameters you can add each on a separate line in the 
-_[options]_-subsection. Please avoid special characters or whitespaces. 
+_[options]_-subsection. Please avoid special characters or whitespaces/tabs inside strings. 
 
 #### ipv4 ####
  - routeserver_group=$rs_group (group used for peering with $rs_group )
@@ -160,7 +160,7 @@ peer configurations.
 ### peer configuration parameters ###
    
    When adding a peer ASN to a _[peers]_-section, there are several options and parameters you can add-on the same line. All options or parameters are 
-   delimited by a single space. Future reader will be improved. 
+   delimited by whitespaces or tabs. Future reader will be improved. 
    
     - ipv4=0 (0 = disable neighbor commands with ipv4 addresses, 1 = enable [default])
     - ipv6=0 (0 = disable neighbor commands with ipv6 addresses, 1 = enable [default])

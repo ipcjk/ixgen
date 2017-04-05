@@ -8,8 +8,7 @@ import (
 	"os"
 )
 
-// var peeringDBfiles = []string{"fac", "ix", "ixfac", "ixlan", "ixpfx", "net", "netfac", "netixlan", "org", "poc"}
-var peeringDBfiles = []string{"ix", "net", "netixlan", "ixlan"}
+var peeringDBfiles = []string{"fac", "ix", "ixfac", "ixlan", "ixpfx", "net", "netfac", "netixlan", "org", "poc"}
 
 func DownloadCache(hostURL, cacheDir string) {
 	for _, v := range peeringDBfiles {

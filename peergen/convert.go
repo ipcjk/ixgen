@@ -1,9 +1,9 @@
 package peergen
 
 import (
-	"github.com/ipcjk/ixgen/ixtypes"
 	"encoding/json"
 	"fmt"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"io"
 	"log"
 	"strconv"

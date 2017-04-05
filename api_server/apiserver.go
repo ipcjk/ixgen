@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ipcjk/ixgen/peeringdb"
 	"flag"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"log"
 	"os"
 )

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/peergen"
 	"bufio"
 	"bytes"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/peergen"
 	"html/template"
 	"io"
 	"log"

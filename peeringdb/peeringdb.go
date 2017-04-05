@@ -27,7 +27,7 @@ func (p *peeringdb) callAPI(uri string, i interface{}) {
 	}
 
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
-	req.Header.Add("User-Agent", "joerg-golang")
+	req.Header.Add("User-Agent", "ixgen/golang")
 
 	resp, err := client.Do(req)
 	if err != nil {

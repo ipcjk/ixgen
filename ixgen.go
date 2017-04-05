@@ -4,12 +4,12 @@ package main
 // see LICENSE for LICENSING,  TERMS AND CONDITIONS
 
 import (
+	"flag"
+	"fmt"
 	"github.com/ipcjk/ixgen/inireader"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"github.com/ipcjk/ixgen/peergen"
 	"github.com/ipcjk/ixgen/peeringdb"
-	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -51,7 +51,7 @@ func init() {
 	flag.BoolVar(&version, "version", false, "prints version and exit")
 
 	/* Api-service-thread on localhost */
-	flag.BoolVar(&apiservice, "apiservice", false, "create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
+	flag.BoolVar(&apiservice, "apiservice", true, "create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
 	flag.StringVar(&localAPIServer, "listenapi", "localhost:0", "listenAddr for local api service")
 	flag.StringVar(&apiServiceURL, "api", "https://www.peeringdb.com/api", "use a differnt server as sources instead local/api-service.")
 
