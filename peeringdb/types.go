@@ -62,7 +62,7 @@ type FacData struct {
 }
 
 // NetixlanData is the struct,
-// that is used for decoding the peering networks
+// that is used for decoding the peering network
 type NetixlanData struct {
 	ID       int64     `json:"id"`
 	Asn      int64     `json:"asn"`
