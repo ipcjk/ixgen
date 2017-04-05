@@ -30,6 +30,12 @@ func (p *Peergen) GenerateIX(routerTemplate ixtypes.Ix, w io.Writer) {
 	} else if p.style == "brocade/slx" {
 		p.ConvertIxToBrocadeSlxJSON(routerTemplate, w)
 		return
+	} else if p.style == "native/json" {
+		p.ConvertIxToJson(routerTemplate, w)
+		return
+	} else if p.style == "native/json_pretty" {
+		p.ConvertIxToJsonPretty(routerTemplate, w)
+		return
 	}
 	p.GenerateIXConfiguration(routerTemplate, w)
 }

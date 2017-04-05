@@ -14,6 +14,22 @@ import (
 // ConvertIxToJuniperJSON -> Juniper JSON
 // ConvertIxToBrocadeSlxJSON -> Brocade SLX
 
+func (p *Peergen) ConvertIxToJson(ix ixtypes.Ix, w io.Writer) {
+	res, err := json.Marshal(ix)
+	if err != nil {
+		log.Fatalf("Cant decode IX into native format: err")
+	}
+	fmt.Fprintf(w, string(res))
+}
+
+func (p *Peergen) ConvertIxToJsonPretty(ix ixtypes.Ix, w io.Writer) {
+	res, err := json.MarshalIndent(ix, "", "\t")
+	if err != nil {
+		log.Fatalf("Cant decode IX into native format: err")
+	}
+	fmt.Fprintf(w, string(res))
+}
+
 func (p *Peergen) ConvertIxToBrocadeSlxJSON(ix ixtypes.Ix, w io.Writer) {
 	log.Fatal("Not done yet")
 }
@@ -45,41 +61,41 @@ func (p *Peergen) ConvertIxToJuniperJSON(ix ixtypes.Ix, w io.Writer) {
 				if ix.PeersReady[i].Ipv4Enabled {
 					junosPeerConfiguration.Neighbor = append(junosPeerConfiguration.Neighbor,
 						junosNeighbor{
-							junosFamily{
-								{[]junosFamilyInet6{},
-									[]junosFamilyInet4{
-										{[]junosLabeledUnicast{
+							Family: junosFamily{
+								{Inet6: []junosFamilyInet6{},
+									Inet: []junosFamilyInet4{
+										{InetUnicast: []junosLabeledUnicast{
 											{
-												[]junosPrefixLimit{
-													{[]junosMaximumLimit{
-														{junosDataInt64String{strconv.FormatInt(ix.PeersReady[i].InfoPrefixes4, 10)}},
+												PrefixLimit: []junosPrefixLimit{
+													{Maximum: []junosMaximumLimit{
+														{junosDataInt64String: junosDataInt64String{Data: strconv.FormatInt(ix.PeersReady[i].InfoPrefixes4, 10)}},
 													}},
 												},
 											},
 										}},
 									}},
 							},
-							junosDataIP{ix.PeersReady[i].Ipv4Addr},
-							[]junosDataInt64String{{ix.PeersReady[i].ASN}},
+							Name:   junosDataIP{Data: ix.PeersReady[i].Ipv4Addr},
+							PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 						})
 				}
 				if ix.PeersReady[i].Ipv6Enabled {
 					junosPeerConfiguration.Neighbor = append(junosPeerConfiguration.Neighbor,
 						junosNeighbor{
-							junosFamily{
-								{[]junosFamilyInet6{{[]junosLabeledUnicast{
+							Family: junosFamily{
+								{Inet6: []junosFamilyInet6{{Inet6Unicast: []junosLabeledUnicast{
 									{
-										[]junosPrefixLimit{
-											{[]junosMaximumLimit{
-												{junosDataInt64String{strconv.FormatInt(ix.PeersReady[i].InfoPrefixes6, 10)}},
+										PrefixLimit: []junosPrefixLimit{
+											{Maximum: []junosMaximumLimit{
+												{junosDataInt64String: junosDataInt64String{Data: strconv.FormatInt(ix.PeersReady[i].InfoPrefixes6, 10)}},
 											}},
 										},
 									},
 								}}},
-									[]junosFamilyInet4{}},
+									Inet: []junosFamilyInet4{}},
 							},
-							junosDataIP{ix.PeersReady[i].Ipv6Addr},
-							[]junosDataInt64String{{ix.PeersReady[i].ASN}},
+							Name:   junosDataIP{Data: ix.PeersReady[i].Ipv6Addr},
+							PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 						})
 				}
 				if len(junosPeerConfiguration.Neighbor) > 0 {
