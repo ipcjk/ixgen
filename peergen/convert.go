@@ -15,6 +15,7 @@ import (
 // ConvertIxToBrocadeSlxJSON -> Brocade SLX
 
 func (p *Peergen) ConvertIxToBrocadeSlxJSON(ix ixtypes.Ix, w io.Writer) {
+	log.Fatal("Not done yet")
 }
 
 func (p *Peergen) ConvertIxToJuniperJSON(ix ixtypes.Ix, w io.Writer) {

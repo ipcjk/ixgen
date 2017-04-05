@@ -212,6 +212,7 @@ peer configurations.
  - implement fixed ip4/6 addr peering,  localPref
  - merge wildcardpeer + configuredpeer, too many double code
  - add webUI
+ - check cacheFiles for timestamp, ... 
  - try out some alternative for INI (yaml?)
 
  

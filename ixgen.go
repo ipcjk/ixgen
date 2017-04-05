@@ -32,7 +32,7 @@ var version bool
 
 /* Api server / uri */
 var cacheDirectory string
-var apiservice bool
+var noapiservice bool
 var localAPIServer string
 var apiServiceURL string
 
@@ -45,13 +45,13 @@ func init() {
 	flag.StringVar(&cacheDirectory, "cacheDir", "./cache", "cache directory for json files from peeringdb")
 	flag.StringVar(&exchangeOnly, "exchange", "", "only generate configuration for given exchange, default: print all")
 	flag.StringVar(&outputFile, "output", "", "if set, will output the configuration to a file, else STDOUT")
-	flag.BoolVar(&printOrExit, "print", true, "print or just do a performance run")
+	flag.BoolVar(&printOrExit, "exit", false, "exit after generator run,  before printing result (performance run)")
 	flag.BoolVar(&buildCache, "buildcache", false, "download json files for caching from peeringdb")
 	flag.Int64Var(&myASN, "myasn", 0, "exclude your own asn from the generator")
 	flag.BoolVar(&version, "version", false, "prints version and exit")
 
 	/* Api-service-thread on localhost */
-	flag.BoolVar(&apiservice, "apiservice", true, "create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
+	flag.BoolVar(&noapiservice, "noapiservice", false, "do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
 	flag.StringVar(&localAPIServer, "listenapi", "localhost:0", "listenAddr for local api service")
 	flag.StringVar(&apiServiceURL, "api", "https://www.peeringdb.com/api", "use a differnt server as sources instead local/api-service.")
 
@@ -73,7 +73,7 @@ func init() {
 func main() {
 	workerMergePeerConfiguration()
 	wg.Wait()
-	if printOrExit == true {
+	if printOrExit == false {
 		workerPrintPeerConfiguration()
 	}
 }
@@ -246,7 +246,7 @@ func loadConfig() {
 	exchanges = inireader.ReadPeeringConfig(file)
 
 	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
-	if apiservice == true {
+	if noapiservice == false {
 		Apiserver := peeringdb.NewAPIServer(localAPIServer, cacheDirectory)
 		Apiserver.RunAPIServer()
 		apiServiceURL = fmt.Sprintf("http://%s/api", Apiserver.AddrPort)

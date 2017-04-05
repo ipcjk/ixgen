@@ -6,14 +6,13 @@ import (
 	"github.com/ipcjk/ixgen/ixtypes"
 	"io"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
-	"regexp"
 )
 
 var splitBy = `\s+`
 var splitReg = regexp.MustCompile(splitBy)
-
 
 var PossibleOptions = map[string]bool{
 	"routeserver":        true,
