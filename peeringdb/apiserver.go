@@ -1,6 +1,9 @@
 package peeringdb
 
 import (
+	"github.com/ipcjk/ixgen/inireader"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/peergen"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -11,10 +14,12 @@ import (
 	"regexp"
 	"strconv"
 	"sync"
+	"fmt"
 )
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
 var matchIxLanRegex = `\/api\/ixlan\/(\d+)$`
+var matchStyleRegex = `\/ixgen\/(\w+)\/(\w+)$`
 
 type handler struct {
 	CacheDir string
@@ -42,6 +47,9 @@ type getIXLan struct {
 	match *regexp.Regexp
 }
 
+type postConfig struct {
+	match *regexp.Regexp
+}
 type getIXLans handler
 type getIXes handler
 type getNetIXLan handler
@@ -51,8 +59,12 @@ type getAll handler
 
 // NewAPIServer returns a new Apiserver object, than can be
 // started to answer to peeringdb-style api questions.
+//
 // It will take the ListenAddr and Port and also a source directory where
 // to serve the object files from as arguments.
+//
+// It also can take a POST request with an INI- or JSON-style configuration
+//
 func NewAPIServer(Addrport, CacheDir string) *Apiserver {
 	return &Apiserver{Addrport, CacheDir}
 }
@@ -62,13 +74,18 @@ func (a *Apiserver) RunAPIServer() {
 	r := http.NewServeMux()
 	matchIx, _ := regexp.Compile(matchIxRegex)
 	matchIxLan, _ := regexp.Compile(matchIxLanRegex)
+	matchStyle, _ := regexp.Compile(matchStyleRegex)
 
+	/* PeeringDBI API clone */
 	r.Handle("/api/ix", &getIXes{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/ix/", &getIX{handler{a.CacheDir, nil, sync.Mutex{}}, matchIx})
 	r.Handle("/api/netixlan", &getNetIXLan{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/net", &getNet{handler{a.CacheDir, nil, sync.Mutex{}}, Net{}})
 	r.Handle("/api/ixlan", &getIXLans{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/ixlan/", &getIXLan{handler{a.CacheDir, nil, sync.Mutex{}}, matchIxLan})
+
+	/* Post/Get Configuration */
+	r.Handle("/ixgen/", &postConfig{match: matchStyle})
 
 	listener, err := net.Listen("tcp", a.AddrPort)
 	if err != nil {
@@ -106,6 +123,47 @@ func readFile(fileName string) []byte {
 		log.Fatalf("Cant read from file :%s", fileName)
 	}
 	return buf.Bytes()
+}
+
+func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var exchanges ixtypes.IXs = ixtypes.IXs{{}}
+	var peerGenerator *peergen.Peergen
+	var peerStyle string
+	var matches []string
+
+	defer r.Body.Close()
+	ct := r.Header.Get("Content-Type")
+
+	if r.Method != "POST" {
+		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
+		return
+	}
+
+	matches = h.match.FindStringSubmatch(r.RequestURI)
+	if len(matches) != 3 {
+		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
+		return
+	}
+	peerStyle = fmt.Sprintf("%s/%s", matches[1], matches[2])
+	peerGenerator = peergen.NewPeerGen(peerStyle, "./templates")
+
+	/* JSON or plain incoming? */
+	if ct == "application/json" {
+		err := json.NewDecoder(r.Body).Decode(&exchanges[0])
+		if err != nil {
+			fmt.Fprintf(w, "JSON malformed: %s", err)
+			return
+		}
+	} else {
+		exchanges = inireader.ReadPeeringConfig(r.Body)
+	}
+
+	if len(exchanges) > 0 {
+		for k := range exchanges {
+			fmt.Fprintf(w, exchanges[k].IxName)
+			peerGenerator.GenerateIXs(exchanges, w)
+		}
+	}
 }
 
 func (h *getNet) ServeHTTP(w http.ResponseWriter, r *http.Request) {

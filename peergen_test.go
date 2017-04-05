@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"github.com/ipcjk/ixgen/peergen"
 	"html/template"
@@ -114,4 +115,62 @@ func TestAllTemplates(t *testing.T) {
 			t.Logf("tt %s ok", v)
 		}
 	}
+}
+
+func TestIXConfigFromJson(t *testing.T) {
+	var testJSON = `{"additionalconfig":null,"ixname":"DE-CIX Frankfurt/Main","options":{},"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"196922":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":true,"group6_enabled":true,"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,"ipv6enabled":true,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}]}},"peersready":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":false,"group6_enabled":false,"infoprefixes4":64,"infoprefixes6":10,"ipv4addr":"80.81.194.25","ipv6addr":"2001:7f8::3:13a:0:1","ipv4enabled":true,"ipv6enabled":true,"irrasset":"AS-HOFMEIR","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}],"routeserverready":null}`
+	var p = peergen.NewPeerGen("brocade/netiron", "./templates")
+	var buffer bytes.Buffer
+
+	ix := ixtypes.Ix{}
+
+	if err := json.Unmarshal([]byte(testJSON), &ix); err != nil {
+		t.Errorf("error decoding JSON into format, some code has changed? Error %s", err)
+	}
+
+	if ix.IxName != "DE-CIX Frankfurt/Main" {
+		t.Error("IX-Name has changed, not expected")
+	}
+
+	writer := bufio.NewWriter(&buffer)
+	p.GenerateIXConfiguration(ix, writer)
+
+	err := writer.Flush()
+	if err != nil {
+		log.Fatal("Cant flush generated configuration into buffer")
+	}
+
+	var countLines, countNeighbor int
+	var foundSample bool
+	reader := bufio.NewReader(&buffer)
+	for {
+		line, err := reader.ReadString('\n')
+
+		if strings.HasPrefix(line, "neighbor") {
+			countNeighbor++
+		}
+		if strings.HasPrefix(line, "neighbor 80.81.194.25 remote-as 196922") {
+			foundSample = true
+		}
+		countLines++
+
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Error("Error reading from template buffer")
+		}
+	}
+
+	if foundSample == false {
+		t.Error("Did not find any bgp neighbor sample command in template buffer")
+	}
+
+	if countLines < 8 {
+		t.Error("Template too short or broken, not enough output lines for netiron/brocade")
+	}
+	if countNeighbor < 2 {
+		t.Error("Template too short or broken, not enough bgp neighbor commands")
+	}
+
 }

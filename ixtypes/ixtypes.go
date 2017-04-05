@@ -25,11 +25,6 @@ type ExchangePeer struct {
 
 type ExchangeOption string
 
-type PeerTemplate struct {
-	Peers           []ExchangePeer
-	ExchangeOptions ExchangeOptions
-}
-
 /* Ix, is the whole definition of the exchange
 read by the ini-configuration, and then completed
 by filling PeersReady. This type will be exported
@@ -43,7 +38,6 @@ type Ix struct {
 	PeeringGroups    PeeringGroups   `json:"peeringgroups"`
 	PeersINI         ExchangePeers   `json:"peers_configured"`
 	PeersReady       []ExchangePeer  `json:"peersready"`
-	RouteServerReady []ExchangePeer  `json:"routeserverready"`
 }
 
 type IXs []Ix

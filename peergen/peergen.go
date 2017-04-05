@@ -23,21 +23,23 @@ func NewPeerGen(style, templateDir string) *Peergen {
 		}}
 }
 
-func (p *Peergen) GenerateIX(routerTemplate ixtypes.Ix, w io.Writer) {
+func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
 	if p.style == "juniper/json" {
-		p.ConvertIxToJuniperJSON(routerTemplate, w)
+		p.ConvertIxToJuniperJSON(exchanges, w)
 		return
 	} else if p.style == "brocade/slx" {
-		p.ConvertIxToBrocadeSlxJSON(routerTemplate, w)
+		p.ConvertIxToBrocadeSlxJSON(exchanges, w)
 		return
 	} else if p.style == "native/json" {
-		p.ConvertIxToJson(routerTemplate, w)
+		p.ConvertIxToJson(exchanges, w)
 		return
 	} else if p.style == "native/json_pretty" {
-		p.ConvertIxToJsonPretty(routerTemplate, w)
+		p.ConvertIxToJsonPretty(exchanges, w)
 		return
 	}
-	p.GenerateIXConfiguration(routerTemplate, w)
+	for k := range exchanges {
+		p.GenerateIXConfiguration(exchanges[k], w)
+	}
 }
 
 func (p *Peergen) GenerateIXConfiguration(routerTemplate ixtypes.Ix, w io.Writer) {
@@ -57,17 +59,4 @@ func (p *Peergen) GenerateIXConfiguration(routerTemplate ixtypes.Ix, w io.Writer
 		}
 	}
 
-}
-
-func (p *Peergen) GeneratePeerConfiguration(routerTemplate ixtypes.PeerTemplate, w io.Writer) {
-	for i := range p.peerFiles {
-		t, err := template.ParseFiles(p.peerFiles[i])
-		if err != nil {
-			log.Fatalf("Cant open template file: %s", err)
-		}
-
-		if err := t.Execute(w, routerTemplate); err != nil {
-			log.Fatalf("Cant execute template: %s", err)
-		}
-	}
 }
