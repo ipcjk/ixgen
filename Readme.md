@@ -86,6 +86,63 @@ The call will print out my DECIX-configuration for Frankfurt:
     no neighbor 2001:7f8::3:13a:0:1 shutdown
     exit-address-family
     
+ Or a call to output the native format in json:
+   
+     ./ixgen -style native/json_pretty
+     {
+     	"additionalconfig": null,
+     	"ixname": "DE-CIX Frankfurt/Main",
+     	"options": {},
+     	"peeringgroups": {},
+     	"peers_configured": {
+     		"DE-CIX Frankfurt/Main": {
+     			"196922": [
+     				{
+     					"active": true,
+     					"asn": "196922",
+     					"group": "",
+     					"group6": "",
+     					"groupenabled": true,
+     					"group6_enabled": true,
+     					"infoprefixes4": 0,
+     					"infoprefixes6": 0,
+     					"ipv4addr": "",
+     					"ipv6addr": "",
+     					"ipv4enabled": true,
+     					"ipv6enabled": true,
+     					"irrasset": "",
+     					"isrs": false,
+     					"isrsper": false,
+     					"localpreference": 0,
+     					"prefixfilter": false
+     				}
+     			]
+     		}
+     	},
+     	"peersready": [
+     		{
+     			"active": true,
+     			"asn": "196922",
+     			"group": "",
+     			"group6": "",
+     			"groupenabled": false,
+     			"group6_enabled": false,
+     			"infoprefixes4": 64,
+     			"infoprefixes6": 10,
+     			"ipv4addr": "80.81.194.25",
+     			"ipv6addr": "2001:7f8::3:13a:0:1",
+     			"ipv4enabled": true,
+     			"ipv6enabled": true,
+     			"irrasset": "AS-HOFMEIR",
+     			"isrs": false,
+     			"isrsper": false,
+     			"localpreference": 0,
+     			"prefixfilter": false
+     		}
+     	],
+     	"routeserverready": null
+     }
+    
 ### Default output and templates ###
 By default IXgen will output on the standard output channel. The output can be also redirected to a file with the 
  _-output_ parameter. Be aware, that the output is always sorted by peers ASN.
@@ -111,6 +168,9 @@ By default IXgen will output on the standard output channel. The output can be a
 
 The templates directory is very easy structured and has a separate layer for vendor and  devices:
  
+ - native
+   - json
+   - json_pretty
  - brocade 
    - netiron
  - juniper
@@ -229,7 +289,7 @@ peer configurations. It is also possible to add things into _header.tt_, see tem
  - merge wildcardpeer + configuredpeer, too many double code
  - add webUI
  - check cacheFiles for timestamp, ... 
- - try out some alternative for INI (yaml?)
+ - try out some alternative for INI (toml,yaml?)
 
  
  

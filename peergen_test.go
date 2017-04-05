@@ -19,10 +19,42 @@ func TestBrocadeTemplate(t *testing.T) {
 	var buffer bytes.Buffer
 
 	Ix.PeersReady = []ixtypes.ExchangePeer{
-		{"196922", true, true, false, true, net.ParseIP("127.0.0.1"), net.ParseIP("2a02::"),
-			90, 100, 64, "decix", true, "decix6", true, false, false},
-		{"3356", true, true, false, true, net.ParseIP("127.0.0.1"), net.ParseIP("2a02::"),
-			90, 100, 32, "", false, "", false, false, false},
+		{
+			ASN:           "196922",
+			Active:        true,
+			Ipv4Enabled:   true,
+			Ipv6Enabled:   true,
+			PrefixFilter:  false,
+			GroupEnabled:  true,
+			Group6Enabled: true,
+			IsRs:          false, IsRsPeer: true,
+			Ipv4Addr:        net.ParseIP("127.0.0.1"),
+			Ipv6Addr:        net.ParseIP("3ffe:ffff::/32"),
+			InfoPrefixes6:   10,
+			InfoPrefixes4:   100,
+			LocalPreference: 90,
+			IrrAsSet:        "AS-196922",
+			Group:           "decix-peer",
+			Group6:          "decix-peer6",
+		},
+		{
+			ASN:           "3356",
+			Active:        true,
+			Ipv4Enabled:   true,
+			Ipv6Enabled:   true,
+			PrefixFilter:  false,
+			GroupEnabled:  true,
+			Group6Enabled: true,
+			IsRs:          false, IsRsPeer: true,
+			Ipv4Addr:        net.ParseIP("127.3.3.56"),
+			Ipv6Addr:        net.ParseIP("3ffe:ffff:3356::/32"),
+			InfoPrefixes6:   10,
+			InfoPrefixes4:   100,
+			LocalPreference: 90,
+			IrrAsSet:        "AS-3356",
+			Group:           "decix-peer",
+			Group6:          "decix-peer6",
+		},
 	}
 
 	writer := bufio.NewWriter(&buffer)

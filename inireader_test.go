@@ -44,18 +44,19 @@ func TestExchangeOption(t *testing.T) {
 	var ixConfig = make(ixtypes.ExchangeOptions)
 	ixConfig["testIX"] = make(map[string]ixtypes.ExchangeOption, 10)
 	inireader.ParseOptionLine("routeserver=1", ixConfig, "testIX")
-	inireader.ParseOptionLine("routeserver6=1", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_group=IX", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_group6=IX6", ixConfig, "testIX")
 	inireader.ParseOptionLine("peer_group=peer", ixConfig, "testIX")
 	inireader.ParseOptionLine("peer_group6=peer6", ixConfig, "testIX")
 	inireader.ParseOptionLine("wildcard=1", ixConfig, "testIX")
+	inireader.ParseOptionLine("importpolicy=foo1", ixConfig, "testIX")
+	inireader.ParseOptionLine("exportpolicy=foo2", ixConfig, "testIX")
 
 	/* Check that we covered all cases from inireader */
 	for k := range inireader.PossibleOptions {
 		_, ok := ixConfig["testIX"][k]
 		if !ok {
-			t.Errorf("option  %s not readable ", k)
+			t.Errorf("option %s not readable ", k)
 		}
 	}
 
@@ -64,9 +65,6 @@ func TestExchangeOption(t *testing.T) {
 		t.Error("Routeserver option is wrong")
 	}
 
-	if ixConfig["testIX"]["routeserver6"] != "1" {
-		t.Error("Routeserver option is wrong")
-	}
 	if ixConfig["testIX"]["routeserver_group"] != "IX" {
 		t.Error("Routeserver Group option is wrong")
 	}

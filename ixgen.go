@@ -40,7 +40,7 @@ var wg sync.WaitGroup
 
 func init() {
 	flag.StringVar(&peeringConfigFileName, "peerconfig", "./configuration/peering.ini", "Path to peering configuration ini-file")
-	flag.StringVar(&peerStyleGenerator, "style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco...")
+	flag.StringVar(&peerStyleGenerator, "style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
 	flag.StringVar(&templateDir, "templates", "./templates", "directory for templates")
 	flag.StringVar(&cacheDirectory, "cacheDir", "./cache", "cache directory for json files from peeringdb")
 	flag.StringVar(&exchangeOnly, "exchange", "", "only generate configuration for given exchange, default: print all")
@@ -132,8 +132,9 @@ func workerMergePeerConfiguration() {
 							GroupEnabled:  false,
 							Group6Enabled: false,
 							IsRs:          true, IsRsPeer: false,
-							Ipv4Addr: peer.Ipaddr4,
-							Ipv6Addr: peer.Ipaddr6,
+							Ipv4Addr:      peer.Ipaddr4,
+							Ipv6Addr:      peer.Ipaddr6,
+							IrrAsSet:      peerDbNetwork.Data[0].IrrAsSet,
 						}
 					if peer.Ipaddr6 != nil {
 						rsPeer.Ipv6Enabled = true
@@ -188,6 +189,7 @@ func workerMergePeerConfiguration() {
 					} else if confPeer.Group6 == "" {
 						confPeer.Group6Enabled = false
 					}
+					confPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
 					exchanges[i].PeersReady = append(exchanges[i].PeersReady, confPeer)
 				} else if exchanges[i].Options[exchanges[i].IxName]["wildcard"] == "1" {
 					// Wildcard, we take everything
@@ -219,6 +221,7 @@ func workerMergePeerConfiguration() {
 					}
 
 					if peerDbNetwork.Data != nil {
+						wildPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
 						wildPeer.InfoPrefixes4 = peerDbNetwork.Data[0].InfoPrefixes4
 						wildPeer.InfoPrefixes6 = peerDbNetwork.Data[0].InfoPrefixes6
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, wildPeer)
