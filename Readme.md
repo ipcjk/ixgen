@@ -66,23 +66,22 @@ a new line after the _[peers]_-section.
 ### Run ixgen ###
 
 Starting ixgen with default options will now print out the peering bgp configuration for DE-CIX
-with the wished neighbor statements for all ipv4 and ipv6 routers. Be sure to start with the argument 
-_-apiservice_ to profit from the local json cache.
+with the wished neighbor statements for all ipv4 and ipv6 routers. 
 
-    ./ixgen.mac -apiservice
+    ./ixgen.mac 
     
-The program will 
+The call will print out my DECIX-configuration for Frankfurt: 
 
     router bgp
     neighbor 80.81.194.25 remote-as 196922
-    neighbor 80.81.194.25 peer-group
+    neighbor 80.81.194.25 peer-group decix-peer
     address-family ipv4 unicast
     neighbor 80.81.194.25 maximum-prefix 64
     no neighbor 80.81.194.25 shutdown
     exit-address-family
-    neighbor 2001:7f8::3:13a:0:1 remote-as  196922
-    neighbor 2001:7f8::3:13a:0:1 peer-group
     address-family ipv6 unicast
+    neighbor 2001:7f8::3:13a:0:1 remote-as  196922
+    neighbor 2001:7f8::3:13a:0:1 peer-group decix-peer6
     neighbor 2001:7f8::3:13a:0:1 maximum-prefix 10
     no neighbor 2001:7f8::3:13a:0:1 shutdown
     exit-address-family
@@ -108,7 +107,7 @@ By default IXgen will output on the standard output channel. The output can be a
    
    Special output like Juniper JSON is integrated in code.  
   
-### templates for router snippets ###
+#### templates for router snippets ####
 
 The templates directory is very easy structured and has a separate layer for vendor and  devices:
  
@@ -124,7 +123,20 @@ The templates directory is very easy structured and has a separate layer for ven
    
    _router.tt_ is the main file,
    that is supplied by the _peergenerator_-module. The _header.tt_-file is a custom file, that
-   will be injected before the peering-code, the _footer.tt_ file after. 
+   will be injected before the peering-code, the _footer.tt_ file after. If you need to initialize peering groups
+    or set any other important value, then _header.tt_ is the right place to be.
+     
+
+#### Exported structures to template engine ####
+
+Exported to the template is the type "IX", that is a struct of the member variables:
+- AdditionalConfig (array of strings)
+- IxName (name of the IX)
+- Options (hash map of IX-options from the ini-file)
+- PeeringGroups (used peering groups for that IX, generated from the INI)
+- PeersINI (Peers as read from the INI-file [dont use this!])
+- PeersReady (Peers that have processed and are ready for the templating)
+- RouteServerReady (Routeserver records that have been processed and are ready)
 
 ## INI-Configuration ##
  
@@ -141,7 +153,7 @@ _[options]_-subsection. Please avoid special characters or whitespaces/tabs insi
  - routeserver_group6=$rs_group6 (group used for ipv6-peering with $rs_group6 )
  - peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
  
-#### v6&v4 ####
+#### iv6 | ipv4 ####
  - routeserver=(0=disable, 1=auto-detect and configure neighbor statements for route-servers)
 
 #### wildcard ####
@@ -155,7 +167,7 @@ _[options]_-subsection. Please avoid special characters or whitespaces/tabs insi
 ### additional configuration ###
 It is possible to add custom lines, that are not interpreted by adding the subsection _[additionalConfig]_. The generator will print out this lines
 before the peering configuration. You can use this code to generate peer group configuration or anything else that you want to add before the single 
-peer configurations. 
+peer configurations. It is also possible to add things into _header.tt_, see templating above.  
    
 ### peer configuration parameters ###
    
@@ -181,26 +193,30 @@ peer configurations.
     ixgen:
     -api string
     	use a differnt server as sources instead local/api-service. (default "https://www.peeringdb.com/api")
-    -apiservice
-    	create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service. (default true)
     -buildcache
     	download json files for caching from peeringdb
     -cacheDir string
     	cache directory for json files from peeringdb (default "./cache")
     -exchange string
     	only generate configuration for given exchange, default: print all
+    -exit
+    	exit after generator run,  before printing result (performance run)
     -listenapi string
-    	listenAddr for local api service (default "localhost:8443")
+    	listenAddr for local api service (default "localhost:0")
     -myasn int
     	exclude your own asn from the generator
+    -noapiservice
+    	do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.
+    -output string
+    	if set, will output the configuration to a file, else STDOUT
     -peerconfig string
     	Path to peering configuration ini-file (default "./configuration/peering.ini")
-    -print
-    	print or just do a performance run (default true)
     -style string
-    	Style for routing-config, e.g. brocade, juniper, cisco... (default "brocade/netiron")
+    	Style for routing-config by template, e.g. brocade, juniper, cisco... (default "brocade/netiron")
     -templates string
     	directory for templates (default "./templates")
+    -version
+    	prints version and exit
 
 
 ### todo ### 
