@@ -8,7 +8,7 @@ import (
 )
 
 func init() {
-	Apiserver := apiserverlib.NewAPIServer("localhost:58412", "./cache")
+	Apiserver := apiserverlib.NewAPIServer("localhost:58412", "./cache", "./templates")
 	Apiserver.RunAPIServer()
 }
 

@@ -22,7 +22,7 @@ import (
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
 var matchIxLanRegex = `\/api\/ixlan\/(\d+)$`
-var matchStyleRegex = `\/ixgen\/(\w+)\/(\w+)$`
+var matchStyleRegex = `\/ixgen\/(\w+)\/(\w+)\/?(\d+)?$`
 
 type handler struct {
 	CacheDir string
@@ -36,8 +36,9 @@ type netHandler struct {
 }
 
 type Apiserver struct {
-	AddrPort string
-	CacheDir string
+	AddrPort    string
+	CacheDir    string
+	templateDir string
 }
 
 type getIX struct {
@@ -51,7 +52,9 @@ type getIXLan struct {
 }
 
 type postConfig struct {
-	match *regexp.Regexp
+	match     *regexp.Regexp
+	addrPort  string
+	templates string
 }
 
 type getIXLans handler
@@ -69,9 +72,10 @@ type getAll handler
 //
 // It also can take a POST request with an INI- or JSON-style configuration
 //
-func NewAPIServer(Addrport, CacheDir string) *Apiserver {
-	return &Apiserver{Addrport, CacheDir}
+func NewAPIServer(addrport, cacheDir string, templatedir string) *Apiserver {
+	return &Apiserver{addrport, cacheDir, templatedir}
 }
+
 
 // RunAPIServer starts the created Apiserver
 func (a *Apiserver) RunAPIServer() {
@@ -79,6 +83,12 @@ func (a *Apiserver) RunAPIServer() {
 	matchIx, _ := regexp.Compile(matchIxRegex)
 	matchIxLan, _ := regexp.Compile(matchIxLanRegex)
 	matchStyle, _ := regexp.Compile(matchStyleRegex)
+
+	listener, err := net.Listen("tcp", a.AddrPort)
+	if err != nil {
+		log.Fatalf("Cant spin up local api-service: %s", err)
+	}
+	a.AddrPort = listener.Addr().String()
 
 	/* PeeringDBI API clone */
 	r.Handle("/api/ix", &getIXes{a.CacheDir, nil, sync.Mutex{}})
@@ -88,14 +98,11 @@ func (a *Apiserver) RunAPIServer() {
 	r.Handle("/api/ixlan", &getIXLans{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/ixlan/", &getIXLan{handler{a.CacheDir, nil, sync.Mutex{}}, matchIxLan})
 
-	/* Post/Get Configuration */
-	r.Handle("/ixgen/", &postConfig{match: matchStyle})
 
-	listener, err := net.Listen("tcp", a.AddrPort)
-	if err != nil {
-		log.Fatalf("Cant spin up local api-service: %s", err)
-	}
-	a.AddrPort = listener.Addr().String()
+	/* Post/Get Configuration */
+	r.Handle("/ixgen/", &postConfig{match: matchStyle, addrPort: a.AddrPort, templates: a.templateDir})
+
+
 	go http.Serve(listener, r)
 }
 
@@ -131,6 +138,8 @@ func readFile(fileName string) []byte {
 
 func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var exchanges ixtypes.IXs
+	var myASN int64
+	var err error
 
 	defer r.Body.Close()
 	ct := r.Header.Get("Content-Type")
@@ -141,13 +150,20 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	matches := h.match.FindStringSubmatch(r.RequestURI)
-	if len(matches) != 3 {
+	if len(matches) < 3 {
 		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
 		return
 	}
 
+	if matches[3] != "" {
+		myASN, err = strconv.ParseInt(matches[3], 10, 64)
+		if err != nil {
+			myASN = 0
+		}
+	}
+
 	peerStyle := fmt.Sprintf("%s/%s", matches[1], matches[2])
-	peerGenerator := peergen.NewPeerGen(peerStyle, "./templates")
+	peerGenerator := peergen.NewPeerGen(peerStyle, h.templates)
 
 	/* JSON or plain incoming? */
 	if ct == "application/json" {
@@ -165,14 +181,13 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://localhost:8443/api", "", 0)
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://"+h.addrPort+"/api", "", myASN)
 	if strings.Contains(matches[2], "json") {
 		w.Header().Set("content-type:", "application/json")
 	} else {
 		w.Header().Set("content-type:", "text/plain")
 	}
 	peerGenerator.GenerateIXs(exchanges, w)
-
 }
 
 func (h *getNet) ServeHTTP(w http.ResponseWriter, r *http.Request) {

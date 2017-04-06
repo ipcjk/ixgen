@@ -1,0 +1,19 @@
+router bgp
+{{- range  .AdditionalConfig }}
+{{ . }}
+{{- end}}
+{{if .PeersReady -}}
+{{ range .PeersReady }}{{ if .Ipv4Enabled }}
+neighbor {{.Ipv4Addr}} remote-as {{ .ASN }}{{if .GroupEnabled }}
+neighbor {{.Ipv4Addr}} peer-group {{.Group}}{{- end}}
+address-family ipv4 unicast
+no neighbor {{.Ipv4Addr}} shutdown
+exit
+{{ end}}
+{{ if .Ipv6Enabled }}address-family ipv6 unicast
+neighbor {{.Ipv6Addr}} remote-as {{ .ASN }}{{if .Group6Enabled }}
+neighbor {{.Ipv6Addr}} peer-group {{.Group6}}{{- end}}
+no neighbor {{.Ipv6Addr}} shutdown
+exit{{- end}}{{- end}}
+{{- end}}
+end

@@ -13,8 +13,6 @@ func main() {
 
 	listenAPIServer := flag.String("listenAPI", "localhost:8443", "listenAddr for the api service")
 	cacheDirectory := flag.String("cacheDir", "./cache", "cache directory for json files from peeringdb")
-	_ = flag.String("style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
-	_ = flag.String("templates", "./templates", "directory for templates")
 
 	flag.Parse()
 

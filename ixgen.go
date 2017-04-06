@@ -104,7 +104,7 @@ func loadConfig() {
 
 	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
 	if !noapiservice {
-		Apiserver := apiserverlib.NewAPIServer(localAPIServer, cacheDirectory)
+		Apiserver := apiserverlib.NewAPIServer(localAPIServer, cacheDirectory, templateDir)
 		Apiserver.RunAPIServer()
 		apiServiceURL = fmt.Sprintf("http://%s/api", Apiserver.AddrPort)
 	}

@@ -2,11 +2,11 @@ package apiserverlib
 
 import (
 	"bytes"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"io"
 	"log"
 	"net/http"
 	"os"
-	"github.com/ipcjk/ixgen/peeringdb"
 )
 
 var peeringDBfiles = []string{"fac", "ix", "ixfac", "ixlan", "ixpfx", "net", "netfac", "netixlan", "org", "poc"}
