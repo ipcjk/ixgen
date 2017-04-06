@@ -1,49 +1,41 @@
-## ixgen ##
-Ixgen is yet-another open-source, multi-platform generator for peering configurations on IXs incorporating the global peeringdb api, but also is able to spin up its own "compatible" server for faster results. Ixgen is configured by an INI-style format, producing custom template-driven or fixed json-style configurations, that can be printed on the terminal or to a file. Direct access to REST-APIs and ssh/scp-upload is planned. 
+# ixgen 
+Ixgen is yet-another open-source, multi-platform generator for peering configurations on IXs incorporating the global peeringdb api, but also is able to spin up its own "compatible" server for faster results. Ixgen is configured by an INI-style format, producing custom template-driven or fixed json-style configurations, that can be printed on the terminal, to a file or served by HTTP. Direct access to routers REST-APIs and ssh/scp-upload is planned. 
 
 Ixgen is shipped with cross-compiled executables for Darwin, Linux and Windows.
 
-### how it works ##
-Ixgen works by querying the peeringdb-API or its own local API-service for peering members and
-specific network configurations and populate learned things with a custom router 
-template. 
+## how it works 
+Ixgen works by querying the peeringdb-API or its own local API-service for peering members and specific network configurations and populate learned things with a custom router template. 
 
-### ini-style configuration ###
-Ixgen is configured by _configuration/peering.ini_, that contains a list of Internet Exchanges 
-and peering as numbers, that the user want to configure on his router.
+### ini-style configuration 
+Ixgen is configured by _configuration/peering.ini_, that contains a list of Internet Exchanges  and peering as numbers, that the user want to configure on his router.
 
-### peeringdb client and server ###
-Ixgen has not only a peeringdb client module but also can start a limited fast peeringdb-lookalike server, 
-that can also queried from network. By defaults, it starts an embedded http api server for its own usage. Also you can
-start-up a standalone version called "apiserver".
+### peeringdb client and server
+Ixgen has not only a peeringdb client module but also can start a limited fast peeringdb-lookalike server,  that can also queried from network. By defaults, it starts an embedded http api server for its own usage. 
+
+### apiserver 
+Also you can start-up a standalone version called apiserver. Apiserver can answer limited peeringdb-api-queries but also generate router configuration via HTTP-POST.
+
  
-### flavor / templating ###
-Ixgen can use different templates for generating router configurations, by default Brocade and Juniper style
-command line syntax is shipped. The flavor is given on the command line with the _-style_ argument, else its
-  Brocade MLXE (Netiron) - syntax by default. You can create your own templates in the _templates_-directory. Please see
-  the section _Default output and templates_ for more information. 
+### flavor / templating 
+Ixgen can use different templates for generating router configurations, by default Brocade and Juniper style command line syntax is shipped. The flavor is given on the command line or in the http query with the _-style_ argument, else its always Brocade MLXE (Netiron)  by default. You can create your own templates in the _templates_-directory. Please see the section _Default output and templates_ for more information. 
  
-## Quickstart ##
-#### Populating the cache ####
-Before the first usage, you may want to download the peeringdb start files, else we wont benefit from the  fast
- local cache. To populate the cache, you need to start-up _ixgen_ with the _-buildcache_ parameter.
+## Quickstart 
+
+### Populating the cache 
+Before the first usage, you may want to download the peeringdb start files, else we wont benefit from the  fast local cache. To populate the cache, you need to start-up _ixgen_ with the _-buildcache_ parameter.
  
     ixgen -buildcache
 
-### peering.ini ###
+### peering.ini 
 The _peering.ini_ is an easy configuration file, that is using
 sectors and lists.
 
-For every Internet Exchange that needs to be configured, a
- section head combination with the original record name of the Exchange and a possible network name , that can be both 
- found on the peeringdb database or website, has to be specified.
+For every Internet Exchange that needs to be configured, a section head combination with the original record name of the Exchange and a possible network name , that can be both found on the peeringdb database or website, has to be specified.
  
- Several subsections with
-    general options for the Exchange configuration or the peering list can be added.
+Several subsections with general options for the Exchange configuration or the peering list can be added.
 
-### Example configuration ###
-If you need to connect to the DE-CIX in Frankfurt you will add the "DE-CIX Franfurt" name and the network name
-[Main or Jumbo] separated with a _/_ as an section head in squared brackets.
+### Example configuration 
+If you need to connect to the DE-CIX in Frankfurt you will add the "DE-CIX Franfurt" name and the network name [Main or Jumbo] separated with a _/_ as an section head in squared brackets.
     
     [DE-CIX Frankfurt/Main]
        
@@ -53,9 +45,8 @@ Now you can add a  subsection for general options or the peering list.
     [peers]
     [options]
     
-### Add peer to list ###
-If you want to peer with the AS196922-routers (hint: that is me!) on DE-CIX, you just need to add the right as numbers on
-a new line after the _[peers]_-section. 
+### Add peer to list 
+If you want to peer with the AS196922-routers (hint: that is me!) on DE-CIX, you just need to add the right as numbers on a new line after the _[peers]_-section. 
 
     [DE-CIX Frankfurt/Main]
     [peers]
@@ -63,10 +54,9 @@ a new line after the _[peers]_-section.
     [options]
     
 
-### Run ixgen ###
+### Run ixgen 
 
-Starting ixgen with default options will now print out the peering bgp configuration for DE-CIX
-with the wished neighbor statements for all ipv4 and ipv6 routers. 
+Starting ixgen with default options will now print out the peering bgp configuration for DE-CIX with the wished neighbor statements for all ipv4 and ipv6 routers. 
 
     ./ixgen.mac 
     
@@ -143,28 +133,21 @@ The call will print out my DECIX-configuration for Frankfurt:
      	"routeserverready": null
      }
     
-### Default output and templates ###
-By default IXgen will output on the standard output channel. The output can be also redirected to a file with the 
- _-output_ parameter. Be aware, that the output is always sorted by peers ASN.
+### Default output and templates 
+By default IXgen will output on the standard output channel. The output can be also redirected to a file with the  _-output_ parameter. Be aware, that the output is always sorted by peers ASN.
  
-#### Default syntax and more info for Brocade Netiron ####
-  The default output syntax is  Brocade Netiron command line syntax, because
-  this is my home box :D. If you are on one of the  Netiron platforms (MLX,CER,MLXE), you can also use my tool 
-  _brocadecli_ ( https://github.com/ipcjk/brocadecli) to automatically upload the configuration into your router, such as with an extra
-  cronjob.
+### Default syntax and more info for Brocade Netiron 
+The default output syntax is  Brocade Netiron command line syntax, because this is my home box :D. If you are on one of the  Netiron platforms (MLX,CER,MLXE), you can also use my tool _brocadecli_ ( https://github.com/ipcjk/brocadecli) to automatically upload the configuration into your router, such as with an extra cronjob.
   
-####  REST-APIs ####
-  Newer routers like the Brocade SLX or JunOS 16.X support a configuration with REST and I will support it 
-  as soon as I get my hands on.
+###  REST-APIs
+Newer routers like the Brocade SLX or JunOS 16.X support a configuration with REST and I will support it as soon as I get my hands on.
   
-#### Incorporate your own templates ####
-  To use your own router, you need to create or use one of
-  the provided templates in the _templates_-folder and set the _-style_ parameter to your flavor, e.g.
-   _-juniper/set_ for Junos set exchange format.
+## Incorporate your own templates 
+To use your own router, you need to create or use one of the provided templates in the _templates_-folder and set the _-style_ parameter to your flavor, e.g. _-juniper/set_ for Junos set exchange format.
    
-   Special output like Juniper JSON is integrated in code.  
+Special output like Juniper JSON is integrated in code.  
   
-#### templates for router snippets ####
+### templates for router snippets 
 
 The templates directory is very easy structured and has a separate layer for vendor and  devices:
  
@@ -182,12 +165,10 @@ The templates directory is very easy structured and has a separate layer for ven
    The last layer always has a _router.tt_-, an optional _header.tt_-  and _footer.tt_-file. 
    
    _router.tt_ is the main file,
-   that is supplied by the _peergenerator_-module. The _header.tt_-file is a custom file, that
-   will be injected before the peering-code, the _footer.tt_ file after. If you need to initialize peering groups
-    or set any other important value, then _header.tt_ is the right place to be.
+   that is supplied by the _peergenerator_-module. The _header.tt_-file is a custom file, that will be injected before the peering-code, the _footer.tt_ file after. If you need to initialize peering groups or set any other important value, then _header.tt_ is the right place to be.
      
 
-#### Exported structures to template engine ####
+### Exported structures to template engine 
 
 Exported to the template is the type "IX", that is a struct of the member variables:
 - AdditionalConfig (array of strings)
@@ -198,41 +179,37 @@ Exported to the template is the type "IX", that is a struct of the member variab
 - PeersReady (Peers that have processed and are ready for the templating)
 - RouteServerReady (Routeserver records that have been processed and are ready)
 
-## INI-Configuration ##
+## INI-Configuration 
  
-### exchange configuration parameters ###
+### exchange configuration parameters 
 
 When adding an exchange, there are several options and parameters you can add each on a separate line in the 
 _[options]_-subsection. Please avoid special characters or whitespaces/tabs inside strings. 
 
-#### ipv4 ####
+#### ipv4 
  - routeserver_group=$rs_group (group used for peering with $rs_group )
  - peer_group=$peer_group (group used for peering with neighbors for the _[peers]_-list)
 
-#### ipv6  ####
+#### ipv6  
  - routeserver_group6=$rs_group6 (group used for ipv6-peering with $rs_group6 )
  - peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
  
-#### iv6 | ipv4 ####
+#### iv6 | ipv4 
  - routeserver=(0=disable, 1=auto-detect and configure neighbor statements for route-servers)
 
-#### wildcard ####
+#### wildcard 
  - wildcard= (0=disable [default], 1=enable, 2=enableAll)
  
  Setting wildcard to enable, will configure all possible neighbors of the exchange, that have an open peering policy. 
- Setting wildcard to enableAll, will configure all neighbors from the exchange, not respecting the peering policy. This
-  is good for configuration  testing, benchmarking, history ...! Be sure to set the _-myasn_ parameter on start, so that neighbor statements for your own
-   network will be omitted. 
+ 
+ Setting wildcard to enableAll, will configure all neighbors from the exchange, not respecting the peering policy. This is good for configuration  testing, benchmarking, history ...! Be sure to set the _-myasn_ parameter on start, so that neighbor statements for your own network will be omitted. 
    
-### additional configuration ###
-It is possible to add custom lines, that are not interpreted by adding the subsection _[additionalConfig]_. The generator will print out this lines
-before the peering configuration. You can use this code to generate peer group configuration or anything else that you want to add before the single 
-peer configurations. It is also possible to add things into _header.tt_, see templating above.  
+#### additional configuration 
+It is possible to add custom lines, that are not interpreted by adding the subsection _[additionalConfig]_. The generator will print out this lines before the peering configuration. You can use this code to generate peer group configuration or anything else that you want to add before the single peer configurations. It is also possible to add things into _header.tt_, see templating above.  
    
-### peer configuration parameters ###
+### peer configuration parameters 
    
-   When adding a peer ASN to a _[peers]_-section, there are several options and parameters you can add-on the same line. All options or parameters are 
-   delimited by whitespaces or tabs. Future reader will be improved. 
+   When adding a peer ASN to a _[peers]_-section, there are several options and parameters you can add-on the same line. All options or parameters are delimited by whitespaces or tabs. Future reader will be improved. 
    
     - ipv4=0 (0 = disable neighbor commands with ipv4 addresses, 1 = enable [default])
     - ipv6=0 (0 = disable neighbor commands with ipv6 addresses, 1 = enable [default])
@@ -281,15 +258,12 @@ peer configurations. It is also possible to add things into _header.tt_, see tem
 
 ## Apiserver ##
 
-Ixgen has a second standalone executable, called apiserver. Apiserver can run as a daemon or background thread and serve a few peeringdb-like requests, that are
-   mandatory for using ixgen client from the command line. Also Apiserver is capable of generating your routing configurations if you can post the INI-file in text 
-    or JSON-format into the http request. That makes it easy to generate the configuration on the router itself (e.g. Brocade SLX with Ubuntu KVM-management). 
+Ixgen has a second standalone executable, called apiserver. Apiserver can run as a daemon or background thread and serve a few peeringdb-like requests, that are mandatory for using ixgen client from the command line. Also Apiserver is capable of generating your routing configurations if you can post the INI-file in text or JSON-format into the http request. That makes it easy to generate the configuration on the router itself (e.g. Brocade SLX with Ubuntu KVM-management). 
       
-   #### Start an apiserver thread #### 
+### Start an apiserver thread 
      apiserver -listenAPI localhost:8563
      
-Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a fraction of the original peeringdb-api, so in a sample query we can ask for the
-DE-CIX Frankfurt exchange:
+Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a fraction of the original peeringdb-api, so in a sample query we can ask for the DE-CIX Frankfurt exchange:
 
      curl http://localhost:8563/api/ix?name=DE-CIX%20Frankfurt
      {"data":[{"id":31,"city":"Frankfurt","country":"DE","created":"2010-07-29T00:00:00Z",
@@ -304,9 +278,9 @@ DE-CIX Frankfurt exchange:
      "url_stats":"https://www.de-cix.net/locations/germany/frankfurt/statistics","website":
      "https://www.de-cix.net/locations/germany/frankfurt"}],"meta":{}}
  
- #### POST-API of ixgen ####
- Things become more interesting, when you want to generate configurations over the network. In the next example we 
-  use an INI-style configuration file from the local host and post it to the apiserver. 
+ 
+### POST-API of ixgen 
+ Things become more interesting, when you want to generate configurations over the network. In the next example we use an INI-style configuration file from the local host and post it to the apiserver. 
   
   Contents of peering.ini:
       
@@ -326,9 +300,7 @@ DE-CIX Frankfurt exchange:
     exit-address-family
     ....
     
-  Also you can post the peering.ini in JSON. The JSON-format is called internal _native/json_ and be generated by 
-   setting the ixgen _-style_-parameter to _native/json_ or _native/json_pretty_. Be sure to set the HTTP content-type to 
-    "application/json".
+  Also you can post the peering.ini in JSON. The JSON-format is called internal _native/json_ and be generated by setting the ixgen _-style_-parameter to _native/json_ or _native/json_pretty_. Be sure to set the HTTP content-type to  _"application/json"_.
    
      $ cat peering.json
      [{"additionalconfig":null,"ixname":"DE-CIX Frankfurt/Main","options":{"DE-CIX Frankfurt/Main":{"wildcard":"0"}},
@@ -346,22 +318,20 @@ DE-CIX Frankfurt exchange:
     exit-address-family
     ....
     
-   #### POST-API ####
+### Generate router configuration 
    
    The URI for posting configurations is formed out of:
    "/ixgen/vendor/style/myasn"
    
-   _Vendor_ and _style_ has the same meaning like the _-style_-parameter on the ixgen command line.
-   The argument _myasn_ is an optional argument to omit generating a configuration for that as-number.
+   _Vendor_ and _style_ has the same meaning like the _-style_-parameter on the ixgen command line. The argument _myasn_ is an optional argument to omit generating a configuration for that as-number.
    
-   As an example, if you want to print out a Juniper set-configuration and want to omit 196922, you would the 
-   apiserver with:
+   As an example, if you want to print out a Juniper set-configuration and want to omit 196922, you would the apiserver with:
      
        $ curl -X POST --data-binary @peering.json http://localhost:8563/ixgen/juniper/set/196922 
    
     
     
-   #### Apiserver command line help ####
+### Apiserver command line help 
    
      -cacheDir string
        	cache directory for json files from peeringdb (default "./cache")
@@ -371,8 +341,7 @@ DE-CIX Frankfurt exchange:
        	directory for templates (default "./templates")
 
    
-
-### todo ### 
+## todo 
 
  - REST API client support for Brocade SLX-family (REST also supports YANG-RPC-commands)
  - some basic netconf support, at least generate a xml-file?
