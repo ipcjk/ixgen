@@ -14,6 +14,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
+	"encoding/json"
 )
 
 /* Some globals for flag-parsing */
@@ -100,7 +102,16 @@ func loadConfig() {
 
 	defer file.Close()
 
-	exchanges = inireader.ReadPeeringConfig(file)
+	if strings.HasSuffix(peeringConfigFileName, ".json") {
+		err := json.NewDecoder(file).Decode(&exchanges)
+		if err != nil {
+			log.Fatal("JSON input file malformed: %s", err)
+			return
+		}
+	} else {
+		exchanges = inireader.ReadPeeringConfig(file)
+	}
+
 
 	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
 	if !noapiservice {

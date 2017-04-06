@@ -124,4 +124,12 @@ func TestPostJsonOnApiServer(t *testing.T) {
 		t.Errorf("Cant decode apiserver results: %s", err)
 	}
 
+	if ixs[0].IxName != "DE-CIX Frankfurt/Main" {
+		t.Error("Wrong or no IX in result set")
+	}
+
+	if len(ixs[0].PeersINI) != 1 {
+		t.Error("Wrong numbers of Peer in the JSON-configuration found")
+	}
+
 }
