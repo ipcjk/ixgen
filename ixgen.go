@@ -6,10 +6,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ipcjk/ixgen/libapiserver"
 	"github.com/ipcjk/ixgen/inireader"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"github.com/ipcjk/ixgen/ixworkers"
+	"github.com/ipcjk/ixgen/libapiserver"
 	"github.com/ipcjk/ixgen/peergen"
 	"io"
 	"log"
