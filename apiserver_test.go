@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/ipcjk/ixgen/libapiserver"
-	"testing"
-	"net/http"
-	"bytes"
-	"io"
 	"bufio"
+	"bytes"
+	"encoding/json"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/libapiserver"
+	"io"
+	"net/http"
 	"strings"
+	"testing"
 )
 
 func init() {
@@ -23,7 +25,7 @@ func TestApiServer(t *testing.T) {
 }
 
 func TestPostOnApiServer(t *testing.T) {
-	var peering string = `    [DE-CIX Frankfurt/Main]
+	var peering string = `[DE-CIX Frankfurt/Main]
     [peers]
     714 ipv6=1 ipv4=1
     196922
@@ -41,10 +43,6 @@ func TestPostOnApiServer(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-
-	req.Header.Add("Content-Type", "text/plain")
-	req.Header.Add("User-Agent", "ixgen/golang")
-
 	resp, err := client.Do(req)
 
 	if err != nil {
@@ -86,6 +84,44 @@ func TestPostOnApiServer(t *testing.T) {
 
 	if testCases < 8 {
 		t.Errorf("Not enough stringSearch cases work. Only %d matched.", testCases)
+	}
+
+}
+
+func TestPostJsonOnApiServer(t *testing.T) {
+	var peering string = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt/Main",
+	"options":{"DE-CIX Frankfurt/Main":{"wildcard":"0"}},
+	"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"714":[{"active":
+	true,"asn":"714","group":"","group6":"","groupenabled":true,"group6_enabled":true,
+	"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,
+	"ipv6enabled":false,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,
+	"prefixfilter":false}]}}}]`
+
+	var newBuffer = bytes.NewBuffer([]byte(peering))
+	var ixs ixtypes.IXs
+
+	client := &http.Client{}
+
+	req, err := http.NewRequest("POST", "http://localhost:58412/ixgen/native/json", newBuffer)
+	if err != nil {
+		t.Error(err)
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+
+	if err != nil {
+		t.Errorf("HTTP request to apiserver not successful: %s", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		t.Errorf("Wrong statuscode from apiserver: %d", resp.StatusCode)
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&ixs)
+	if err != nil {
+		t.Errorf("Cant decode apiserver results: %s", err)
 	}
 
 }
