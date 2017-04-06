@@ -1,4 +1,4 @@
-package peeringdb
+package apiserverlib
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"github.com/ipcjk/ixgen/peeringdb"
 )
 
 var peeringDBfiles = []string{"fac", "ix", "ixfac", "ixlan", "ixpfx", "net", "netfac", "netixlan", "org", "poc"}
@@ -23,19 +24,19 @@ func DownloadCache(hostURL, cacheDir string) {
 		data := readFile(targetFile + ".download")
 
 		if v == "ix" {
-			var apiResult Ix
+			var apiResult peeringdb.Ix
 			getJSON(bytes.NewBuffer(data), &apiResult)
 			if len(apiResult.Data) < 500 {
 				log.Fatalf("Cant update %s, missing records?", v)
 			}
 		} else if v == "net" {
-			var apiResult Net
+			var apiResult peeringdb.Net
 			getJSON(bytes.NewBuffer(data), &apiResult)
 			if len(apiResult.Data) < 8000 {
 				log.Fatalf("Cant update %s, missing records?", v)
 			}
 		} else if v == "netixlan" {
-			var apiResult Netixlan
+			var apiResult peeringdb.Netixlan
 			getJSON(bytes.NewBuffer(data), &apiResult)
 			if len(apiResult.Data) < 19000 {
 				log.Fatalf("Cant update %s, missing records?", v)

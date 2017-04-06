@@ -88,7 +88,7 @@ func TestBrocadeTemplate(t *testing.T) {
 		}
 	}
 
-	if foundSample == false {
+	if !foundSample {
 		t.Error("Did not find bgp neighbor sample command in template buffer")
 	}
 	if countLines < 16 {
@@ -162,7 +162,7 @@ func TestIXConfigFromJson(t *testing.T) {
 		}
 	}
 
-	if foundSample == false {
+	if !foundSample {
 		t.Error("Did not find any bgp neighbor sample command in template buffer")
 	}
 

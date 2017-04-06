@@ -24,6 +24,7 @@ func NewPeerGen(style, templateDir string) *Peergen {
 }
 
 func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
+
 	if p.style == "juniper/json" {
 		p.ConvertIxToJuniperJSON(exchanges, w)
 		return
@@ -37,12 +38,13 @@ func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
 		p.ConvertIxToJsonPretty(exchanges, w)
 		return
 	}
+
 	for k := range exchanges {
 		p.GenerateIXConfiguration(exchanges[k], w)
 	}
 }
 
-func (p *Peergen) GenerateIXConfiguration(routerTemplate ixtypes.Ix, w io.Writer) {
+func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) {
 	for i := range p.peerFiles {
 		_, err := os.Stat(p.peerFiles[i])
 		if err != nil {
@@ -54,9 +56,8 @@ func (p *Peergen) GenerateIXConfiguration(routerTemplate ixtypes.Ix, w io.Writer
 			log.Fatalf("Cant open template file: %s", err)
 		}
 
-		if err := t.Execute(w, routerTemplate); err != nil {
+		if err := t.Execute(w, ix); err != nil {
 			log.Fatalf("Cant execute template: %s", err)
 		}
 	}
-
 }

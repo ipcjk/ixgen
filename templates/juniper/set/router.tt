@@ -1,15 +1,17 @@
-{{- range  .AdditionalConfig }}
+# Juniper Configuration
+
+{{ range  .AdditionalConfig }}
 {{ . }}
-{{- end}}
+{{ end}}
 {{if .PeersReady -}}
-{{- range .PeersReady }}
+{{ range .PeersReady }}
 {{ if .Ipv4Enabled }}{{if .GroupEnabled }}
 set protocols bgp group {{.Group}} type external
 set protocols bgp group {{.Group}} neighbor {{.Ipv4Addr}} peer-as {{ .ASN }}
 set protocols bgp group {{.Group}} neighbor {{.Ipv4Addr}} family inet unicast prefix-limit maximum {{.InfoPrefixes4}}
-{{- end}}{{- end}}{{ if .Ipv6Enabled }}{{if .Group6Enabled }}
+{{ end}}{{ end}}{{ if .Ipv6Enabled }}{{if .Group6Enabled }}
 set protocols bgp group {{.Group6}} type external
 set protocols bgp group {{.Group6}} neighbor {{.Ipv6Addr}} peer-as {{ .ASN }}
 set protocols bgp group {{.Group6}} neighbor {{.Ipv6Addr}} family inet6 unicast prefix-limit maximum {{.InfoPrefixes6}}
-{{- end}}{{- end}}
-{{- end}}{{- end}}
+{{ end}}{{ end}}
+{{ end}}{{ end}}

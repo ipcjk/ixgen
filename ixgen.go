@@ -6,15 +6,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/ipcjk/ixgen/apiserverlib"
 	"github.com/ipcjk/ixgen/inireader"
 	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/peergen"
-	"github.com/ipcjk/ixgen/peeringdb"
 	"github.com/ipcjk/ixgen/ixworkers"
+	"github.com/ipcjk/ixgen/peergen"
 	"io"
 	"log"
 	"os"
-	"sync"
 )
 
 /* Some globals for flag-parsing */
@@ -36,8 +35,6 @@ var noapiservice bool
 var localAPIServer string
 var apiServiceURL string
 
-var wg sync.WaitGroup
-
 func init() {
 	flag.StringVar(&peeringConfigFileName, "peerconfig", "./configuration/peering.ini", "Path to peering configuration ini-file")
 	flag.StringVar(&peerStyleGenerator, "style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
@@ -57,13 +54,13 @@ func init() {
 
 	flag.Parse()
 
-	if version == true {
+	if version {
 		fmt.Println("ixgen 0.1 (C) 2017 by Jörg Kost, joerg.kost@gmx.com")
 		os.Exit(0)
 	}
 
-	if buildCache == true {
-		peeringdb.DownloadCache("https://www.peeringdb.com/api", cacheDirectory)
+	if buildCache {
+		apiserverlib.DownloadCache("https://www.peeringdb.com/api", cacheDirectory)
 		os.Exit(0)
 	}
 
@@ -74,11 +71,9 @@ func main() {
 	var outputStream io.WriteCloser
 	var err error
 
-	wg.Add(len(exchanges))
-	ixworkers.WorkerMergePeerConfiguration(&wg, exchanges, apiServiceURL, exchangeOnly, myASN)
-	wg.Wait()
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN)
 
-	if printOrExit == false {
+	if !printOrExit {
 		if outputFile == "" {
 			outputStream = os.Stdout
 			defer os.Stdout.Close()
@@ -108,8 +103,8 @@ func loadConfig() {
 	exchanges = inireader.ReadPeeringConfig(file)
 
 	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
-	if noapiservice == false {
-		Apiserver := peeringdb.NewAPIServer(localAPIServer, cacheDirectory)
+	if !noapiservice {
+		Apiserver := apiserverlib.NewAPIServer(localAPIServer, cacheDirectory)
 		Apiserver.RunAPIServer()
 		apiServiceURL = fmt.Sprintf("http://%s/api", Apiserver.AddrPort)
 	}

@@ -13,22 +13,22 @@ func TestParsePeerFunction(t *testing.T) {
 	if Peer.ASN != "196922" {
 		t.Error("Peer ASN is different than expected")
 	}
-	if Peer.PrefixFilter != true {
+	if !Peer.PrefixFilter {
 		t.Error("Peer Prefix Filter is different than expected")
 	}
-	if Peer.Ipv6Enabled != false {
+	if Peer.Ipv6Enabled {
 		t.Error("Peer Ipv6 value is different than expected")
 	}
-	if Peer.Ipv4Enabled != true {
+	if !Peer.Ipv4Enabled {
 		t.Error("Peer Ipv4 value is  different than expected")
 	}
-	if Peer.Active != true {
+	if !Peer.Active {
 		t.Error("Peer Active value is  different than expected")
 	}
-	if Peer.GroupEnabled != false {
+	if Peer.GroupEnabled {
 		t.Error("Peer Group enabled/disabled is  different than expected")
 	}
-	if Peer.Group6Enabled != false {
+	if Peer.Group6Enabled {
 		t.Error("Peer Group6 enabled/disabled is  different than expected")
 	}
 	if Peer.Group != "mygroup4" {

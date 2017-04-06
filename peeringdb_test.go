@@ -1,13 +1,14 @@
 package main
 
 import (
+	"github.com/ipcjk/ixgen/apiserverlib"
 	"github.com/ipcjk/ixgen/peeringdb"
 	"net/http"
 	"testing"
 )
 
 func init() {
-	Apiserver := peeringdb.NewAPIServer("localhost:58412", "./cache")
+	Apiserver := apiserverlib.NewAPIServer("localhost:58412", "./cache")
 	Apiserver.RunAPIServer()
 }
 

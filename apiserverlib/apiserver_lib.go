@@ -1,11 +1,14 @@
-package peeringdb
+package apiserverlib
 
 import (
-	"github.com/ipcjk/ixgen/inireader"
-	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/peergen"
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/ipcjk/ixgen/inireader"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/ixworkers"
+	"github.com/ipcjk/ixgen/peergen"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"io"
 	"log"
 	"net"
@@ -13,8 +16,8 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
-	"fmt"
 )
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
@@ -29,7 +32,7 @@ type handler struct {
 
 type netHandler struct {
 	handler
-	NetData Net
+	NetData peeringdb.Net
 }
 
 type Apiserver struct {
@@ -50,6 +53,7 @@ type getIXLan struct {
 type postConfig struct {
 	match *regexp.Regexp
 }
+
 type getIXLans handler
 type getIXes handler
 type getNetIXLan handler
@@ -80,7 +84,7 @@ func (a *Apiserver) RunAPIServer() {
 	r.Handle("/api/ix", &getIXes{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/ix/", &getIX{handler{a.CacheDir, nil, sync.Mutex{}}, matchIx})
 	r.Handle("/api/netixlan", &getNetIXLan{a.CacheDir, nil, sync.Mutex{}})
-	r.Handle("/api/net", &getNet{handler{a.CacheDir, nil, sync.Mutex{}}, Net{}})
+	r.Handle("/api/net", &getNet{handler{a.CacheDir, nil, sync.Mutex{}}, peeringdb.Net{}})
 	r.Handle("/api/ixlan", &getIXLans{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/ixlan/", &getIXLan{handler{a.CacheDir, nil, sync.Mutex{}}, matchIxLan})
 
@@ -126,10 +130,7 @@ func readFile(fileName string) []byte {
 }
 
 func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var exchanges ixtypes.IXs = ixtypes.IXs{{}}
-	var peerGenerator *peergen.Peergen
-	var peerStyle string
-	var matches []string
+	var exchanges ixtypes.IXs
 
 	defer r.Body.Close()
 	ct := r.Header.Get("Content-Type")
@@ -139,17 +140,18 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	matches = h.match.FindStringSubmatch(r.RequestURI)
+	matches := h.match.FindStringSubmatch(r.RequestURI)
 	if len(matches) != 3 {
 		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
 		return
 	}
-	peerStyle = fmt.Sprintf("%s/%s", matches[1], matches[2])
-	peerGenerator = peergen.NewPeerGen(peerStyle, "./templates")
+
+	peerStyle := fmt.Sprintf("%s/%s", matches[1], matches[2])
+	peerGenerator := peergen.NewPeerGen(peerStyle, "./templates")
 
 	/* JSON or plain incoming? */
 	if ct == "application/json" {
-		err := json.NewDecoder(r.Body).Decode(&exchanges[0])
+		err := json.NewDecoder(r.Body).Decode(&exchanges)
 		if err != nil {
 			fmt.Fprintf(w, "JSON malformed: %s", err)
 			return
@@ -158,16 +160,23 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		exchanges = inireader.ReadPeeringConfig(r.Body)
 	}
 
-	if len(exchanges) > 0 {
-		for k := range exchanges {
-			fmt.Fprintf(w, exchanges[k].IxName)
-			peerGenerator.GenerateIXs(exchanges, w)
-		}
+	if len(exchanges) == 0 {
+		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
+		return
 	}
+
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://localhost:8443/api", "", 0)
+	if strings.Contains(matches[2], "json") {
+		w.Header().Set("content-type:", "application/json")
+	} else {
+		w.Header().Set("content-type:", "text/plain")
+	}
+	peerGenerator.GenerateIXs(exchanges, w)
+
 }
 
 func (h *getNet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var apiResult Net
+	var apiResult peeringdb.Net
 	params := r.URL.Query()
 
 	h.mutex.Lock()
@@ -196,8 +205,8 @@ end:
 }
 
 func (h *getNetIXLan) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var data Netixlan
-	var apiResult Netixlan
+	var data peeringdb.Netixlan
+	var apiResult peeringdb.Netixlan
 
 	params := r.URL.Query()
 
@@ -224,8 +233,8 @@ end:
 }
 
 func (h *getIXLan) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var data IxLAN
-	var apiResult IxLAN
+	var data peeringdb.IxLAN
+	var apiResult peeringdb.IxLAN
 
 	matches := h.match.FindStringSubmatch(r.RequestURI)
 	h.mutex.Lock()
@@ -247,8 +256,8 @@ func (h *getIXLan) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *getIXLans) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var data IxLAN
-	var apiResult IxLAN
+	var data peeringdb.IxLAN
+	var apiResult peeringdb.IxLAN
 
 	params := r.URL.Query()
 
@@ -278,8 +287,8 @@ end:
 }
 
 func (h *getIX) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var data Ix
-	var apiResult Ix
+	var data peeringdb.Ix
+	var apiResult peeringdb.Ix
 
 	matches := h.match.FindStringSubmatch(r.RequestURI)
 	h.mutex.Lock()
@@ -298,7 +307,7 @@ func (h *getIX) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	/* populate ixlan_set */
-	var ixLanData IxLAN
+	var ixLanData peeringdb.IxLAN
 	ixData := readFile(h.CacheDir + "/ixlan")
 	getJSON(bytes.NewBuffer(ixData), &ixLanData)
 
@@ -313,8 +322,8 @@ func (h *getIX) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *getIXes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var data Ix
-	var apiResult Ix
+	var data peeringdb.Ix
+	var apiResult peeringdb.Ix
 
 	params := r.URL.Query()
 

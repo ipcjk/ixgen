@@ -186,10 +186,10 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.GroupEnabled = false
 		} else if value == "group6=0" {
 			Peer.Group6Enabled = false
-		} else if value == "group4=1" {
-			Peer.Group6Enabled = false
+		} else if value == "group=1" {
+			Peer.GroupEnabled = true
 		} else if value == "group6=1" {
-			Peer.Group6Enabled = false
+			Peer.Group6Enabled = true
 		} else {
 			log.Printf("Unknown parameter %s for peer on line %d ", value, lineNumber)
 		}

@@ -1,16 +1,17 @@
 package ixworkers
 
 import (
-	"github.com/ipcjk/ixgen/peeringdb"
 	"github.com/ipcjk/ixgen/ixtypes"
-	"strconv"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"log"
+	"strconv"
 	"sync"
 )
 
-func WorkerMergePeerConfiguration(wg *sync.WaitGroup, exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) {
+func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) ixtypes.IXs {
+	var wg sync.WaitGroup
 	peerDB := peeringdb.Peeringdb(apiServiceURL)
-	// wg.Add(len(exchanges))
+	wg.Add(len(exchanges))
 	for k := range exchanges {
 		var i = k
 		go func() {
@@ -43,9 +44,9 @@ func WorkerMergePeerConfiguration(wg *sync.WaitGroup, exchanges ixtypes.IXs, api
 							GroupEnabled:  false,
 							Group6Enabled: false,
 							IsRs:          true, IsRsPeer: false,
-							Ipv4Addr:      peer.Ipaddr4,
-							Ipv6Addr:      peer.Ipaddr6,
-							IrrAsSet:      peerDbNetwork.Data[0].IrrAsSet,
+							Ipv4Addr: peer.Ipaddr4,
+							Ipv6Addr: peer.Ipaddr6,
+							IrrAsSet: peerDbNetwork.Data[0].IrrAsSet,
 						}
 					if peer.Ipaddr6 != nil {
 						rsPeer.Ipv6Enabled = true
@@ -143,4 +144,6 @@ func WorkerMergePeerConfiguration(wg *sync.WaitGroup, exchanges ixtypes.IXs, api
 			}
 		}()
 	}
+	wg.Wait()
+	return exchanges
 }

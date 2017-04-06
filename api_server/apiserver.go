@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/ipcjk/ixgen/peeringdb"
+	"github.com/ipcjk/ixgen/apiserverlib"
 	"log"
 	"os"
 )
@@ -31,7 +31,7 @@ func main() {
 		log.Fatalf("Cant open cache directory: %s", err)
 	}
 
-	Apiserver := peeringdb.NewAPIServer(*listenAPIServer, *cacheDirectory)
+	Apiserver := apiserverlib.NewAPIServer(*listenAPIServer, *cacheDirectory)
 	Apiserver.RunAPIServer()
 	<-WaitForever
 }

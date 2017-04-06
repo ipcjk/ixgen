@@ -24,7 +24,7 @@ func TestRegExpSubExpNames(t *testing.T) {
 		t.Error("Cant compile Regex")
 	}
 
-	if reflect.DeepEqual(matchPeer.SubexpNames(), MySlice) == false {
+	if !reflect.DeepEqual(matchPeer.SubexpNames(), MySlice) {
 		t.Error("SubExpNames not Equal with expected results", matchPeer.SubexpNames())
 	}
 }

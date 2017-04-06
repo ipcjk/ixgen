@@ -1,5 +1,4 @@
 
-
 {{if  eq .IxName  "DE-CIX Frankfurt/Main" }}
 {{- end}}
 {{if  eq .IxName  "INXS by ecix" }}
