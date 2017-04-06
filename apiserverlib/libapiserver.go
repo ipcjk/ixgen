@@ -76,7 +76,6 @@ func NewAPIServer(addrport, cacheDir string, templatedir string) *Apiserver {
 	return &Apiserver{addrport, cacheDir, templatedir}
 }
 
-
 // RunAPIServer starts the created Apiserver
 func (a *Apiserver) RunAPIServer() {
 	r := http.NewServeMux()
@@ -98,10 +97,8 @@ func (a *Apiserver) RunAPIServer() {
 	r.Handle("/api/ixlan", &getIXLans{a.CacheDir, nil, sync.Mutex{}})
 	r.Handle("/api/ixlan/", &getIXLan{handler{a.CacheDir, nil, sync.Mutex{}}, matchIxLan})
 
-
 	/* Post/Get Configuration */
 	r.Handle("/ixgen/", &postConfig{match: matchStyle, addrPort: a.AddrPort, templates: a.templateDir})
-
 
 	go http.Serve(listener, r)
 }

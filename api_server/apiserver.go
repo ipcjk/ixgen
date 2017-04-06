@@ -13,6 +13,7 @@ func main() {
 
 	listenAPIServer := flag.String("listenAPI", "localhost:8443", "listenAddr for the api service")
 	cacheDirectory := flag.String("cacheDir", "./cache", "cache directory for json files from peeringdb")
+	templateDir := flag.String("templates", "./templates", "directory for templates")
 
 	flag.Parse()
 
@@ -29,7 +30,7 @@ func main() {
 		log.Fatalf("Cant open cache directory: %s", err)
 	}
 
-	Apiserver := apiserverlib.NewAPIServer(*listenAPIServer, *cacheDirectory)
+	Apiserver := apiserverlib.NewAPIServer(*listenAPIServer, *cacheDirectory, *templateDir)
 	Apiserver.RunAPIServer()
 	<-WaitForever
 }

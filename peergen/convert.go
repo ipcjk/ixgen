@@ -19,7 +19,7 @@ func (p *Peergen) ConvertIxToJson(ixs ixtypes.IXs, w io.Writer) {
 	if err != nil {
 		log.Fatalf("Cant decode IX into native format: err")
 	}
-	fmt.Fprintf(w, string(res))
+	fmt.Fprint(w, string(res))
 }
 
 func (p *Peergen) ConvertIxToJsonPretty(ixs ixtypes.IXs, w io.Writer) {
@@ -27,11 +27,11 @@ func (p *Peergen) ConvertIxToJsonPretty(ixs ixtypes.IXs, w io.Writer) {
 	if err != nil {
 		log.Fatalf("Cant decode IX into native format: err")
 	}
-	fmt.Fprintf(w, string(res))
+	fmt.Fprint(w, string(res))
 }
 
 func (p *Peergen) ConvertIxToBrocadeSlxJSON(ixs ixtypes.IXs, w io.Writer) {
-	log.Fatal("Not done yet")
+	fmt.Fprint(w, "Not done yet")
 }
 
 func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
@@ -119,7 +119,7 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 		log.Fatal(err)
 	}
 
-	fmt.Fprintf(w, string(res))
+	fmt.Fprint(w, string(res))
 }
 
 /*
