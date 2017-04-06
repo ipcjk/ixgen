@@ -6,7 +6,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/ipcjk/ixgen/apiserverlib"
+	"github.com/ipcjk/ixgen/libapiserver"
 	"github.com/ipcjk/ixgen/inireader"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"github.com/ipcjk/ixgen/ixworkers"
@@ -60,7 +60,7 @@ func init() {
 	}
 
 	if buildCache {
-		apiserverlib.DownloadCache("https://www.peeringdb.com/api", cacheDirectory)
+		libapiserver.DownloadCache("https://www.peeringdb.com/api", cacheDirectory)
 		os.Exit(0)
 	}
 
@@ -104,7 +104,7 @@ func loadConfig() {
 
 	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
 	if !noapiservice {
-		Apiserver := apiserverlib.NewAPIServer(localAPIServer, cacheDirectory, templateDir)
+		Apiserver := libapiserver.NewAPIServer(localAPIServer, cacheDirectory, templateDir)
 		Apiserver.RunAPIServer()
 		apiServiceURL = fmt.Sprintf("http://%s/api", Apiserver.AddrPort)
 	}

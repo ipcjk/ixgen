@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/ipcjk/ixgen/apiserverlib"
+	"github.com/ipcjk/ixgen/libapiserver"
 	"log"
 	"os"
 )
@@ -30,7 +30,7 @@ func main() {
 		log.Fatalf("Cant open cache directory: %s", err)
 	}
 
-	Apiserver := apiserverlib.NewAPIServer(*listenAPIServer, *cacheDirectory, *templateDir)
+	Apiserver := libapiserver.NewAPIServer(*listenAPIServer, *cacheDirectory, *templateDir)
 	Apiserver.RunAPIServer()
 	<-WaitForever
 }

@@ -1,4 +1,4 @@
-package apiserverlib
+package libapiserver
 
 import (
 	"bytes"
