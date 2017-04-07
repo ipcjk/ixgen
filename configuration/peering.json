@@ -4,10 +4,14 @@
     "ixname": "DE-CIX Frankfurt/Main",
     "options": {
       "DE-CIX Frankfurt/Main": {
+        "peer_group": "decix-frankfurt",
+        "routeserver_group": "decix-rs",
         "wildcard": "0"
       }
     },
-    "peeringgroups": {},
+    "peeringgroups": {
+      "decix-rs": true
+    },
     "peers_configured": {
       "DE-CIX Frankfurt/Main": {
         "714": [

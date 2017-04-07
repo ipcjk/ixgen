@@ -7,6 +7,8 @@ router bgp
 neighbor {{.Ipv4Addr}} remote-as {{ .ASN }}{{if .GroupEnabled }}
 neighbor {{.Ipv4Addr}} peer-group {{.Group}}{{- end}}
 address-family ipv4 unicast
+{{if ne .PrefixList ""}}
+neighbor {{.Ipv4Addr}} prefix-list {{.PrefixList}} in{{end}}
 neighbor {{.Ipv4Addr}} maximum-prefix {{.InfoPrefixes4}}
 no neighbor {{.Ipv4Addr}} shutdown
 exit-address-family
@@ -15,6 +17,8 @@ exit-address-family
 neighbor {{.Ipv6Addr}} remote-as {{ .ASN }}{{if .Group6Enabled }}
 neighbor {{.Ipv6Addr}} peer-group {{.Group6}}{{- end}}
 neighbor {{.Ipv6Addr}} maximum-prefix {{.InfoPrefixes6}}
+{{if ne .PrefixList6 ""}}
+neighbor {{.Ipv6Addr}} prefix-list {{.PrefixList6}} in{{end}}
 no neighbor {{.Ipv6Addr}} shutdown
 neighbor {{.Ipv6Addr}}  activate
 exit-address-family{{- end}}{{- end}}

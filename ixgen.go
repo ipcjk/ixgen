@@ -4,6 +4,7 @@ package main
 // see LICENSE for LICENSING,  TERMS AND CONDITIONS
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/ipcjk/ixgen/inireader"
@@ -15,7 +16,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"encoding/json"
 )
 
 /* Some globals for flag-parsing */
@@ -38,7 +38,7 @@ var localAPIServer string
 var apiServiceURL string
 
 func init() {
-	flag.StringVar(&peeringConfigFileName, "peerconfig", "./configuration/peering.ini", "Path to peering configuration ini-file")
+	flag.StringVar(&peeringConfigFileName, "config", "./configuration/peering.ini", "Path to peering configuration ini-file")
 	flag.StringVar(&peerStyleGenerator, "style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
 	flag.StringVar(&templateDir, "templates", "./templates", "directory for templates")
 	flag.StringVar(&cacheDirectory, "cacheDir", "./cache", "cache directory for json files from peeringdb")
@@ -111,7 +111,6 @@ func loadConfig() {
 	} else {
 		exchanges = inireader.ReadPeeringConfig(file)
 	}
-
 
 	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
 	if !noapiservice {

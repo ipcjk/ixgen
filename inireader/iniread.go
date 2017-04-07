@@ -15,14 +15,16 @@ var splitBy = `\s+`
 var splitReg = regexp.MustCompile(splitBy)
 
 var PossibleOptions = map[string]bool{
-	"routeserver":        true,
-	"routeserver_group":  true,
-	"peer_group":         true,
-	"routeserver_group6": true,
-	"peer_group6":        true,
-	"wildcard":           true,
-	"importpolicy":       true,
-	"exportpolicy":       true,
+	"routeserver":           true,
+	"routeserver_group":     true,
+	"peer_group":            true,
+	"routeserver_group6":    true,
+	"peer_group6":           true,
+	"wildcard":              true,
+	"importpolicy":          true,
+	"exportpolicy":          true,
+	"routeserver_prefixes":  true,
+	"routeserver_prefixes6": true,
 }
 
 const (
@@ -139,6 +141,7 @@ func ParseOptionLine(line string, exchangeOptions ixtypes.ExchangeOptions, curre
 func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 	var Peer = ixtypes.ExchangePeer{Active: true, Ipv4Enabled: true, Ipv6Enabled: true,
 		PrefixFilter: false, GroupEnabled: true, Group6Enabled: true}
+	var err error
 
 	for index, value := range splitReg.Split(line, -1) {
 		if index == 0 {
@@ -165,6 +168,10 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Active = true
 		} else if value == "prefix_filter=1" {
 			Peer.PrefixFilter = true
+		} else if strings.HasPrefix(value, "prefix_list=") {
+			Peer.PrefixList = strings.TrimPrefix(value, "prefix_list=")
+		} else if strings.HasPrefix(value, "prefix_list6=") {
+			Peer.PrefixList6 = strings.TrimPrefix(value, "prefix_list6=")
 		} else if strings.HasPrefix(value, "local_pref=") {
 			localPref, err := strconv.Atoi(strings.TrimPrefix(value, "local_pref="))
 			if err != nil {
@@ -182,6 +189,16 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Group = strings.TrimPrefix(value, "peer_group=")
 		} else if strings.HasPrefix(value, "peer_group6=") {
 			Peer.Group6 = strings.TrimPrefix(value, "peer_group6=")
+		} else if strings.HasPrefix(value, "infoprefixes4=") {
+			Peer.InfoPrefixes4, err = strconv.ParseInt(strings.TrimPrefix(value, "infoprefixes4="), 10, 64)
+			if err != nil {
+				log.Println("Wrong prefix limit for IPv4, ignoring")
+			}
+		} else if strings.HasPrefix(value, "infoprefixes6=") {
+			Peer.InfoPrefixes6, err = strconv.ParseInt(strings.TrimPrefix(value, "infoprefixes6="), 10, 64)
+			if err != nil {
+				log.Println("Wrong prefix limit for IPv6, ignoring")
+			}
 		} else if value == "group=0" {
 			Peer.GroupEnabled = false
 		} else if value == "group6=0" {

@@ -21,6 +21,8 @@ type ExchangePeer struct {
 	IsRsPeer        bool   `json:"isrsper"`
 	LocalPreference int    `json:"localpreference"`
 	PrefixFilter    bool   `json:"prefixfilter"`
+	PrefixList      string `json:"prefixlist"`
+	PrefixList6     string `json:"prefixlist6"`
 }
 
 type ExchangeOption string

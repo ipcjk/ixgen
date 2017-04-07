@@ -189,10 +189,13 @@ _[options]_-subsection. Please avoid special characters or whitespaces/tabs insi
 #### ipv4 
  - routeserver_group=$rs_group (group used for peering with $rs_group )
  - peer_group=$peer_group (group used for peering with neighbors for the _[peers]_-list)
+ - routeserver_prefixes=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
 
 #### ipv6  
  - routeserver_group6=$rs_group6 (group used for ipv6-peering with $rs_group6 )
  - peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
+ - routeserver_prefixes6=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
+
  
 #### iv6 | ipv4 
  - routeserver=(0=disable, 1=auto-detect and configure neighbor statements for route-servers)
@@ -218,8 +221,11 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     - group6=0 (0 = dont generate peer-group-statement inside IPv6 template, 1=create [default] )
     - peer_group=$string (if group4 is enabled, don't take the peer-group-name from the exchange options, instead take $string)
     - peer_group6=$string (if group6 is enabled, don't take the peer-group-name from the exchange options, instead take $string)
-    - dontpeer=0 (not implemented yet: 0=dont generate configuration in wildcard-mode for this peer, default=1, generate config)
-    - prefix_filter=1 (not implemented yet: build prefix filter )
+    - infoprefixes4 = number (number of prefixes for ipv4, only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
+    - infoprefixes6 = number (number of prefixes for ipv6 , only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
+    - prefix_filter=(not implemented yet: 2=build prefix filter, 1=generate prefix-statement with prefix_list)
+    - prefix_list=$name (prefix_listname for 1) generate or for 2) include statement (external generated)
+    - prefix_list6=$name (prefix_listname6 for statement with prefixname)
     - ipv4_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)
     - ipv6_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)
     - local_pref (not implemented yet: generate route-map setting local-preference values)
@@ -246,7 +252,7 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     	do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.
     -output string
     	if set, will output the configuration to a file, else STDOUT
-    -peerconfig string
+    -config string
     	Path to peering configuration ini-file (default "./configuration/peering.ini")
     -style string
     	Style for routing-config by template, e.g. brocade, juniper, cisco... (default "brocade/netiron")

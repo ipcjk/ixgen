@@ -34,6 +34,9 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 				if peerDbNetwork.Data[0].InfoType == "Route Server" {
 					rgroup, rgOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_group"]
 					rgroup6, rg6Ok := exchanges[i].Options[exchanges[i].IxName]["routeserver_group6"]
+					infoprefixes4, rprefixOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_prefixes"]
+					infoprefixes6, rprefix6Ok := exchanges[i].Options[exchanges[i].IxName]["routeserver_prefixes6"]
+
 					rsPeer :=
 						ixtypes.ExchangePeer{
 							ASN:           peerASN,
@@ -62,8 +65,18 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 						rsPeer.Group6 = string(rgroup6)
 						rsPeer.Group6Enabled = true
 					}
+
 					rsPeer.InfoPrefixes4 = peerDbNetwork.Data[0].InfoPrefixes4
 					rsPeer.InfoPrefixes6 = peerDbNetwork.Data[0].InfoPrefixes6
+
+					if rprefixOk {
+						rsPeer.InfoPrefixes4, _ = strconv.ParseInt(string(infoprefixes4), 10, 64)
+					}
+
+					if rprefix6Ok {
+						rsPeer.InfoPrefixes6, _ = strconv.ParseInt(string(infoprefixes6), 10, 64)
+					}
+
 					if rs_auto {
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
 					}
