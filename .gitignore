@@ -1,3 +1,5 @@
 .idea
+.cache
 .scripts/upload.sh
+.DS_Store
 .bin
