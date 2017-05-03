@@ -51,6 +51,8 @@ func TestExchangeOption(t *testing.T) {
 	inireader.ParseOptionLine("wildcard=1", ixConfig, "testIX")
 	inireader.ParseOptionLine("importpolicy=foo1", ixConfig, "testIX")
 	inireader.ParseOptionLine("exportpolicy=foo2", ixConfig, "testIX")
+	inireader.ParseOptionLine("routeserver_prefixes=10000", ixConfig, "testIX")
+	inireader.ParseOptionLine("routeserver_prefixes6=400", ixConfig, "testIX")
 
 	/* Check that we covered all cases from inireader */
 	for k := range inireader.PossibleOptions {

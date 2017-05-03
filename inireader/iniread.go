@@ -140,7 +140,7 @@ func ParseOptionLine(line string, exchangeOptions ixtypes.ExchangeOptions, curre
 
 func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 	var Peer = ixtypes.ExchangePeer{Active: true, Ipv4Enabled: true, Ipv6Enabled: true,
-		PrefixFilter:                         false, GroupEnabled: true, Group6Enabled: true, Unconfigured: false}
+		PrefixFilter: false, GroupEnabled: true, Group6Enabled: true, Unconfigured: false}
 	var err error
 
 	for index, value := range splitReg.Split(line, -1) {

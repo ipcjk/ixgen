@@ -1,8 +1,8 @@
 package rest
 
 import (
-	"github.com/ipcjk/ixgen/ixtypes"
 	"encoding/json"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"log"
 	"net/http"
 )
