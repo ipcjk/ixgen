@@ -23,6 +23,7 @@ type ExchangePeer struct {
 	PrefixFilter    bool   `json:"prefixfilter"`
 	PrefixList      string `json:"prefixlist"`
 	PrefixList6     string `json:"prefixlist6"`
+	Unconfigured    bool `json:"unconfigured"`
 }
 
 type ExchangeOption string

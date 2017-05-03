@@ -140,7 +140,7 @@ func ParseOptionLine(line string, exchangeOptions ixtypes.ExchangeOptions, curre
 
 func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 	var Peer = ixtypes.ExchangePeer{Active: true, Ipv4Enabled: true, Ipv6Enabled: true,
-		PrefixFilter: false, GroupEnabled: true, Group6Enabled: true}
+		PrefixFilter:                         false, GroupEnabled: true, Group6Enabled: true, Unconfigured: false}
 	var err error
 
 	for index, value := range splitReg.Split(line, -1) {
@@ -168,6 +168,10 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Active = true
 		} else if value == "prefix_filter=1" {
 			Peer.PrefixFilter = true
+		} else if value == "unconfigured=1" {
+			Peer.Unconfigured = true
+		} else if value == "unconfigured=0" {
+			Peer.Unconfigured = false
 		} else if strings.HasPrefix(value, "prefix_list=") {
 			Peer.PrefixList = strings.TrimPrefix(value, "prefix_list=")
 		} else if strings.HasPrefix(value, "prefix_list6=") {
@@ -211,5 +215,6 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			log.Printf("Unknown parameter %s for peer on line %d ", value, lineNumber)
 		}
 	}
+
 	return Peer
 }
