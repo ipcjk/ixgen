@@ -25,6 +25,7 @@ var PossibleOptions = map[string]bool{
 	"exportpolicy":          true,
 	"routeserver_prefixes":  true,
 	"routeserver_prefixes6": true,
+	"rs_asn":                true,
 }
 
 const (

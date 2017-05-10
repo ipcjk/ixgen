@@ -53,6 +53,7 @@ func TestExchangeOption(t *testing.T) {
 	inireader.ParseOptionLine("exportpolicy=foo2", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_prefixes=10000", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_prefixes6=400", ixConfig, "testIX")
+	inireader.ParseOptionLine("rs_asn=6695", ixConfig, "testIX")
 
 	/* Check that we covered all cases from inireader */
 	for k := range inireader.PossibleOptions {
@@ -85,5 +86,9 @@ func TestExchangeOption(t *testing.T) {
 
 	if ixConfig["testIX"]["wildcard"] != "1" {
 		t.Error("Wildcard option is wrong")
+	}
+
+	if ixConfig["testIX"]["rs_asn"] != "6695" {
+		t.Error("Route-Server ASN number is wrong")
 	}
 }

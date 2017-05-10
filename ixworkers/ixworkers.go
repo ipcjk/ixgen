@@ -20,6 +20,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 				return
 			}
 			_, rs_auto := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
+			rsnASN, rsnOk := exchanges[i].Options[exchanges[i].IxName]["rs_asn"]
 
 			myPeers := peerDB.GetPeersOnIXByIxName(exchanges[i].IxName)
 			for _, peer := range myPeers.Data {
@@ -77,7 +78,9 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 						rsPeer.InfoPrefixes6, _ = strconv.ParseInt(string(infoprefixes6), 10, 64)
 					}
 
-					if rs_auto {
+					if rs_auto && rsnOk && peerASN != string(rsnASN) {
+						log.Printf("Probably rogue route-server advertised in %s\n", peerASN)
+					} else if rs_auto {
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
 					}
 					continue

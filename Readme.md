@@ -196,9 +196,9 @@ _[options]_-subsection. Please avoid special characters or whitespaces/tabs insi
  - peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
  - routeserver_prefixes6=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
 
- 
 #### iv6 | ipv4 
  - routeserver=(0=disable, 1=auto-detect and configure neighbor statements for route-servers)
+ - rsn_asn=$rsn_asn (explicit set the as number value of the expected remote routeserver , this can protect you from rogue route-servers type from peeringdb )
 
 #### wildcard 
  - wildcard= (0=disable [default], 1=enable, 2=enableAll)
