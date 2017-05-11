@@ -57,7 +57,7 @@ func init() {
 	flag.Parse()
 
 	if version {
-		fmt.Println("ixgen 0.1 (C) 2017 by Jörg Kost, joerg.kost@gmx.com")
+		fmt.Println("ixgen 0.2 (C) 2017 by Jörg Kost, joerg.kost@gmx.com")
 		os.Exit(0)
 	}
 
