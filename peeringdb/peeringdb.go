@@ -55,7 +55,7 @@ func (p *peeringdb) GetPeersOnIXByIxLanID(ixLanID int64) (apiResult Netixlan) {
 
 func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan) {
 	var ixlanid string
-	nameAndNet := strings.Split(ixName, "/")
+	nameAndNet := strings.Split(ixName, "||")
 
 	iX := p.SearchIXByIxName(nameAndNet[0])
 	v := url.Values{}

@@ -56,7 +56,7 @@ func TestRunAPIserver(t *testing.T) {
 
 func TestQueryAPIserver(t *testing.T) {
 	peerDB := peeringdb.Peeringdb("http://localhost:58412/api")
-	ix := peerDB.SearchIXByIxName("INXS by ecix")
+	ix := peerDB.SearchIXByIxName("ECIX-MUC / INXS by ecix")
 
 	if ix.Data[0].Name != "INXS by ecix" {
 		t.Error("Cant find the INXS, something wrong the data-set!")
