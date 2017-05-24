@@ -3,6 +3,11 @@ Ixgen is yet-another open-source, multi-platform generator for peering configura
 
 Ixgen is shipped with cross-compiled executables for Darwin, Linux and Windows.
 
+# ixgen on docker
+Run ixgen from docker with your peering configuration as volume parameter:
+
+docker run -v /Users/joerg/peering.ini:/ixgen/release/configuration/peering.ini joerg/ixgen:latest
+
 ## how it works 
 Ixgen works by querying the peeringdb-API or its own local API-service for peering members and specific network configurations and populate learned things with a custom router template. 
 
