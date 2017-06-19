@@ -63,6 +63,7 @@ type getNetIXLan handler
 type getFac handler
 type getNet netHandler
 type getAll handler
+type getStatus struct{}
 
 // NewAPIServer returns a new Apiserver object, than can be
 // started to answer to peeringdb-style api questions.
@@ -100,6 +101,9 @@ func (a *Apiserver) RunAPIServer() {
 	/* Post/Get Configuration */
 	r.Handle("/ixgen/", &postConfig{match: matchStyle, addrPort: a.AddrPort, templates: a.templateDir})
 
+	/* Status (for Liveness-Probe) */
+	r.Handle("/status", &getStatus{})
+
 	go http.Serve(listener, r)
 }
 
@@ -131,6 +135,11 @@ func readFile(fileName string) []byte {
 		log.Fatalf("Cant read from file :%s", fileName)
 	}
 	return buf.Bytes()
+}
+
+func (h *getStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("content-type:", "text/plain")
+	fmt.Fprint(w, "Everything fine")
 }
 
 func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
