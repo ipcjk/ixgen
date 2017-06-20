@@ -11,7 +11,7 @@ func main() {
 	var WaitForever chan struct{}
 	signalChannels := make(chan os.Signal, 1)
 
-	listenAPIServer := flag.String("listenAPI", "localhost:8443", "listenAddr for the api service")
+	listenAPIServer := flag.String("listenAPI", "0.0.0.0:8443", "listenAddr for the api service")
 	cacheDirectory := flag.String("cacheDir", "./cache", "cache directory for json files from peeringdb")
 	templateDir := flag.String("templates", "./templates", "directory for templates")
 
