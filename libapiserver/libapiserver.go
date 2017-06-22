@@ -14,11 +14,11 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync"
-	"os/signal"
 	"syscall"
 )
 
@@ -67,9 +67,7 @@ type postConfig struct {
 type getIXLans struct{ handler }
 type getIXes struct{ handler }
 type getNetIXLan struct{ handler }
-type getFac handler
 type getNet netHandler
-type getAll handler
 type getStatus struct{}
 
 // NewAPIServer returns a new Apiserver object, than can be
@@ -90,7 +88,7 @@ func (a *Apiserver) RunAPIServer() {
 	matchIx, _ := regexp.Compile(matchIxRegex)
 	matchIxLan, _ := regexp.Compile(matchIxLanRegex)
 	matchStyle, _ := regexp.Compile(matchStyleRegex)
-	var handleObjects []handler
+	var handleObjects []*handler
 
 	listener, err := net.Listen("tcp", a.AddrPort)
 	if err != nil {
@@ -99,13 +97,13 @@ func (a *Apiserver) RunAPIServer() {
 	a.AddrPort = listener.Addr().String()
 
 	/* Generate our handle objects */
-	getIXes := &getIXes{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ix"} }
+	getIXes := &getIXes{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ix"}}
 	getIX := &getIX{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ix/"}, match: matchIx}
 	getNetIXLan := &getNetIXLan{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/netixlan"}}
 	getNet := &getNet{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/net"}, NetData: peeringdb.Net{}}
 	getIXLans := &getIXLans{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ixlan"}}
 	getIXLan := &getIXLan{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ixlan/"}, match: matchIxLan}
-	handleObjects = append(handleObjects, getIXes.handler, getIX.handler, getNetIXLan.handler, getNet.handler, getIXLans.handler, getIXLan.handler)
+	handleObjects = append(handleObjects, &getIXes.handler, &getIX.handler, &getNetIXLan.handler, &getNet.handler, &getIXLans.handler, &getIXLan.handler)
 
 	/* Generate our handles with URI */
 	r.Handle(getIXes.patternURI, getIXes)
@@ -129,12 +127,12 @@ func (a *Apiserver) RunAPIServer() {
 			for sig := range signalChannels {
 				switch sig {
 				case syscall.SIGHUP:
+					// Reset data cache by setting the slice to zero
 					for _, handler := range handleObjects {
 						handler.mutex.Lock()
 						handler.Data = nil
 						handler.mutex.Unlock()
 					}
-					fmt.Println("Resetting done")
 				}
 			}
 		}
@@ -419,8 +417,4 @@ end:
 
 func (a *Apiserver) ReloadCache() {
 	fmt.Println("Happy reloading")
-}
-
-func (h *getFac) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 }

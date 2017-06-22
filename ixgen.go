@@ -105,7 +105,7 @@ func loadConfig() {
 	if strings.HasSuffix(peeringConfigFileName, ".json") {
 		err := json.NewDecoder(file).Decode(&exchanges)
 		if err != nil {
-			log.Fatal("JSON input file malformed: %s", err)
+			log.Fatalf("JSON input file malformed: %s", err)
 			return
 		}
 	} else {

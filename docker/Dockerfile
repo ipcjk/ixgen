@@ -1,3 +1,4 @@
+ENV IXGEN_BUILD
 from alpine:3.5
 RUN apk update
 RUN apk add unzip

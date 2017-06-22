@@ -11,7 +11,6 @@ func main() {
 	var Apiserver *libapiserver.Apiserver
 	var WaitForever chan struct{}
 
-
 	listenAPIServer := flag.String("listenAPI", "0.0.0.0:8443", "listenAddr for the api service")
 	cacheDirectory := flag.String("cacheDir", "./cache", "cache directory for json files from peeringdb")
 	templateDir := flag.String("templates", "./templates", "directory for templates")

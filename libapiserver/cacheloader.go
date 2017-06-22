@@ -54,6 +54,7 @@ func DownloadCache(hostURL, cacheDir string) {
 		*/
 
 	}
+	log.Println("After downloading you can signal the apiserver to reload the cache files: pkill -HUP1 apiserver")
 }
 
 func writeCacheFile(fileName string, reader io.Reader) {
