@@ -25,7 +25,7 @@ func TestApiServer(t *testing.T) {
 }
 
 func TestPostOnApiServer(t *testing.T) {
-	var peering string = `[DE-CIX Frankfurt/Main]
+	var peering string = `[DE-CIX Frankfurt||Main]
     [peers]
     714 ipv6=1 ipv4=1
     196922
@@ -89,7 +89,7 @@ func TestPostOnApiServer(t *testing.T) {
 }
 
 func TestPostJsonOnApiServer(t *testing.T) {
-	var peering string = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt/Main",
+	var peering string = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt||Main",
 	"options":{"DE-CIX Frankfurt/Main":{"wildcard":"0"}},
 	"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"714":[{"active":
 	true,"asn":"714","group":"","group6":"","groupenabled":true,"group6_enabled":true,
@@ -124,7 +124,7 @@ func TestPostJsonOnApiServer(t *testing.T) {
 		t.Errorf("Cant decode apiserver results: %s", err)
 	}
 
-	if ixs[0].IxName != "DE-CIX Frankfurt/Main" {
+	if ixs[0].IxName != "DE-CIX Frankfurt||Main" {
 		t.Error("Wrong or no IX in result set")
 	}
 

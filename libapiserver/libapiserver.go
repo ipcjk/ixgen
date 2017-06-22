@@ -18,6 +18,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"os/signal"
+	"syscall"
 )
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
@@ -25,9 +27,14 @@ var matchIxLanRegex = `\/api\/ixlan\/(\d+)$`
 var matchStyleRegex = `\/ixgen\/(\w+)\/(\w+)\/?(\d+)?$`
 
 type handler struct {
-	CacheDir string
-	Data     []byte
-	mutex    sync.Mutex
+	CacheDir   string
+	Data       []byte
+	mutex      sync.Mutex
+	patternURI string
+}
+
+func (h *handler) resetData() {
+	h.Data = nil
 }
 
 type netHandler struct {
@@ -57,9 +64,9 @@ type postConfig struct {
 	templates string
 }
 
-type getIXLans handler
-type getIXes handler
-type getNetIXLan handler
+type getIXLans struct{ handler }
+type getIXes struct{ handler }
+type getNetIXLan struct{ handler }
 type getFac handler
 type getNet netHandler
 type getAll handler
@@ -83,6 +90,7 @@ func (a *Apiserver) RunAPIServer() {
 	matchIx, _ := regexp.Compile(matchIxRegex)
 	matchIxLan, _ := regexp.Compile(matchIxLanRegex)
 	matchStyle, _ := regexp.Compile(matchStyleRegex)
+	var handleObjects []handler
 
 	listener, err := net.Listen("tcp", a.AddrPort)
 	if err != nil {
@@ -90,19 +98,47 @@ func (a *Apiserver) RunAPIServer() {
 	}
 	a.AddrPort = listener.Addr().String()
 
-	/* PeeringDBI API clone */
-	r.Handle("/api/ix", &getIXes{a.CacheDir, nil, sync.Mutex{}})
-	r.Handle("/api/ix/", &getIX{handler{a.CacheDir, nil, sync.Mutex{}}, matchIx})
-	r.Handle("/api/netixlan", &getNetIXLan{a.CacheDir, nil, sync.Mutex{}})
-	r.Handle("/api/net", &getNet{handler{a.CacheDir, nil, sync.Mutex{}}, peeringdb.Net{}})
-	r.Handle("/api/ixlan", &getIXLans{a.CacheDir, nil, sync.Mutex{}})
-	r.Handle("/api/ixlan/", &getIXLan{handler{a.CacheDir, nil, sync.Mutex{}}, matchIxLan})
+	/* Generate our handle objects */
+	getIXes := &getIXes{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ix"} }
+	getIX := &getIX{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ix/"}, match: matchIx}
+	getNetIXLan := &getNetIXLan{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/netixlan"}}
+	getNet := &getNet{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/net"}, NetData: peeringdb.Net{}}
+	getIXLans := &getIXLans{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ixlan"}}
+	getIXLan := &getIXLan{handler: handler{CacheDir: a.CacheDir, Data: nil, mutex: sync.Mutex{}, patternURI: "/api/ixlan/"}, match: matchIxLan}
+	handleObjects = append(handleObjects, getIXes.handler, getIX.handler, getNetIXLan.handler, getNet.handler, getIXLans.handler, getIXLan.handler)
+
+	/* Generate our handles with URI */
+	r.Handle(getIXes.patternURI, getIXes)
+	r.Handle(getIX.patternURI, getIX)
+	r.Handle(getNetIXLan.patternURI, getNetIXLan)
+	r.Handle(getNet.patternURI, getNet)
+	r.Handle(getIXLans.patternURI, getIXLans)
+	r.Handle(getIXLan.patternURI, getIXLan)
 
 	/* Post/Get Configuration */
 	r.Handle("/ixgen/", &postConfig{match: matchStyle, addrPort: a.AddrPort, templates: a.templateDir})
 
 	/* Status (for Liveness-Probe) */
 	r.Handle("/status", &getStatus{})
+
+	signalChannels := make(chan os.Signal, 1)
+	signal.Notify(signalChannels, syscall.SIGHUP, syscall.SIGTERM)
+
+	go func() {
+		for {
+			for sig := range signalChannels {
+				switch sig {
+				case syscall.SIGHUP:
+					for _, handler := range handleObjects {
+						handler.mutex.Lock()
+						handler.Data = nil
+						handler.mutex.Unlock()
+					}
+					fmt.Println("Resetting done")
+				}
+			}
+		}
+	}()
 
 	go http.Serve(listener, r)
 }
@@ -151,13 +187,13 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ct := r.Header.Get("Content-Type")
 
 	if r.Method != "POST" {
-		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
+		fmt.Fprint(w, "No POST method given")
 		return
 	}
 
 	matches := h.match.FindStringSubmatch(r.RequestURI)
 	if len(matches) < 3 {
-		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
+		fmt.Fprint(w, "Not enough arguments given, need at least 3 arguments to proceed")
 		return
 	}
 
@@ -183,7 +219,7 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(exchanges) == 0 {
-		fmt.Fprint(w, "Not enough arguments given, IX not found or JSON malformed")
+		fmt.Fprint(w, "Not exchanges found")
 		return
 	}
 
@@ -313,6 +349,7 @@ func (h *getIX) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	matches := h.match.FindStringSubmatch(r.RequestURI)
 	h.mutex.Lock()
+
 	if len(h.Data) == 0 {
 		h.Data = readFile(h.CacheDir + "/ix")
 	}
@@ -380,5 +417,10 @@ end:
 	writeJSON(w, &apiResult)
 }
 
+func (a *Apiserver) ReloadCache() {
+	fmt.Println("Happy reloading")
+}
+
 func (h *getFac) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 }
