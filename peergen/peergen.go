@@ -1,6 +1,7 @@
 package peergen
 
 import (
+	"fmt"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"html/template"
 	"io"
@@ -40,11 +41,14 @@ func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
 	}
 
 	for k := range exchanges {
-		p.GenerateIXConfiguration(exchanges[k], w)
+		err := p.GenerateIXConfiguration(exchanges[k], w)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }
 
-func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) {
+func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) error {
 	for i := range p.peerFiles {
 		_, err := os.Stat(p.peerFiles[i])
 		if err != nil {
@@ -53,11 +57,12 @@ func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) {
 
 		t, err := template.ParseFiles(p.peerFiles[i])
 		if err != nil {
-			log.Fatalf("Cant open template file: %s", err)
+			return fmt.Errorf("Cant open template file: %s", err)
 		}
 
 		if err := t.Execute(w, ix); err != nil {
-			log.Fatalf("Cant execute template: %s", err)
+			return fmt.Errorf("Cant execute template: %s", err)
 		}
 	}
+	return nil
 }

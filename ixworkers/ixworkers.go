@@ -22,13 +22,21 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 			_, rs_auto := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
 			rsnASN, rsnOk := exchanges[i].Options[exchanges[i].IxName]["rs_asn"]
 
-			myPeers := peerDB.GetPeersOnIXByIxName(exchanges[i].IxName)
+			myPeers, err := peerDB.GetPeersOnIXByIxName(exchanges[i].IxName)
+			if err != nil {
+				log.Printf("Cant get Peers for IX: %s, error: %s", exchanges[i].IxName, err)
+				return
+			}
 			for _, peer := range myPeers.Data {
 				peerASN := strconv.FormatInt(peer.Asn, 10)
 				if peer.Asn == myASN {
 					continue
 				}
-				peerDbNetwork := peerDB.GetNetworkByAsN(peer.Asn)
+				peerDbNetwork, err := peerDB.GetNetworkByAsN(peer.Asn)
+				if err != nil {
+					log.Printf("Error pulling ASN for peer: %s, error: %s", peer.Asn, err)
+					continue
+				}
 				if len(peerDbNetwork.Data) != 1 {
 					continue
 				}

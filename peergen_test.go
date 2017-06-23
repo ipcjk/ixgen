@@ -59,9 +59,12 @@ func TestBrocadeTemplate(t *testing.T) {
 	}
 
 	writer := bufio.NewWriter(&buffer)
-	p.GenerateIXConfiguration(Ix, writer)
+	err := p.GenerateIXConfiguration(Ix, writer)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	err := writer.Flush()
+	err = writer.Flush()
 	if err != nil {
 		log.Fatal("Cant flush generated configuration into buffer")
 	}
