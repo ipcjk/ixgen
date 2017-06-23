@@ -51,10 +51,10 @@ func (p *peeringdb) callAPI(uri string, i interface{}) error {
 func (p *peeringdb) GetPeersOnIXByIxLanID(ixLanID int64) (apiResult Netixlan, err error) {
 	v := url.Values{}
 	v.Set("ixlan_id", strconv.FormatInt(ixLanID, 10))
-	if err := p.callAPI("/netixlan?"+v.Encode(), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/netixlan?"+v.Encode(), &apiResult); err != nil {
+		return Netixlan{}, err
 	}
-	return
+	return apiResult, nil
 }
 
 func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan, err error) {
@@ -63,7 +63,7 @@ func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan, err
 
 	iX, err := p.SearchIXByIxName(nameAndNet[0])
 	if err != nil {
-		return apiResult, err
+		return Netixlan{}, err
 	}
 
 	v := url.Values{}
@@ -75,32 +75,32 @@ func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan, err
 				goto end
 			}
 		}
-		return apiResult, fmt.Errorf("Attention, Net: %s given for %s, but not found", nameAndNet[1], nameAndNet[0])
+		return Netixlan{}, fmt.Errorf("Attention, Net: %s given for %s, but not found", nameAndNet[1], nameAndNet[0])
 	} else if len(iX.Data[0].IxlanSet) > 1 {
-		return apiResult, fmt.Errorf("There a multiple Nets to choose for %s, please specify in the ini-file\n", nameAndNet[0])
+		return Netixlan{}, fmt.Errorf("There a multiple Nets to choose for %s, please specify in the ini-file\n", nameAndNet[0])
 	} else {
 		ixlanid = strconv.FormatInt(iX.Data[0].IxlanSet[0].ID, 10)
 	}
 
 end:
 	v.Set("ixlan_id", ixlanid)
-	if err := p.callAPI("/netixlan?"+v.Encode(), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/netixlan?"+v.Encode(), &apiResult); err != nil {
+		return Netixlan{}, err
 	}
 	sort.Sort(netsIxLanDataSortedByASN(apiResult.Data))
 	return apiResult, nil
 }
 
 func (p *peeringdb) GetIxLANByIxLanID(ixLanID int64) (apiResult IxLAN, err error) {
-	if err := p.callAPI("/ixlan/"+strconv.FormatInt(ixLanID, 10), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/ixlan/"+strconv.FormatInt(ixLanID, 10), &apiResult); err != nil {
+		return IxLAN{}, err
 	}
 	return apiResult, nil
 }
 
 func (p *peeringdb) ListIX() (apiResult Ix, err error) {
-	if err := p.callAPI("/ix", &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/ix", &apiResult); err != nil {
+		return Ix{}, err
 	}
 	return apiResult, nil
 }
@@ -108,24 +108,24 @@ func (p *peeringdb) ListIX() (apiResult Ix, err error) {
 func (p *peeringdb) SearchIXByIxName(ixName string) (apiResult Ix, err error) {
 	v := url.Values{}
 	v.Set("name", ixName)
-	if err := p.callAPI("/ix?"+v.Encode(), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/ix?"+v.Encode(), &apiResult); err != nil {
+		return Ix{}, err
 	}
 
 	if len(apiResult.Data) == 0 {
-		return apiResult, fmt.Errorf("%s is not a valid ixName or was not found on peeringdb", ixName)
+		return Ix{}, fmt.Errorf("%s is not a valid ixName or was not found on peeringdb", ixName)
 	}
 
-	if err := p.callAPI("/ix/"+strconv.FormatInt(apiResult.Data[0].ID, 10), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/ix/"+strconv.FormatInt(apiResult.Data[0].ID, 10), &apiResult); err != nil {
+		return Ix{}, err
 
 	}
 	return apiResult, nil
 }
 
 func (p *peeringdb) ListFaculty() (apiResult Ix, err error) {
-	if err := p.callAPI("/fac", &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/fac", &apiResult); err != nil {
+		return Ix{}, err
 	}
 	return apiResult, nil
 }
@@ -133,8 +133,8 @@ func (p *peeringdb) ListFaculty() (apiResult Ix, err error) {
 func (p *peeringdb) SearchFacultyByFacName(facultyName string) (apiResult Ix, err error) {
 	v := url.Values{}
 	v.Set("name", facultyName)
-	if err := p.callAPI("/fac?"+v.Encode(), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/fac?"+v.Encode(), &apiResult); err != nil {
+		return Ix{}, err
 	}
 	return apiResult, nil
 }
@@ -142,8 +142,8 @@ func (p *peeringdb) SearchFacultyByFacName(facultyName string) (apiResult Ix, er
 func (p *peeringdb) GetNetworkByAsN(asn int64) (apiResult Net, err error) {
 	v := url.Values{}
 	v.Set("asn", strconv.FormatInt(asn, 10))
-	if err := p.callAPI("/net?"+v.Encode(), &apiResult); err != nil {
-		return apiResult, err
+	if err = p.callAPI("/net?"+v.Encode(), &apiResult); err != nil {
+		return Net{}, err
 	}
 	return apiResult, nil
 }
