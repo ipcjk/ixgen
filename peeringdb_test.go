@@ -1,15 +1,17 @@
 package main
 
 import (
-	"github.com/ipcjk/ixgen/libapiserver"
 	"github.com/ipcjk/ixgen/peeringdb"
+	"github.com/ipcjk/ixgen/libapiserver"
 	"net/http"
 	"testing"
 )
 
+var apiserverDbTest *libapiserver.Apiserver
+
 func init() {
-	Apiserver := libapiserver.NewAPIServer("localhost:58412", "./cache", "./templates")
-	Apiserver.RunAPIServer()
+	apiserverDbTest = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates")
+	apiserverDbTest.RunAPIServer()
 }
 
 func TestGetIX(t *testing.T) {
@@ -59,14 +61,14 @@ func TestGetASN(t *testing.T) {
 }
 
 func TestRunAPIserver(t *testing.T) {
-	_, err := http.Get("http://localhost:58412/api")
+	_, err := http.Get("http://" + apiserverDbTest.AddrPort + "/api")
 	if err != nil {
 		t.Error("Cant connect to api service on localhost")
 	}
 }
 
 func TestQueryAPIserver(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://localhost:58412/api")
+	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
 	ix, err := peerDB.SearchIXByIxName("ECIX-MUC / INXS by ecix")
 
 	if err != nil {
@@ -79,7 +81,7 @@ func TestQueryAPIserver(t *testing.T) {
 }
 
 func TestGetASNLocalApi(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://localhost:58412/api")
+	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
 	peer, err := peerDB.GetNetworkByAsN(196922)
 
 	if err != nil {
@@ -105,14 +107,14 @@ func TestGetASNLocalApi(t *testing.T) {
 }
 
 func BenchmarkAPIserver(b *testing.B) {
-	peerDB := peeringdb.Peeringdb("http://localhost:58412/api")
+	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
 	for i := 0; i < b.N; i++ {
 		peerDB.GetNetworkByAsN(196922)
 	}
 }
 
 func TestGetPeersOnIX(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://localhost:58412/api")
+	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
 	myPeers, err := peerDB.GetPeersOnIXByIxName("DE-CIX Frankfurt||Main")
 
 	if err != nil {

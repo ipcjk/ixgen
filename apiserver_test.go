@@ -12,13 +12,15 @@ import (
 	"testing"
 )
 
+var Apiserver *libapiserver.Apiserver
+
 func init() {
-	Apiserver := libapiserver.NewAPIServer("localhost:58412", "./cache", "./templates")
+	Apiserver = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates")
 	Apiserver.RunAPIServer()
 }
 
 func TestApiServer(t *testing.T) {
-	_, err := http.Get("http://localhost:58412/api")
+	_, err := http.Get("http://" + Apiserver.AddrPort + "/api")
 	if err != nil {
 		t.Error("Cant connect to api service on localhost")
 	}
@@ -39,7 +41,7 @@ func TestPostOnApiServer(t *testing.T) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", "http://localhost:58412/ixgen/brocade/netiron/196922", newBuffer)
+	req, err := http.NewRequest("POST", "http://"+Apiserver.AddrPort+"/ixgen/brocade/netiron/196922", newBuffer)
 	if err != nil {
 		t.Error(err)
 	}
@@ -102,7 +104,7 @@ func TestPostJsonOnApiServer(t *testing.T) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", "http://localhost:58412/ixgen/native/json", newBuffer)
+	req, err := http.NewRequest("POST", "http://"+Apiserver.AddrPort+"/ixgen/native/json", newBuffer)
 	if err != nil {
 		t.Error(err)
 	}
