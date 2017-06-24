@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/ipcjk/ixgen/peeringdb"
 	"github.com/ipcjk/ixgen/libapiserver"
+	"github.com/ipcjk/ixgen/peeringdb"
 	"net/http"
 	"testing"
 )
