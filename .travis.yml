@@ -1,0 +1,4 @@
+language: go
+dist: xenial
+go:
+  - master
