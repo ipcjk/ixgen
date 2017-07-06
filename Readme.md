@@ -1,5 +1,6 @@
 [![Docker Repository on Quay](https://quay.io/repository/ipcjk/ixgen/status "Docker Repository on Quay")](https://quay.io/repository/ipcjk/ixgen)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ipcjk/ixgen)](https://goreportcard.com/report/github.com/ipcjk/ixgen)
+[![Build Status](https://travis-ci.org/ipcjk/ixgen.svg?branch=master)](https://travis-ci.org/ipcjk/ixgen)
 
 # ixgen 
 Ixgen is yet-another open-source, multi-platform generator for peering configurations on IXs incorporating the global peeringdb api, but also is able to spin up its own "compatible" server for faster results. Ixgen is configured by an INI- or JSON-style format, producing custom template-driven or fixed json-style configurations, that can be printed on the terminal, to a file or served by HTTP. Direct access to routers REST-APIs and ssh/scp-upload is planned. 
