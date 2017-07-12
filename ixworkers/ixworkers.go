@@ -6,6 +6,8 @@ import (
 	"log"
 	"strconv"
 	"sync"
+	"github.com/ipcjk/ixgen/bgpq3workers"
+	"bytes"
 )
 
 func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) ixtypes.IXs {
@@ -165,6 +167,51 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 						log.Printf("No data for ASN %s", peerASN)
 					}
 				}
+			}
+		}()
+	}
+	wg.Wait()
+	return exchanges
+}
+
+func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtypes.IXs {
+	var wg sync.WaitGroup
+	w := new(bytes.Buffer)
+
+	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{
+		Executable: "/Users/joerg/Documents/Programmierung/bgpq3-0.1.21/bgpq3",
+		Style:      "brocade/mlx",
+	})
+
+	wg.Add(len(exchanges))
+	for k := range exchanges {
+		var i = k
+		go func() {
+			defer wg.Done()
+			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
+				return
+			}
+
+			for _, peer := range exchanges[k].PeersReady {
+				var asMacro string
+
+				if peer.IsRs {
+					continue
+				}
+
+				if peer.IrrAsSet != "" {
+					asMacro = peer.IrrAsSet
+				} else {
+					asMacro = peer.ASN
+				}
+
+				err := bgpWorker.GenPrefixList(w, peer.PrefixList, asMacro, 4)
+				if err != nil {
+					log.Println(err)
+				}
+
+				log.Println(w)
+
 			}
 		}()
 	}

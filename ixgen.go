@@ -73,7 +73,10 @@ func main() {
 	var outputStream io.WriteCloser
 	var err error
 
+	/* Merge PeeringDB */
 	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN)
+	/* Merge BGPq3 */
+	exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)
 
 	if !printOrExit {
 		if outputFile == "" {

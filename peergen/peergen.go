@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sync"
 )
 
 type Peergen struct {
@@ -65,4 +66,26 @@ func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) error {
 		}
 	}
 	return nil
+}
+
+func (p *Peergen) GeneratePrefixFilter(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) ixtypes.IXs {
+	var wg sync.WaitGroup
+	wg.Add(len(exchanges))
+
+	for k := range exchanges {
+		var i = k
+		go func() {
+			defer wg.Done()
+			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
+				return
+			}
+			for _, peer := range exchanges[k].PeersReady {
+				if peer.PrefixFilter == true {
+					log.Println("Generare prefix filter for " + peer.ASN)
+				}
+			}
+		}()
+	}
+	wg.Wait()
+	return exchanges
 }

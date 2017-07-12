@@ -232,6 +232,7 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     - peer_group6=$string (if group6 is enabled, don't take the peer-group-name from the exchange options, instead take $string)
     - infoprefixes4 = number (number of prefixes for ipv4, only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
     - infoprefixes6 = number (number of prefixes for ipv6 , only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
+    - irrasset = (not implemented yet: macro to use for prefix-filter)
     - prefix_filter=(not implemented yet: 2=build prefix filter, 1=generate prefix-statement with prefix_list)
     - prefix_list=$name (prefix_listname for 1) generate or for 2) include statement (external generated)
     - prefix_list6=$name (prefix_listname6 for statement with prefixname)

@@ -43,8 +43,20 @@ type Ix struct {
 	PeersReady       []ExchangePeer  `json:"peersready"`
 }
 
-type IXs []Ix
+/* Json structure to load and
+template PrefixFilters from bgpq3
+ */
+type PrefixFilters struct {
+	PrefixName []struct {
+		Exact        bool   `json:"exact"`
+		GreaterEqual int64  `json:"greater-equal"`
+		LessEqual    int64  `json:"less-equal"`
+		Equal        int64  `json:"equal"`
+		Prefix       string `json:"prefix"`
+	} `json:"prefixName"`
+}
 
+type IXs []Ix
 type PeeringGroups map[string]bool
 type ExchangePeers map[string]map[string][]ExchangePeer
 type ExchangeOptions map[string]map[string]ExchangeOption
