@@ -43,17 +43,23 @@ type Ix struct {
 	PeersReady       []ExchangePeer  `json:"peersready"`
 }
 
-/* Json structure to load and
+/* PrefixFilters is part of structure to load and
+template filters from bgpq3
+*/
+type PrefixFilter struct {
+	Exact        bool   `json:"exact"`
+	GreaterEqual int64  `json:"greater-equal"`
+	LessEqual    int64  `json:"less-equal"`
+	Prefix       string `json:"prefix"`
+}
+
+/* PrefixFilter is a structure to load and
 template PrefixFilters from bgpq3
- */
+*/
+
 type PrefixFilters struct {
-	PrefixName []struct {
-		Exact        bool   `json:"exact"`
-		GreaterEqual int64  `json:"greater-equal"`
-		LessEqual    int64  `json:"less-equal"`
-		Equal        int64  `json:"equal"`
-		Prefix       string `json:"prefix"`
-	} `json:"prefixName"`
+	PrefixName    string `json:"PrefixName"`
+	PrefixFilters []PrefixFilter
 }
 
 type IXs []Ix

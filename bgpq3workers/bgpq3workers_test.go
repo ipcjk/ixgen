@@ -1,14 +1,11 @@
 package bgpqworkers_test
 
 import (
-	"bytes"
 	. "github.com/ipcjk/ixgen/bgpq3workers"
-	"strings"
 	"testing"
 )
 
 func TestRunBGP3Worker(t *testing.T) {
-	w := new(bytes.Buffer)
 	testAsMacro := "AS196922"
 
 	Config := BGPQ3Config{
@@ -19,30 +16,32 @@ func TestRunBGP3Worker(t *testing.T) {
 
 	bgpWorker := NewBGPQ3Worker(Config)
 
-	err := bgpWorker.GenPrefixList(w, "as196922-p4", testAsMacro, 4)
+	prefixFilters, err := bgpWorker.GenPrefixList("as196922p4", testAsMacro, 4)
 	if err != nil {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
 
-	if !strings.Contains(w.String(), "178.248.240.0") {
-		t.Error("Cant find my home ipv4 prefix list")
+	if prefixFilters.PrefixName != "as196922p4" {
+		t.Error("Cant find my home ipv4 PrefixName")
 	}
 
-	if !strings.Contains(w.String(), "as196922-p4") {
-		t.Error("Expected prefixListName  as196922-p4, but did not find")
+	if len(prefixFilters.PrefixFilters) <= 4 ||
+		len(prefixFilters.PrefixFilters) >= 30 {
+		t.Error("Found too less or too many ipv4 prefixes, cant be!")
 	}
 
-	err = bgpWorker.GenPrefixList(w, "as196922-p6", testAsMacro, 6)
+	prefixFilters, err = bgpWorker.GenPrefixList("as196922p6", testAsMacro, 6)
 	if err != nil {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
 
-	if !strings.Contains(w.String(), "2a02:1308") {
-		t.Error("Cant find my home ipv6 prefix list")
+	if prefixFilters.PrefixName != "as196922p6" {
+		t.Error("Cant find my home ipv6 PrefixName")
 	}
 
-	if !strings.Contains(w.String(), "as196922-p6") {
-		t.Error("Expected prefixListName  as196922-p6, but did not find")
+	if len(prefixFilters.PrefixFilters) == 0 ||
+		len(prefixFilters.PrefixFilters) >= 30 {
+		t.Error("Found too less or too many ipv6 prefixes, cant be!")
 	}
 
 }

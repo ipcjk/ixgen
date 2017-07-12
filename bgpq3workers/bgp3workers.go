@@ -1,8 +1,9 @@
 package bgpqworkers
 
 import (
-	"fmt"
-	"io"
+	"bytes"
+	"encoding/json"
+	"github.com/ipcjk/ixgen/ixtypes"
 	"os/exec"
 )
 
@@ -20,11 +21,10 @@ func NewBGPQ3Worker(Config BGPQ3Config) BGPQ3Worker {
 	return BGPQ3Worker{BGPQ3Config: Config}
 }
 
-func (b *BGPQ3Worker) GenPrefixList(w io.Writer, prefixListName, asMacro string, ipProtocol int) error {
-	var cmd *exec.Cmd
-	var err error
-	var styleParameter = "-j"
+func (b *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol int) (ixtypes.PrefixFilters, error) {
+	var w = new(bytes.Buffer)
 	var ipParameter string
+	var prefixFilters ixtypes.PrefixFilters
 
 	if ipProtocol == 4 {
 		ipParameter = "-4"
@@ -32,19 +32,20 @@ func (b *BGPQ3Worker) GenPrefixList(w io.Writer, prefixListName, asMacro string,
 		ipParameter = "-6"
 	}
 
-	if asMacro == "" {
-		return fmt.Errorf("No valid AS or Macro given on command line: %s", asMacro)
-	}
-
-	cmd = exec.Command(b.Executable, ipParameter, styleParameter, "-l", prefixListName, asMacro)
+	cmd := exec.Command(b.Executable, ipParameter, "-j", "-l", prefixListName, asMacro)
 	cmd.Stdout = w
 	cmd.Stderr = w
 
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
-		return err
+		return ixtypes.PrefixFilters{}, err
 	}
 
-	return nil
+	err = json.Unmarshal(w.Bytes(), &prefixFilters)
+	if err != nil {
+		return ixtypes.PrefixFilters{}, err
+	}
+
+	return prefixFilters, nil
 
 }

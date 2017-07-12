@@ -1,13 +1,12 @@
 package ixworkers
 
 import (
+	"github.com/ipcjk/ixgen/bgpq3workers"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"github.com/ipcjk/ixgen/peeringdb"
 	"log"
 	"strconv"
 	"sync"
-	"github.com/ipcjk/ixgen/bgpq3workers"
-	"bytes"
 )
 
 func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) ixtypes.IXs {
@@ -176,7 +175,6 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 
 func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtypes.IXs {
 	var wg sync.WaitGroup
-	w := new(bytes.Buffer)
 
 	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{
 		Executable: "/Users/joerg/Documents/Programmierung/bgpq3-0.1.21/bgpq3",
@@ -205,12 +203,21 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 					asMacro = peer.ASN
 				}
 
-				err := bgpWorker.GenPrefixList(w, peer.PrefixList, asMacro, 4)
-				if err != nil {
-					log.Println(err)
+				if peer.Ipv4Enabled {
+					prefixFilter, err := bgpWorker.GenPrefixList(peer.PrefixList, asMacro, 4)
+					if err != nil {
+						log.Println(err)
+					}
+					log.Println(prefixFilter)
 				}
 
-				log.Println(w)
+				if peer.Ipv6Enabled {
+					prefixFilter, err := bgpWorker.GenPrefixList(peer.PrefixList6, asMacro, 6)
+					if err != nil {
+						log.Println(err)
+					}
+					log.Println(prefixFilter)
+				}
 
 			}
 		}()
