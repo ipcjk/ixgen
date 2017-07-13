@@ -176,9 +176,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtypes.IXs {
 	var wg sync.WaitGroup
 
-	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{
-		Style:      "brocade/mlx",
-	})
+	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{})
 
 	wg.Add(len(exchanges))
 	for k := range exchanges {
