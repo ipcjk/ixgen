@@ -7,22 +7,26 @@ import (
 	"io"
 	"log"
 	"os"
-	"sync"
 )
 
 type Peergen struct {
 	style       string
 	templateDir string
 	peerFiles   []string
+	prefixFiles []string
 }
 
 func NewPeerGen(style, templateDir string) *Peergen {
-	return &Peergen{style, templateDir,
-		[]string{
+	return &Peergen{style: style, templateDir: templateDir,
+		peerFiles:[]string{
 			templateDir + "/" + style + "/header.tt",
 			templateDir + "/" + style + "/router.tt",
 			templateDir + "/" + style + "/footer.tt",
-		}}
+		},
+		prefixFiles:[]string{
+			templateDir + "/" + style + "/prefix.tt",
+		},
+	}
 }
 
 func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
@@ -68,24 +72,31 @@ func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) error {
 	return nil
 }
 
-func (p *Peergen) GeneratePrefixFilter(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) ixtypes.IXs {
-	var wg sync.WaitGroup
-	wg.Add(len(exchanges))
 
+func (p *Peergen) GenerateIXPrefixFilter(exchanges ixtypes.IXs, w io.Writer) {
 	for k := range exchanges {
-		var i = k
-		go func() {
-			defer wg.Done()
-			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
-				return
-			}
-			for _, peer := range exchanges[k].PeersReady {
-				if peer.PrefixFilter == true {
-					log.Println("Generare prefix filter for " + peer.ASN)
-				}
-			}
-		}()
+		err := p.GeneratePrefixFilter(exchanges[k], w)
+		if err != nil {
+			log.Print(err)
+		}
 	}
-	wg.Wait()
-	return exchanges
+}
+
+func (p *Peergen) GeneratePrefixFilter(ix ixtypes.Ix, w io.Writer)  error {
+	for i := range p.prefixFiles {
+		_, err := os.Stat(p.prefixFiles[i])
+		if err != nil {
+			continue
+		}
+
+		t, err := template.ParseFiles(p.prefixFiles[i])
+		if err != nil {
+			return fmt.Errorf("Cant open template file: %s", err)
+		}
+
+		if err := t.Execute(w, ix); err != nil {
+			return fmt.Errorf("Cant execute template: %s", err)
+		}
+	}
+	return nil
 }

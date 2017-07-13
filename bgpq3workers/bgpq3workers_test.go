@@ -21,12 +21,12 @@ func TestRunBGP3Worker(t *testing.T) {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
 
-	if prefixFilters.PrefixName != "as196922p4" {
+	if prefixFilters.PrefixRules != "as196922p4" {
 		t.Error("Cant find my home ipv4 PrefixName")
 	}
 
-	if len(prefixFilters.PrefixFilters) <= 4 ||
-		len(prefixFilters.PrefixFilters) >= 30 {
+	if len(prefixFilters.PrefixRules) <= 4 ||
+		len(prefixFilters.PrefixRules) >= 30 {
 		t.Error("Found too less or too many ipv4 prefixes, cant be!")
 	}
 
@@ -35,12 +35,12 @@ func TestRunBGP3Worker(t *testing.T) {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
 
-	if prefixFilters.PrefixName != "as196922p6" {
+	if prefixFilters.Name != "as196922p6" {
 		t.Error("Cant find my home ipv6 PrefixName")
 	}
 
-	if len(prefixFilters.PrefixFilters) == 0 ||
-		len(prefixFilters.PrefixFilters) >= 30 {
+	if len(prefixFilters.PrefixRules) == 0 ||
+		len(prefixFilters.PrefixRules) >= 30 {
 		t.Error("Found too less or too many ipv6 prefixes, cant be!")
 	}
 

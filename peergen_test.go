@@ -14,7 +14,7 @@ import (
 	"testing"
 )
 
-func TestBrocadeTemplate(t *testing.T) {
+func TestBrocadeIXTemplate(t *testing.T) {
 	var p = peergen.NewPeerGen("brocade/netiron", "./templates")
 	var Ix ixtypes.Ix
 	var buffer bytes.Buffer
@@ -25,7 +25,7 @@ func TestBrocadeTemplate(t *testing.T) {
 			Active:        true,
 			Ipv4Enabled:   true,
 			Ipv6Enabled:   true,
-			PrefixFilter:  false,
+			PrefixFilterEnabled:  false,
 			GroupEnabled:  true,
 			Group6Enabled: true,
 			IsRs:          false, IsRsPeer: true,
@@ -43,7 +43,7 @@ func TestBrocadeTemplate(t *testing.T) {
 			Active:        true,
 			Ipv4Enabled:   true,
 			Ipv6Enabled:   true,
-			PrefixFilter:  false,
+			PrefixFilterEnabled:  false,
 			GroupEnabled:  true,
 			Group6Enabled: true,
 			IsRs:          false, IsRsPeer: true,
@@ -55,6 +55,18 @@ func TestBrocadeTemplate(t *testing.T) {
 			IrrAsSet:        "AS-3356",
 			Group:           "decix-peer",
 			Group6:          "decix-peer6",
+			PrefixFilters: ixtypes.PrefixFilters{
+				Name: "3356peer",
+				PrefixRules: []ixtypes.PrefixRule {
+					{Prefix:"178.248.240.4/24", Exact: true,},
+				},
+			},
+			PrefixFilters6: ixtypes.PrefixFilters{
+				Name: "3356peer",
+				PrefixRules: []ixtypes.PrefixRule {
+					{Prefix:"2a02:1308::/32", GreaterEqual: 32, LessEqual: 48},
+				},
+			},
 		},
 	}
 
@@ -101,6 +113,56 @@ func TestBrocadeTemplate(t *testing.T) {
 		t.Error("Template too short or broken, not enough bgp neighbor commands")
 	}
 
+	filterWriter := bufio.NewWriter(new(bytes.Buffer))
+	err = p.GeneratePrefixFilter(Ix, filterWriter)
+	if err != nil {
+		t.Error(err)
+	}
+
+	err = filterWriter.Flush()
+	if err != nil {
+		t.Error("Cant flush generated configuration into buffer")
+	}
+}
+
+
+func TestBrocadePrefixFilterTemplate(t *testing.T) {
+	var p = peergen.NewPeerGen("brocade/netiron", "./templates")
+	var Ix ixtypes.Ix
+
+	Ix.PeersReady = []ixtypes.ExchangePeer{
+		{
+			ASN:           "3356",
+			Active:        true,
+			Ipv4Enabled:   true,
+			Ipv6Enabled:   true,
+			IrrAsSet:        "AS-3356",
+			PrefixFilterEnabled:  true,
+			PrefixFilters: ixtypes.PrefixFilters{
+				Name: "3356peer-4",
+				PrefixRules: []ixtypes.PrefixRule {
+					{Prefix:"178.248.240.4/24", Exact: true,},
+					{Prefix:"178.248.241.4/24", Exact: true,},
+				},
+			},
+			PrefixFilters6: ixtypes.PrefixFilters{
+				Name: "3356peer-6",
+				PrefixRules: []ixtypes.PrefixRule {
+					{Prefix:"2a02:1308::/32", GreaterEqual: 32, LessEqual: 48},
+					{Prefix:"2a02:1308::/48", Exact: true,},
+				},
+			},
+		},
+	}
+
+	buffer := new (bytes.Buffer)
+	err := p.GeneratePrefixFilter(Ix, buffer)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Error(buffer.String())
+
 }
 
 func TestAllTemplates(t *testing.T) {
@@ -108,6 +170,7 @@ func TestAllTemplates(t *testing.T) {
 	supportedTemplate := []string{
 		"brocade/netiron/router.tt",
 		"juniper/set/router.tt",
+		"brocade/netiron/prefix.tt",
 	}
 
 	for _, v := range supportedTemplate {

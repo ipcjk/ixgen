@@ -53,7 +53,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 							Active:        true,
 							Ipv4Enabled:   false,
 							Ipv6Enabled:   false,
-							PrefixFilter:  false,
+							PrefixFilterEnabled:  false,
 							GroupEnabled:  false,
 							Group6Enabled: false,
 							IsRs:          true, IsRsPeer: false,
@@ -136,7 +136,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 							Active:       true,
 							Ipv4Enabled:  false,
 							Ipv6Enabled:  false,
-							PrefixFilter: false,
+							PrefixFilterEnabled: false,
 							Ipv4Addr:     peer.Ipaddr4,
 							Ipv6Addr:     peer.Ipaddr6,
 						}
@@ -177,7 +177,7 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 	var wg sync.WaitGroup
 
 	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{
-		Executable: "/Users/joerg/Documents/Programmierung/bgpq3-0.1.21/bgpq3",
+		Executable: "/Users/joerg/Documents/Programmierung/bgpq3/bgpq3",
 		Style:      "brocade/mlx",
 	})
 
@@ -190,35 +190,33 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 				return
 			}
 
-			for _, peer := range exchanges[k].PeersReady {
+			for i := range exchanges[k].PeersReady {
 				var asMacro string
+				var err error
 
-				if peer.IsRs {
+				if exchanges[k].PeersReady[i].IsRs {
 					continue
 				}
 
-				if peer.IrrAsSet != "" {
-					asMacro = peer.IrrAsSet
+				if exchanges[k].PeersReady[i].IrrAsSet != "" {
+					asMacro = exchanges[k].PeersReady[i].IrrAsSet
 				} else {
-					asMacro = peer.ASN
+					asMacro = exchanges[k].PeersReady[i].ASN
 				}
 
-				if peer.Ipv4Enabled {
-					prefixFilter, err := bgpWorker.GenPrefixList(peer.PrefixList, asMacro, 4)
+				if exchanges[k].PeersReady[i].Ipv4Enabled {
+					exchanges[k].PeersReady[i].PrefixFilters, err = bgpWorker.GenPrefixList(exchanges[k].PeersReady[i].PrefixList, asMacro, 4)
 					if err != nil {
 						log.Println(err)
 					}
-					log.Println(prefixFilter)
 				}
 
-				if peer.Ipv6Enabled {
-					prefixFilter, err := bgpWorker.GenPrefixList(peer.PrefixList6, asMacro, 6)
+				if exchanges[k].PeersReady[i].Ipv6Enabled {
+					exchanges[k].PeersReady[i].PrefixFilters6, err = bgpWorker.GenPrefixList(exchanges[k].PeersReady[i].PrefixList6, asMacro, 6)
 					if err != nil {
 						log.Println(err)
 					}
-					log.Println(prefixFilter)
 				}
-
 			}
 		}()
 	}

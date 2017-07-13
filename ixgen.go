@@ -75,7 +75,7 @@ func main() {
 
 	/* Merge PeeringDB */
 	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN)
-	/* Merge BGPq3 */
+	/* Merge BGPq3 prefixFilters */
 	exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)
 
 	if !printOrExit {
@@ -90,6 +90,8 @@ func main() {
 		}
 		defer outputStream.Close()
 		peerGenerator.GenerateIXs(exchanges, outputStream)
+		peerGenerator.GenerateIXPrefixFilter(exchanges, outputStream)
+
 	}
 }
 

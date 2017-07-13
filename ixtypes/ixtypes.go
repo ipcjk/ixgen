@@ -4,26 +4,28 @@ import "net"
 
 /* This structure will be passed to the normal text template */
 type ExchangePeer struct {
-	Active          bool   `json:"active"`
-	ASN             string `json:"asn"`
-	Group           string `json:"group"`
-	Group6          string `json:"group6"`
-	GroupEnabled    bool   `json:"groupenabled"`
-	Group6Enabled   bool   `json:"group6_enabled"`
-	InfoPrefixes4   int64  `json:"infoprefixes4"`
-	InfoPrefixes6   int64  `json:"infoprefixes6"`
-	Ipv4Addr        net.IP `json:"ipv4addr"`
-	Ipv6Addr        net.IP `json:"ipv6addr"`
-	Ipv4Enabled     bool   `json:"ipv4enabled"`
-	Ipv6Enabled     bool   `json:"ipv6enabled"`
-	IrrAsSet        string `json:"irrasset"`
-	IsRs            bool   `json:"isrs"`
-	IsRsPeer        bool   `json:"isrsper"`
-	LocalPreference int    `json:"localpreference"`
-	PrefixFilter    bool   `json:"prefixfilter"`
-	PrefixList      string `json:"prefixlist"`
-	PrefixList6     string `json:"prefixlist6"`
-	Unconfigured    bool   `json:"unconfigured"`
+	Active              bool          `json:"active"`
+	ASN                 string        `json:"asn"`
+	Group               string        `json:"group"`
+	Group6              string        `json:"group6"`
+	GroupEnabled        bool          `json:"groupenabled"`
+	Group6Enabled       bool          `json:"group6_enabled"`
+	InfoPrefixes4       int64         `json:"infoprefixes4"`
+	InfoPrefixes6       int64         `json:"infoprefixes6"`
+	Ipv4Addr            net.IP        `json:"ipv4addr"`
+	Ipv6Addr            net.IP        `json:"ipv6addr"`
+	Ipv4Enabled         bool          `json:"ipv4enabled"`
+	Ipv6Enabled         bool          `json:"ipv6enabled"`
+	IrrAsSet            string        `json:"irrasset"`
+	IsRs                bool          `json:"isrs"`
+	IsRsPeer            bool          `json:"isrsper"`
+	LocalPreference     int           `json:"localpreference"`
+	PrefixFilterEnabled bool          `json:"prefixfilter"`
+	PrefixFilters       PrefixFilters `json:"prefixfilters"`
+	PrefixFilters6       PrefixFilters `json:"prefixfilters"`
+	PrefixList          string        `json:"prefixlist"`
+	PrefixList6         string        `json:"prefixlist6"`
+	Unconfigured        bool          `json:"unconfigured"`
 }
 
 type ExchangeOption string
@@ -46,7 +48,7 @@ type Ix struct {
 /* PrefixFilters is part of structure to load and
 template filters from bgpq3
 */
-type PrefixFilter struct {
+type PrefixRule struct {
 	Exact        bool   `json:"exact"`
 	GreaterEqual int64  `json:"greater-equal"`
 	LessEqual    int64  `json:"less-equal"`
@@ -58,8 +60,8 @@ template PrefixFilters from bgpq3
 */
 
 type PrefixFilters struct {
-	PrefixName    string `json:"PrefixName"`
-	PrefixFilters []PrefixFilter
+	Name    string `json:"Name"`
+	PrefixRules []PrefixRule
 }
 
 type IXs []Ix
