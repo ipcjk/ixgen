@@ -20,7 +20,7 @@ type BGPQ3Worker struct {
 
 func NewBGPQ3Worker(Config BGPQ3Config) BGPQ3Worker {
 	if runtime.GOOS == "linux" {
-		Config.Executable = "./bgpq3workers/bgpq3"
+		Config.Executable = "./bgpq3workers/bgpq3.linux"
 	} else if runtime.GOOS == "darwin" {
 		Config.Executable = "./bgpq3workers/bgpq3.mac"
 	}
