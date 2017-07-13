@@ -177,7 +177,7 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 	var wg sync.WaitGroup
 
 	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{
-		Executable: "/Users/joerg/Documents/Programmierung/bgpq3/bgpq3",
+		Executable: "/Users/joerg/golang/src/github.com/ipcjk/ixgen/bgpq3workers/",
 		Style:      "brocade/mlx",
 	})
 

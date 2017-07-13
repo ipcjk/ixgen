@@ -20,9 +20,9 @@ type BGPQ3Worker struct {
 
 func NewBGPQ3Worker(Config BGPQ3Config) BGPQ3Worker {
 	if runtime.GOOS == "linux" {
-		Config.Executable = "./bgpq3.linux"
+		Config.Executable += "./bgpq3.linux"
 	} else if runtime.GOOS == "darwin" {
-		Config.Executable = "./bgpq3.mac"
+		Config.Executable += "./bgpq3.mac"
 	}
 	return BGPQ3Worker{BGPQ3Config: Config}
 }
@@ -39,16 +39,11 @@ func (b *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol i
 		ipParameter = "-6"
 	}
 
-	path, err := exec.LookPath("./" + b.Executable)
-	if err != nil {
-		return ixtypes.PrefixFilters{}, err
-	}
-
-	cmd := exec.Command(path, ipParameter, aggregateParameter, "-j", "-l", prefixListName, asMacro)
+	cmd := exec.Command(b.Executable, ipParameter, aggregateParameter, "-j", "-l", prefixListName, asMacro)
 	cmd.Stdout = w
 	cmd.Stderr = w
 
-	err = cmd.Run()
+	err := cmd.Run()
 	if err != nil {
 		return ixtypes.PrefixFilters{}, err
 	}
