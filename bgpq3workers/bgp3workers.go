@@ -3,9 +3,7 @@ package bgpqworkers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/ipcjk/ixgen/ixtypes"
-	"log"
 	"os"
 	"os/exec"
 	"runtime"
