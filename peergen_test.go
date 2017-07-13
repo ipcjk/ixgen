@@ -21,14 +21,14 @@ func TestBrocadeIXTemplate(t *testing.T) {
 
 	Ix.PeersReady = []ixtypes.ExchangePeer{
 		{
-			ASN:           "196922",
-			Active:        true,
-			Ipv4Enabled:   true,
-			Ipv6Enabled:   true,
-			PrefixFilterEnabled:  false,
-			GroupEnabled:  true,
-			Group6Enabled: true,
-			IsRs:          false, IsRsPeer: true,
+			ASN:                 "196922",
+			Active:              true,
+			Ipv4Enabled:         true,
+			Ipv6Enabled:         true,
+			PrefixFilterEnabled: false,
+			GroupEnabled:        true,
+			Group6Enabled:       true,
+			IsRs:                false, IsRsPeer: true,
 			Ipv4Addr:        net.ParseIP("127.0.0.1"),
 			Ipv6Addr:        net.ParseIP("3ffe:ffff::/32"),
 			InfoPrefixes6:   10,
@@ -39,14 +39,14 @@ func TestBrocadeIXTemplate(t *testing.T) {
 			Group6:          "decix-peer6",
 		},
 		{
-			ASN:           "3356",
-			Active:        true,
-			Ipv4Enabled:   true,
-			Ipv6Enabled:   true,
-			PrefixFilterEnabled:  false,
-			GroupEnabled:  true,
-			Group6Enabled: true,
-			IsRs:          false, IsRsPeer: true,
+			ASN:                 "3356",
+			Active:              true,
+			Ipv4Enabled:         true,
+			Ipv6Enabled:         true,
+			PrefixFilterEnabled: false,
+			GroupEnabled:        true,
+			Group6Enabled:       true,
+			IsRs:                false, IsRsPeer: true,
 			Ipv4Addr:        net.ParseIP("127.3.3.56"),
 			Ipv6Addr:        net.ParseIP("3ffe:ffff:3356::/32"),
 			InfoPrefixes6:   10,
@@ -57,14 +57,14 @@ func TestBrocadeIXTemplate(t *testing.T) {
 			Group6:          "decix-peer6",
 			PrefixFilters: ixtypes.PrefixFilters{
 				Name: "3356peer",
-				PrefixRules: []ixtypes.PrefixRule {
-					{Prefix:"178.248.240.4/24", Exact: true,},
+				PrefixRules: []ixtypes.PrefixRule{
+					{Prefix: "178.248.240.4/24", Exact: true},
 				},
 			},
 			PrefixFilters6: ixtypes.PrefixFilters{
 				Name: "3356peer",
-				PrefixRules: []ixtypes.PrefixRule {
-					{Prefix:"2a02:1308::/32", GreaterEqual: 32, LessEqual: 48},
+				PrefixRules: []ixtypes.PrefixRule{
+					{Prefix: "2a02:1308::/32", GreaterEqual: 32, LessEqual: 48},
 				},
 			},
 		},
@@ -125,43 +125,48 @@ func TestBrocadeIXTemplate(t *testing.T) {
 	}
 }
 
-
 func TestBrocadePrefixFilterTemplate(t *testing.T) {
 	var p = peergen.NewPeerGen("brocade/netiron", "./templates")
 	var Ix ixtypes.Ix
 
 	Ix.PeersReady = []ixtypes.ExchangePeer{
 		{
-			ASN:           "3356",
-			Active:        true,
-			Ipv4Enabled:   true,
-			Ipv6Enabled:   true,
-			IrrAsSet:        "AS-3356",
-			PrefixFilterEnabled:  true,
+			ASN:                 "3356",
+			Active:              true,
+			Ipv4Enabled:         true,
+			Ipv6Enabled:         true,
+			IrrAsSet:            "AS-3356",
+			PrefixFilterEnabled: true,
 			PrefixFilters: ixtypes.PrefixFilters{
 				Name: "3356peer-4",
-				PrefixRules: []ixtypes.PrefixRule {
-					{Prefix:"178.248.240.4/24", Exact: true,},
-					{Prefix:"178.248.241.4/24", Exact: true,},
+				PrefixRules: []ixtypes.PrefixRule{
+					{Prefix: "178.248.240.0/21", Exact: true},
+					{Prefix: "178.248.241.0/24", Exact: true},
 				},
 			},
 			PrefixFilters6: ixtypes.PrefixFilters{
 				Name: "3356peer-6",
-				PrefixRules: []ixtypes.PrefixRule {
-					{Prefix:"2a02:1308::/32", GreaterEqual: 32, LessEqual: 48},
-					{Prefix:"2a02:1308::/48", Exact: true,},
+				PrefixRules: []ixtypes.PrefixRule{
+					{Prefix: "2a02:1308::/32", GreaterEqual: 32, LessEqual: 48},
+					{Prefix: "2a02:1308::/48", Exact: true},
 				},
 			},
 		},
 	}
 
-	buffer := new (bytes.Buffer)
+	buffer := new(bytes.Buffer)
 	err := p.GeneratePrefixFilter(Ix, buffer)
 	if err != nil {
 		t.Error(err)
 	}
 
-	t.Error(buffer.String())
+	if !strings.ContainsAny(buffer.String(), "2a02:1308::/48") {
+		t.Error("Cant find my home prefix in ipv6-prefixlist")
+	}
+
+	if !strings.ContainsAny(buffer.String(), "178.248.240.0/24") {
+		t.Error("Cant find my home prefix in ip prefixlist")
+	}
 
 }
 
@@ -171,6 +176,7 @@ func TestAllTemplates(t *testing.T) {
 		"brocade/netiron/router.tt",
 		"juniper/set/router.tt",
 		"brocade/netiron/prefix.tt",
+		"brocade/netiron/prefix6.tt",
 	}
 
 	for _, v := range supportedTemplate {

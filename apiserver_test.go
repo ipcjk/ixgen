@@ -96,8 +96,8 @@ func TestPostJsonOnApiServer(t *testing.T) {
 	"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"714":[{"active":
 	true,"asn":"714","group":"","group6":"","groupenabled":true,"group6_enabled":true,
 	"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,
-	"ipv6enabled":false,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,
-	"prefixfilter":false}]}}}]`
+	"ipv6enabled":false,"irrasset":"AS-APPLE","isrs":false,"isrsper":false,"localpreference":0,
+	"prefixfilter":true}]}}}]`
 
 	var newBuffer = bytes.NewBuffer([]byte(peering))
 	var ixs ixtypes.IXs

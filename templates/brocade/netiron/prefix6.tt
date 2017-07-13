@@ -1,0 +1,3 @@
+{{ if .Ipv6Enabled }}{{ if .PrefixFilterEnabled }}{{ $prefixName := .PrefixFilters6.Name }}{{ range .PrefixFilters6.PrefixRules }}
+ipv6 prefix-list {{$prefixName}} permit {{ .Prefix}}{{ if .GreaterEqual }} ge {{.GreaterEqual}} {{ end}}{{ if .LessEqual  }}le {{ .LessEqual }}{{ end}}{{ end}}
+{{ end}}{{ end}}

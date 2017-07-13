@@ -18,13 +18,14 @@ type Peergen struct {
 
 func NewPeerGen(style, templateDir string) *Peergen {
 	return &Peergen{style: style, templateDir: templateDir,
-		peerFiles:[]string{
+		peerFiles: []string{
 			templateDir + "/" + style + "/header.tt",
 			templateDir + "/" + style + "/router.tt",
 			templateDir + "/" + style + "/footer.tt",
 		},
-		prefixFiles:[]string{
+		prefixFiles: []string{
 			templateDir + "/" + style + "/prefix.tt",
+			templateDir + "/" + style + "/prefix6.tt",
 		},
 	}
 }
@@ -72,7 +73,6 @@ func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) error {
 	return nil
 }
 
-
 func (p *Peergen) GenerateIXPrefixFilter(exchanges ixtypes.IXs, w io.Writer) {
 	for k := range exchanges {
 		err := p.GeneratePrefixFilter(exchanges[k], w)
@@ -82,7 +82,9 @@ func (p *Peergen) GenerateIXPrefixFilter(exchanges ixtypes.IXs, w io.Writer) {
 	}
 }
 
-func (p *Peergen) GeneratePrefixFilter(ix ixtypes.Ix, w io.Writer)  error {
+func (p *Peergen) GeneratePrefixFilter(ix ixtypes.Ix, w io.Writer) error {
+	var seenFilter map[string]bool = make(map[string]bool)
+
 	for i := range p.prefixFiles {
 		_, err := os.Stat(p.prefixFiles[i])
 		if err != nil {
@@ -94,8 +96,17 @@ func (p *Peergen) GeneratePrefixFilter(ix ixtypes.Ix, w io.Writer)  error {
 			return fmt.Errorf("Cant open template file: %s", err)
 		}
 
-		if err := t.Execute(w, ix); err != nil {
-			return fmt.Errorf("Cant execute template: %s", err)
+		/* We try not to output the same prefixFilter for the same IX ,
+		but this code will limit us for "one"-shot on one template file
+		*/
+		for _, peer := range ix.PeersReady {
+			if !seenFilter[peer.PrefixFilters.Name] || !seenFilter[peer.PrefixFilters6.Name] {
+				if err := t.Execute(w, peer); err != nil {
+					return fmt.Errorf("Cant execute template: %s", err)
+				}
+				seenFilter[peer.PrefixFilters.Name] = true
+				seenFilter[peer.PrefixFilters6.Name] = true
+			}
 		}
 	}
 	return nil

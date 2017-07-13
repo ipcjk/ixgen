@@ -22,7 +22,7 @@ type ExchangePeer struct {
 	LocalPreference     int           `json:"localpreference"`
 	PrefixFilterEnabled bool          `json:"prefixfilter"`
 	PrefixFilters       PrefixFilters `json:"prefixfilters"`
-	PrefixFilters6       PrefixFilters `json:"prefixfilters"`
+	PrefixFilters6      PrefixFilters `json:"prefixfilters6"`
 	PrefixList          string        `json:"prefixlist"`
 	PrefixList6         string        `json:"prefixlist6"`
 	Unconfigured        bool          `json:"unconfigured"`
@@ -60,7 +60,7 @@ template PrefixFilters from bgpq3
 */
 
 type PrefixFilters struct {
-	Name    string `json:"Name"`
+	Name        string `json:"Name"`
 	PrefixRules []PrefixRule
 }
 

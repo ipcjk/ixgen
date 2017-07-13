@@ -9,9 +9,8 @@ func TestRunBGP3Worker(t *testing.T) {
 	testAsMacro := "AS196922"
 
 	Config := BGPQ3Config{
-		Executable: "/Users/joerg/Documents/Programmierung/bgpq3-0.1.21/bgpq3",
-		Style:      "brocade/mlx",
-		Arguments:  []string{"-4"},
+		Style:     "brocade/mlx",
+		Arguments: []string{"-4"},
 	}
 
 	bgpWorker := NewBGPQ3Worker(Config)
@@ -21,7 +20,7 @@ func TestRunBGP3Worker(t *testing.T) {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
 
-	if prefixFilters.PrefixRules != "as196922p4" {
+	if prefixFilters.Name != "as196922p4" {
 		t.Error("Cant find my home ipv4 PrefixName")
 	}
 

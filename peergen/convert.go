@@ -34,6 +34,10 @@ func (p *Peergen) ConvertIxToBrocadeSlxJSON(ixs ixtypes.IXs, w io.Writer) {
 	fmt.Fprint(w, "Not done yet")
 }
 
+/* The function ConvertIxToJuniperJSON converts native format to a JUNOS
+compatible JSON-configuration.
+FIXME NEEDS support for the prefix list
+*/
 func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 	var junosConfiguration = junOsJSON{
 		[]junosConfiguration{
@@ -121,42 +125,3 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 
 	fmt.Fprint(w, string(res))
 }
-
-/*
-var junosConfiguration = junOsJSON{
-	[]junosConfiguration{
-		{
-			junosAttributes{},
-			[]junosBGPProtocol{
-				{
-					[]junosBgpGroup{
-						{[]junosGroup{
-							junosGroup{
-								junosDataString{"Group"},
-								[]junosNeighbor{
-									{junosDataIP{},
-									 []junosDataInt64String{},
-									},
-
-								},
-							},
-						}},
-					},
-				},
-			},
-		},
-	},
-}
-
-	/* Generate Group for peers without Group */
-/*
-var wildgroup = junosGroup{
-	junosDataString{"Group"},
-	[]junosNeighbor{
-		{junosDataIP{net.IP("127.0.0.1")},
-			[]junosDataInt64String{},
-		},
-
-	},
-}
-*/

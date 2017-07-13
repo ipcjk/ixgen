@@ -49,14 +49,14 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 
 					rsPeer :=
 						ixtypes.ExchangePeer{
-							ASN:           peerASN,
-							Active:        true,
-							Ipv4Enabled:   false,
-							Ipv6Enabled:   false,
-							PrefixFilterEnabled:  false,
-							GroupEnabled:  false,
-							Group6Enabled: false,
-							IsRs:          true, IsRsPeer: false,
+							ASN:                 peerASN,
+							Active:              true,
+							Ipv4Enabled:         false,
+							Ipv6Enabled:         false,
+							PrefixFilterEnabled: false,
+							GroupEnabled:        false,
+							Group6Enabled:       false,
+							IsRs:                true, IsRsPeer: false,
 							Ipv4Addr: peer.Ipaddr4,
 							Ipv6Addr: peer.Ipaddr6,
 							IrrAsSet: peerDbNetwork.Data[0].IrrAsSet,
@@ -132,13 +132,13 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 					// Wildcard, we take everything
 					wildPeer :=
 						ixtypes.ExchangePeer{
-							ASN:          peerASN,
-							Active:       true,
-							Ipv4Enabled:  false,
-							Ipv6Enabled:  false,
+							ASN:                 peerASN,
+							Active:              true,
+							Ipv4Enabled:         false,
+							Ipv6Enabled:         false,
 							PrefixFilterEnabled: false,
-							Ipv4Addr:     peer.Ipaddr4,
-							Ipv6Addr:     peer.Ipaddr6,
+							Ipv4Addr:            peer.Ipaddr4,
+							Ipv6Addr:            peer.Ipaddr6,
 						}
 					if peer.Ipaddr6 != nil {
 						wildPeer.Ipv6Enabled = true
@@ -190,29 +190,29 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 				return
 			}
 
-			for i := range exchanges[k].PeersReady {
+			for j := range exchanges[i].PeersReady {
 				var asMacro string
 				var err error
 
-				if exchanges[k].PeersReady[i].IsRs {
+				if exchanges[i].PeersReady[j].IsRs {
 					continue
 				}
 
-				if exchanges[k].PeersReady[i].IrrAsSet != "" {
-					asMacro = exchanges[k].PeersReady[i].IrrAsSet
+				if exchanges[i].PeersReady[j].IrrAsSet != "" {
+					asMacro = exchanges[i].PeersReady[j].IrrAsSet
 				} else {
-					asMacro = exchanges[k].PeersReady[i].ASN
+					asMacro = "AS" + exchanges[i].PeersReady[j].ASN
 				}
 
-				if exchanges[k].PeersReady[i].Ipv4Enabled {
-					exchanges[k].PeersReady[i].PrefixFilters, err = bgpWorker.GenPrefixList(exchanges[k].PeersReady[i].PrefixList, asMacro, 4)
+				if exchanges[i].PeersReady[j].Ipv4Enabled {
+					exchanges[i].PeersReady[j].PrefixFilters, err = bgpWorker.GenPrefixList(exchanges[i].PeersReady[j].PrefixList, asMacro, 4)
 					if err != nil {
 						log.Println(err)
 					}
 				}
 
-				if exchanges[k].PeersReady[i].Ipv6Enabled {
-					exchanges[k].PeersReady[i].PrefixFilters6, err = bgpWorker.GenPrefixList(exchanges[k].PeersReady[i].PrefixList6, asMacro, 6)
+				if exchanges[i].PeersReady[j].Ipv6Enabled {
+					exchanges[i].PeersReady[j].PrefixFilters6, err = bgpWorker.GenPrefixList(exchanges[i].PeersReady[j].PrefixList6, asMacro, 6)
 					if err != nil {
 						log.Println(err)
 					}
