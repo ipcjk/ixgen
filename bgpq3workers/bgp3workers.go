@@ -3,7 +3,10 @@ package bgpqworkers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/ipcjk/ixgen/ixtypes"
+	"log"
+	"os"
 	"os/exec"
 	"runtime"
 )
@@ -19,11 +22,15 @@ type BGPQ3Worker struct {
 }
 
 func NewBGPQ3Worker(Config BGPQ3Config) BGPQ3Worker {
+
 	if runtime.GOOS == "linux" {
-		Config.Executable += "./bgpq3.linux"
+		Config.Executable = "bgpq3.linux"
 	} else if runtime.GOOS == "darwin" {
-		Config.Executable += "./bgpq3.mac"
+		Config.Executable = "bgpq3.mac"
 	}
+
+	Config.Executable = findExecutable(Config.Executable)
+
 	return BGPQ3Worker{BGPQ3Config: Config}
 }
 
@@ -55,4 +62,15 @@ func (b *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol i
 
 	return prefixFilters, nil
 
+}
+
+func findExecutable(execName string) string {
+	if _, err := os.Stat(execName); err == nil {
+		return "./" + execName
+	} else if _, err := os.Stat("../" + execName); err == nil {
+		return "../" + execName
+	} else if path, err := exec.LookPath(execName); err == nil {
+		return path
+	}
+	return execName
 }
