@@ -8,10 +8,7 @@ import (
 func TestRunBGP3Worker(t *testing.T) {
 	testAsMacro := "AS196922"
 
-	Config := BGPQ3Config{
-		Style:     "brocade/mlx",
-		Arguments: []string{"-4"},
-	}
+	Config := BGPQ3Config{}
 
 	bgpWorker := NewBGPQ3Worker(Config)
 

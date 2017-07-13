@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/ipcjk/ixgen/ixtypes"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
@@ -11,8 +12,6 @@ import (
 
 type BGPQ3Config struct {
 	Executable string
-	Arguments  []string
-	Style      string
 }
 
 type BGPQ3Worker struct {
@@ -69,6 +68,8 @@ func findExecutable(execName string) string {
 		return "../" + execName
 	} else if path, err := exec.LookPath(execName); err == nil {
 		return path
+	} else {
+		log.Fatalf("Cant find " + execName)
 	}
 	return execName
 }
