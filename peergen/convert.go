@@ -42,21 +42,25 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 	var junosConfiguration = junOsJSON{
 		[]junosConfiguration{
 			{
-				junosAttributes{},
-				[]junosBGPProtocol{
+				Attributes: junosAttributes{},
+				Protocols: []junosBGPProtocol{
 					{
-						[]junosBgpGroup{
-							{[]junosGroup{}},
+						Bgp: []junosBgpGroup{
+							{Group: []junosGroup{}},
 						},
 					},
 				},
+				PolicyOptions: []junosPolicyOptions{},
 			},
 		},
 	}
 
+	/* Attention, peering to JSON only works if a PEERGROUP is there
+	 */
 	for _, ix := range ixs {
 		for k := range ix.PeeringGroups {
 			var junosPeerConfiguration junosGroup
+			var junosPrefixList junosPrefixList
 			for i := range ix.PeersReady {
 				if ix.PeersReady[i].Group == k {
 					junosPeerConfiguration.Name = junosDataString{k}
@@ -83,6 +87,14 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								Name:   junosDataIP{Data: ix.PeersReady[i].Ipv4Addr},
 								PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 							})
+						if ix.PeersReady[i].PrefixFilterEnabled {
+							junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
+							for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
+								junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
+									Name: junosDataString{Data: PrefixRule.Prefix},
+								})
+							}
+						}
 					}
 					if ix.PeersReady[i].Ipv6Enabled {
 						junosPeerConfiguration.Neighbor = append(junosPeerConfiguration.Neighbor,

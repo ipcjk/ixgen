@@ -1,0 +1,10 @@
+{{ if .Ipv4Enabled }}{{ if .PrefixFilterEnabled }}
+{{ $prefixName := .PrefixFilters.Name }}
+delete policy-options prefix-list {{$prefixName}}{{ range .PrefixFilters.PrefixRules }}
+set policy-options prefix-list {{$prefixName}} {{ .Prefix}}{{ end}}{{ end}}
+{{ end}}
+{{ if .Ipv6Enabled }}{{ if .PrefixFilterEnabled }}
+{{ $prefixName := .PrefixFilters6.Name }}
+delete policy-options prefix-list {{$prefixName}}{{ range .PrefixFilters6.PrefixRules }}
+set policy-options prefix-list {{$prefixName}} {{ .Prefix}}{{ end}}{{ end}}
+{{ end}}

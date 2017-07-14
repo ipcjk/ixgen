@@ -95,6 +95,12 @@ func ReadPeeringConfig(r io.Reader) ixtypes.IXs {
 			if ix.Options[currentHead]["routeserver_group6"] != "" {
 				ix.PeeringGroups[string(ix.Options[currentHead]["routeserver_group6"])] = true
 			}
+			if ix.Options[currentHead]["peer_group6"] != "" {
+				ix.PeeringGroups[string(ix.Options[currentHead]["peer_group6"])] = true
+			}
+			if ix.Options[currentHead]["peer_group"] != "" {
+				ix.PeeringGroups[string(ix.Options[currentHead]["peer_group"])] = true
+			}
 		} else if line != "" && whichSection == peers {
 			Peer := ParsePeerLine(line, lineNum)
 			if Peer.Active == true {

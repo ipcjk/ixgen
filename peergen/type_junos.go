@@ -14,6 +14,14 @@ type junosDataInt64String struct {
 	Data string `json:"data"`
 }
 
+type junosDataPrefix struct {
+	Data string `json:"data"`
+}
+
+type junosPrefixName struct {
+	Data string `json:"data"`
+}
+
 type junosNeighbor struct {
 	Family junosFamily            `json:"family"`
 	Name   junosDataIP            `json:"name"`
@@ -64,9 +72,23 @@ type junosBGPProtocol struct {
 	Bgp []junosBgpGroup `json:"bgp"`
 }
 
+type junosPrefixListItem struct {
+	Name junosDataString `json:"name"`
+}
+
+type junosPrefixList struct {
+	Name           junosDataString       `json:"name"`
+	PrefixListItem []junosPrefixListItem `json:"prefix-list-item"`
+}
+
+type junosPolicyOptions struct {
+	PrefixList []junosPrefixList `json:"prefix-list"`
+}
+
 type junosConfiguration struct {
-	Attributes junosAttributes    `json:"attributes"`
-	Protocols  []junosBGPProtocol `json:"protocols"`
+	Attributes    junosAttributes      `json:"attributes"`
+	Protocols     []junosBGPProtocol   `json:"protocols"`
+	PolicyOptions []junosPolicyOptions `json:"policy-options"`
 }
 
 type junOsJSON struct {
