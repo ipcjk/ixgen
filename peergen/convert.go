@@ -50,7 +50,7 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 						},
 					},
 				},
-				PolicyOptions: []junosPolicyOptions{},
+				PolicyOptions: []junosPolicyOptions{{}},
 			},
 		},
 	}
@@ -60,7 +60,6 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 	for _, ix := range ixs {
 		for k := range ix.PeeringGroups {
 			var junosPeerConfiguration junosGroup
-			var junosPrefixList junosPrefixList
 			for i := range ix.PeersReady {
 				if ix.PeersReady[i].Group == k {
 					junosPeerConfiguration.Name = junosDataString{k}
@@ -88,12 +87,15 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 							})
 						if ix.PeersReady[i].PrefixFilterEnabled {
+							var junosPrefixList junosPrefixList
 							junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
 							for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
 								junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
 									Name: junosDataString{Data: PrefixRule.Prefix},
 								})
 							}
+							junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
+								append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 						}
 					}
 					if ix.PeersReady[i].Ipv6Enabled {
@@ -114,14 +116,29 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								Name:   junosDataIP{Data: ix.PeersReady[i].Ipv6Addr},
 								PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 							})
+						if ix.PeersReady[i].PrefixFilterEnabled {
+							var junosPrefixList junosPrefixList
+							junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters6.Name}
+							for _, PrefixRule := range ix.PeersReady[i].PrefixFilters6.PrefixRules {
+								junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
+									Name: junosDataString{Data: PrefixRule.Prefix},
+								})
+							}
+							junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
+								append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
+						}
 					}
 					if len(junosPeerConfiguration.Neighbor) > 0 {
 						junosConfiguration.Configuration[0].Protocols[0].Bgp[0].Group = append(
 							junosConfiguration.Configuration[0].Protocols[0].Bgp[0].Group,
 							junosPeerConfiguration)
 					}
+					// FIXME
+					//	junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
+					//		append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 				}
 			}
+
 		}
 	}
 
