@@ -133,12 +133,8 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 							junosConfiguration.Configuration[0].Protocols[0].Bgp[0].Group,
 							junosPeerConfiguration)
 					}
-					// FIXME
-					//	junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
-					//		append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 				}
 			}
-
 		}
 	}
 
