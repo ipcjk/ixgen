@@ -1,6 +1,6 @@
 {{ if .Ipv4Enabled }}{{ if .PrefixFilterEnabled }}
 {{ $prefixName := .PrefixFilters.Name }}no ip prefix-list {{$prefixName}}{{ range .PrefixFilters.PrefixRules }}
-ip prefix-list {{$prefixName}} permit {{ .Prefix}}{{ if .GreaterEqual }} ge {{.GreaterEqual}} {{ end}}{{ if .LessEqual  }}le {{ .LessEqual }}{{ end}}{{ end}}
+ip prefix-list {{$prefixName}} permit {{ .Prefix}}{{ if .GreaterEqual }} ge {{.GreaterEqual}} {{ end}}{{ if .LessEqual  }} le {{ .LessEqual }}{{ end}}{{ end}}
 {{ end}}{{ end}}{{ if .Ipv6Enabled }}{{ if .PrefixFilterEnabled }}{{ $prefixName := .PrefixFilters6.Name }}no ipv6 prefix-list {{$prefixName}}{{ range .PrefixFilters6.PrefixRules }}
-ipv6 prefix-list {{$prefixName}} permit {{ .Prefix}}{{ if .GreaterEqual }} ge {{.GreaterEqual}} {{ end}}{{ if .LessEqual  }}le {{ .LessEqual }}{{ end}}{{ end}}
+ipv6 prefix-list {{$prefixName}} permit {{ .Prefix}}{{ if .GreaterEqual }} ge {{.GreaterEqual}} {{ end}}{{ if .LessEqual  }} le {{ .LessEqual }}{{ end}}{{ end}}
 {{ end}}{{ end}}
