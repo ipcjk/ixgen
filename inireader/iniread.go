@@ -26,6 +26,7 @@ var PossibleOptions = map[string]bool{
 	"routeserver_prefixes":  true,
 	"routeserver_prefixes6": true,
 	"rs_asn":                true,
+	"bgpq3Aggregate":        true,
 }
 
 const (
