@@ -56,7 +56,6 @@ func TestExchangeOption(t *testing.T) {
 	inireader.ParseOptionLine("rs_asn=6695", ixConfig, "testIX")
 	inireader.ParseOptionLine("bgpq3Aggregate=1", ixConfig, "testIX")
 
-
 	/* Check that we covered all cases from inireader */
 	for k := range inireader.PossibleOptions {
 		_, ok := ixConfig["testIX"][k]

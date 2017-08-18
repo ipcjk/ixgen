@@ -30,6 +30,7 @@ var peerGenerator *peergen.Peergen
 var printOrExit bool
 var buildCache bool
 var version bool
+var prefixFactor float64
 
 /* Api server / uri */
 var cacheDirectory string
@@ -48,6 +49,7 @@ func init() {
 	flag.BoolVar(&buildCache, "buildcache", false, "download json files for caching from peeringdb")
 	flag.Int64Var(&myASN, "myasn", 0, "exclude your own asn from the generator")
 	flag.BoolVar(&version, "version", false, "prints version and exit")
+	flag.Float64Var(&prefixFactor, "prefixfactor", 1.2, "factor for maximum-prefix numbers")
 
 	/* Api-service-thread on localhost */
 	flag.BoolVar(&noapiservice, "noapiservice", false, "do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
@@ -74,7 +76,7 @@ func main() {
 	var err error
 
 	/* Merge PeeringDB */
-	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN)
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN, prefixFactor)
 	/* Merge BGPq3 prefixFilters */
 	exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)
 

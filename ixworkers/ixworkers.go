@@ -9,7 +9,7 @@ import (
 	"sync"
 )
 
-func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64) ixtypes.IXs {
+func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64, prefixFactor float64) ixtypes.IXs {
 	var wg sync.WaitGroup
 	peerDB := peeringdb.Peeringdb(apiServiceURL)
 	wg.Add(len(exchanges))
@@ -87,6 +87,15 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 						rsPeer.InfoPrefixes6, _ = strconv.ParseInt(string(infoprefixes6), 10, 64)
 					}
 
+					/* take care of prefix factor if given */
+					if prefixFactor != 1.0 && rsPeer.InfoPrefixes4 != 0 {
+						rsPeer.InfoPrefixes4 = int64(prefixFactor * float64(rsPeer.InfoPrefixes4))
+					}
+					/* take care of prefix factor if given */
+					if prefixFactor != 1.0 && rsPeer.InfoPrefixes6 != 0 {
+						rsPeer.InfoPrefixes6 = int64(prefixFactor * float64(rsPeer.InfoPrefixes6))
+					}
+
 					if rs_auto && rsnOk && peerASN != string(rsnASN) {
 						log.Printf("Probably rogue route-server advertised in %s\n", peerASN)
 					} else if rs_auto {
@@ -114,6 +123,15 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 					}
 					if confPeer.Ipv4Addr == nil {
 						confPeer.Ipv4Addr = peer.Ipaddr4
+					}
+
+					/* take care of prefix factor if given */
+					if prefixFactor != 1.0 && confPeer.InfoPrefixes4 != 0 {
+						confPeer.InfoPrefixes4 = int64(prefixFactor * float64(confPeer.InfoPrefixes4))
+					}
+					/* take care of prefix factor if given */
+					if prefixFactor != 1.0 && confPeer.InfoPrefixes6 != 0 {
+						confPeer.InfoPrefixes6 = int64(prefixFactor * float64(confPeer.InfoPrefixes6))
 					}
 
 					if pgOk && confPeer.GroupEnabled == true && confPeer.Group == "" {

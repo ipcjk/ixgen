@@ -221,7 +221,9 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://"+h.addrPort+"/api", "", myASN)
+	// FIXME
+	// add prefixFactor to uri
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://"+h.addrPort+"/api", "", myASN, 1.0)
 	if strings.Contains(matches[2], "json") {
 		w.Header().Set("content-type:", "application/json")
 	} else {
