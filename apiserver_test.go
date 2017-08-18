@@ -41,7 +41,7 @@ func TestPostOnApiServer(t *testing.T) {
 
 	client := &http.Client{}
 
-	req, err := http.NewRequest("POST", "http://"+Apiserver.AddrPort+"/ixgen/brocade/netiron/196922", newBuffer)
+	req, err := http.NewRequest("POST", "http://"+Apiserver.AddrPort+"/ixgen/brocade/netiron/196922/1.2", newBuffer)
 	if err != nil {
 		t.Error(err)
 	}

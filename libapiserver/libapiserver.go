@@ -24,7 +24,7 @@ import (
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
 var matchIxLanRegex = `\/api\/ixlan\/(\d+)$`
-var matchStyleRegex = `\/ixgen\/(\w+)\/(\w+)\/?(\d+)?$`
+var matchStyleRegex = `\/ixgen\/(\w+)\/(\w+)\/?(\d+)?\/?(\w.+)?$`
 
 type handler struct {
 	CacheDir   string
@@ -179,6 +179,7 @@ func (h *getStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var exchanges ixtypes.IXs
 	var myASN int64
+	var prefixFactor float64 = 1.0
 	var err error
 
 	defer r.Body.Close()
@@ -202,6 +203,13 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if matches[4] != "" {
+		prefixFactor, err = strconv.ParseFloat(matches[4], 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	peerStyle := fmt.Sprintf("%s/%s", matches[1], matches[2])
 	peerGenerator := peergen.NewPeerGen(peerStyle, h.templates)
 
@@ -221,9 +229,7 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// FIXME
-	// add prefixFactor to uri
-	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://"+h.addrPort+"/api", "", myASN, 1.0)
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, "http://"+h.addrPort+"/api", "", myASN, prefixFactor)
 	if strings.Contains(matches[2], "json") {
 		w.Header().Set("content-type:", "application/json")
 	} else {
