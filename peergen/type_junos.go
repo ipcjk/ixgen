@@ -81,8 +81,28 @@ type junosPrefixList struct {
 	PrefixListItem []junosPrefixListItem `json:"prefix-list-item"`
 }
 
+type junosRouteFilterItem struct {
+	Data junosDataString `json:"data"`
+}
+
+type junosRouteFilter struct {
+	Address           junosDataString        `json:"data"`
+	Exact             []junosRouteFilterItem `json:"exact"`
+	PrefixLengthRange []junosRouteFilterItem `json:"prefix-length-range"`
+	UpTo              []junosRouteFilterItem `json:"upto"`
+}
+
+type junosPolicyFrom struct {
+	RouteFilter []junosRouteFilter `json:"route-filter"`
+}
+
+type junosPolicyStatement struct {
+	From []junosPolicyFrom `json:"from"`
+}
+
 type junosPolicyOptions struct {
-	PrefixList []junosPrefixList `json:"prefix-list"`
+	PrefixList      []junosPrefixList      `json:"prefix-list"`
+	PolicyStatement []junosPolicyStatement `json:"policy-statement"`
 }
 
 type junosConfiguration struct {
@@ -93,4 +113,8 @@ type junosConfiguration struct {
 
 type junOsJSON struct {
 	Configuration []junosConfiguration `json:"configuration"`
+}
+
+type junosAddress struct {
+	Data string `json:"data"`
 }
