@@ -26,6 +26,7 @@ type junosNeighbor struct {
 	Family junosFamily            `json:"family"`
 	Name   junosDataIP            `json:"name"`
 	PeerAs []junosDataInt64String `json:"peer-as"`
+	Import []junosDataString      `json:"import,omitempty"`
 }
 
 type junosMaximumLimit struct {

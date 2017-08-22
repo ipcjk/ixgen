@@ -97,6 +97,8 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer, pretty bo
 								junosPolicyStatement.From = []junosPolicyFrom{{}}
 								junosPolicyStatement.Then = []junosPolicyThen{}
 
+								junosPeerConfiguration.Neighbor[0].Import = []junosDataString{{Data: ix.PeersReady[i].PrefixFilters.Name}}
+
 								for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
 									if PrefixRule.Exact {
 										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
@@ -150,6 +152,7 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer, pretty bo
 							})
 						if ix.PeersReady[i].PrefixFilterEnabled {
 							if ix.PeersReady[i].PrefixAggregateMax {
+								junosPeerConfiguration.Neighbor[1].Import = []junosDataString{{Data: ix.PeersReady[i].PrefixFilters6.Name}}
 								junosPolicyStatement := junosPolicyStatement{}
 								junosPolicyStatement.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
 								junosPolicyStatement.From = []junosPolicyFrom{{}}
