@@ -92,9 +92,19 @@ type junosPolicyFrom struct {
 	RouteFilter []junosRouteFilter `json:"route-filter"`
 }
 
+type junosPolicyAccept struct {
+	Accept []junosRouteFilter `json:"route-filter"`
+}
+
+type junosPolicyThen struct {
+	Accept []*junosDataString `json:"accept,omitempty"`
+	Reject []*junosDataString `json:"reject,omitempty"`
+}
+
 type junosPolicyStatement struct {
 	Name junosDataString   `json:"name"`
 	From []junosPolicyFrom `json:"from"`
+	Then []junosPolicyThen `json:"then"`
 }
 
 type junosPolicyOptions struct {

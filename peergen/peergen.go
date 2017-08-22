@@ -33,7 +33,10 @@ func NewPeerGen(style, templateDir string) *Peergen {
 func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
 
 	if p.style == "juniper/json" {
-		p.ConvertIxToJuniperJSON(exchanges, w)
+		p.ConvertIxToJuniperJSON(exchanges, w, false)
+		return
+	} else if p.style == "juniper/json_pretty" {
+		p.ConvertIxToJuniperJSON(exchanges, w, true)
 		return
 	} else if p.style == "brocade/slx_json" {
 		p.ConvertIxToBrocadeSlxJSON(exchanges, w)

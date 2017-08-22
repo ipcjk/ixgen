@@ -23,7 +23,7 @@ func (p *Peergen) ConvertIxToJson(ixs ixtypes.IXs, w io.Writer) {
 }
 
 func (p *Peergen) ConvertIxToJsonPretty(ixs ixtypes.IXs, w io.Writer) {
-	res, err := json.MarshalIndent(ixs, "", "\t")
+	res, err := json.MarshalIndent(ixs, "", "  ")
 	if err != nil {
 		log.Fatalf("Cant decode IX into native format: err")
 	}
@@ -38,7 +38,9 @@ func (p *Peergen) ConvertIxToBrocadeSlxJSON(ixs ixtypes.IXs, w io.Writer) {
 compatible JSON-configuration.
 FIXME NEEDS support for the prefix list
 */
-func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
+func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer, pretty bool) {
+	var res []byte
+	var err error
 	var junosConfiguration = junOsJSON{
 		[]junosConfiguration{
 			{
@@ -93,6 +95,8 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								junosPolicyStatement := junosPolicyStatement{}
 								junosPolicyStatement.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
 								junosPolicyStatement.From = []junosPolicyFrom{{}}
+								junosPolicyStatement.Then = []junosPolicyThen{}
+
 								for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
 									if PrefixRule.Exact {
 										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
@@ -107,6 +111,7 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 											junosRouteFilter{Address: junosDataString{PrefixRule.Prefix}, UpTo: &junosDataString{data}})
 									}
 								}
+								junosPolicyStatement.Then = append(junosPolicyStatement.Then, junosPolicyThen{Accept: []*junosDataString{{}}})
 								junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement =
 									append(junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement, junosPolicyStatement)
 
@@ -119,6 +124,7 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 										Name: junosDataString{Data: PrefixRule.Prefix},
 									})
 								}
+
 								junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
 									append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 							}
@@ -143,11 +149,12 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 							})
 						if ix.PeersReady[i].PrefixFilterEnabled {
-
 							if ix.PeersReady[i].PrefixAggregateMax {
 								junosPolicyStatement := junosPolicyStatement{}
 								junosPolicyStatement.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
 								junosPolicyStatement.From = []junosPolicyFrom{{}}
+								junosPolicyStatement.Then = []junosPolicyThen{}
+
 								for _, PrefixRule6 := range ix.PeersReady[i].PrefixFilters6.PrefixRules {
 									if PrefixRule6.Exact {
 										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
@@ -162,6 +169,8 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 											junosRouteFilter{Address: junosDataString{PrefixRule6.Prefix}, UpTo: &junosDataString{data}})
 									}
 								}
+								junosPolicyStatement.Then = append(junosPolicyStatement.Then, junosPolicyThen{Accept: []*junosDataString{{}}})
+
 								junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement =
 									append(junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement, junosPolicyStatement)
 
@@ -194,7 +203,12 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 	junosConfiguration.Configuration[0].Attributes.JunosChangedSeconds = t.Unix()
 	junosConfiguration.Configuration[0].Attributes.JunosChangedLocaltime = t.String()
 
-	res, err := json.Marshal(junosConfiguration)
+	if pretty {
+		res, err = json.MarshalIndent(junosConfiguration, "", "  ")
+	} else {
+		res, err = json.Marshal(junosConfiguration)
+	}
+
 	if err != nil {
 		log.Fatal(err)
 	}
