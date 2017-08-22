@@ -12,7 +12,7 @@ func TestRunBGP3Worker(t *testing.T) {
 
 	bgpWorker := NewBGPQ3Worker(Config)
 
-	prefixFilters, err := bgpWorker.GenPrefixList("as196922p4", testAsMacro, 4)
+	prefixFilters, err := bgpWorker.GenPrefixList("as196922p4", testAsMacro, 4, true)
 	if err != nil {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
@@ -26,7 +26,7 @@ func TestRunBGP3Worker(t *testing.T) {
 		t.Error("Found too less or too many ipv4 prefixes, cant be!")
 	}
 
-	prefixFilters, err = bgpWorker.GenPrefixList("as196922p6", testAsMacro, 6)
+	prefixFilters, err = bgpWorker.GenPrefixList("as196922p6", testAsMacro, 6, false)
 	if err != nil {
 		t.Errorf("Cant run bgpq3: %s", err)
 	}
