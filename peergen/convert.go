@@ -87,15 +87,41 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 							})
 						if ix.PeersReady[i].PrefixFilterEnabled {
-							var junosPrefixList junosPrefixList
-							junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
-							for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
-								junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
-									Name: junosDataString{Data: PrefixRule.Prefix},
-								})
+							/* Prefix or Router-Filter */
+
+							if ix.PeersReady[i].PrefixAggregateMax {
+								junosPolicyStatement := junosPolicyStatement{}
+								junosPolicyStatement.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
+								junosPolicyStatement.From = []junosPolicyFrom{{}}
+								for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
+									if PrefixRule.Exact {
+										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
+											junosRouteFilter{Address: junosDataString{PrefixRule.Prefix}, Exact: []junosDataString{{""}}})
+									} else if PrefixRule.GreaterEqual != 0 {
+										var data = fmt.Sprintf("/%d-/%d", PrefixRule.GreaterEqual, PrefixRule.LessEqual)
+										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
+											junosRouteFilter{Address: junosDataString{PrefixRule.Prefix}, PrefixLengthRange: &junosDataString{data}})
+									} else if PrefixRule.LessEqual != 0 {
+										var data = fmt.Sprintf("/%d", PrefixRule.LessEqual)
+										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
+											junosRouteFilter{Address: junosDataString{PrefixRule.Prefix}, UpTo: &junosDataString{data}})
+									}
+								}
+								junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement =
+									append(junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement, junosPolicyStatement)
+
+							} else {
+
+								var junosPrefixList junosPrefixList
+								junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
+								for _, PrefixRule := range ix.PeersReady[i].PrefixFilters.PrefixRules {
+									junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
+										Name: junosDataString{Data: PrefixRule.Prefix},
+									})
+								}
+								junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
+									append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 							}
-							junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
-								append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 						}
 					}
 					if ix.PeersReady[i].Ipv6Enabled {
@@ -117,15 +143,40 @@ func (p *Peergen) ConvertIxToJuniperJSON(ixs ixtypes.IXs, w io.Writer) {
 								PeerAs: []junosDataInt64String{{Data: ix.PeersReady[i].ASN}},
 							})
 						if ix.PeersReady[i].PrefixFilterEnabled {
-							var junosPrefixList junosPrefixList
-							junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters6.Name}
-							for _, PrefixRule := range ix.PeersReady[i].PrefixFilters6.PrefixRules {
-								junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
-									Name: junosDataString{Data: PrefixRule.Prefix},
-								})
+
+							if ix.PeersReady[i].PrefixAggregateMax {
+								junosPolicyStatement := junosPolicyStatement{}
+								junosPolicyStatement.Name = junosDataString{ix.PeersReady[i].PrefixFilters.Name}
+								junosPolicyStatement.From = []junosPolicyFrom{{}}
+								for _, PrefixRule6 := range ix.PeersReady[i].PrefixFilters6.PrefixRules {
+									if PrefixRule6.Exact {
+										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
+											junosRouteFilter{Address: junosDataString{PrefixRule6.Prefix}, Exact: []junosDataString{{""}}})
+									} else if PrefixRule6.GreaterEqual != 0 {
+										var data = fmt.Sprintf("/%d-/%d", PrefixRule6.GreaterEqual, PrefixRule6.LessEqual)
+										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
+											junosRouteFilter{Address: junosDataString{PrefixRule6.Prefix}, PrefixLengthRange: &junosDataString{data}})
+									} else if PrefixRule6.LessEqual != 0 {
+										var data = fmt.Sprintf("/%d", PrefixRule6.LessEqual)
+										junosPolicyStatement.From[0].RouteFilter = append(junosPolicyStatement.From[0].RouteFilter,
+											junosRouteFilter{Address: junosDataString{PrefixRule6.Prefix}, UpTo: &junosDataString{data}})
+									}
+								}
+								junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement =
+									append(junosConfiguration.Configuration[0].PolicyOptions[0].PolicyStatement, junosPolicyStatement)
+
+							} else {
+
+								var junosPrefixList junosPrefixList
+								junosPrefixList.Name = junosDataString{ix.PeersReady[i].PrefixFilters6.Name}
+								for _, PrefixRule := range ix.PeersReady[i].PrefixFilters6.PrefixRules {
+									junosPrefixList.PrefixListItem = append(junosPrefixList.PrefixListItem, junosPrefixListItem{
+										Name: junosDataString{Data: PrefixRule.Prefix},
+									})
+								}
+								junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
+									append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 							}
-							junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList =
-								append(junosConfiguration.Configuration[0].PolicyOptions[0].PrefixList, junosPrefixList)
 						}
 					}
 					if len(junosPeerConfiguration.Neighbor) > 0 {
