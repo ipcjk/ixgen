@@ -234,6 +234,7 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     - infoprefixes6 = number (number of prefixes for ipv6 , only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
     - irrasset = (overwrite AS-Macro to use for prefix-filter builder/bgpq3)
     - prefix_filter=(1=build prefix filter, 0=generate prefix-statement with prefix_list from prefix_list or prefix_list6 if enabled )
+    - prefixfilter_aggregate=(1=bgpq3-parameter -A: aggregate as much as possible prefix filter)
     - prefix_list=$name (listname for 1) generate or for 2) include statement (external generated)
     - prefix_list6=$name (listname for statement with prefixname)
     - ipv4_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)

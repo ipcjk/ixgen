@@ -26,7 +26,6 @@ var PossibleOptions = map[string]bool{
 	"routeserver_prefixes":  true,
 	"routeserver_prefixes6": true,
 	"rs_asn":                true,
-	"bgpq3Aggregate":        true,
 }
 
 const (
@@ -176,9 +175,9 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Active = true
 		} else if value == "prefix_filter=1" {
 			Peer.PrefixFilterEnabled = true
-		} else if value == "prefixfilteraggregate=1" {
+		} else if value == "prefixfilter_aggregate=1" {
 			Peer.PrefixAggregateMax = true
-		} else if value == "prefixfilteraggregate=0" {
+		} else if value == "prefixfilter_aggregate=0" {
 			Peer.PrefixAggregateMax = false
 		} else if value == "unconfigured=1" {
 			Peer.Unconfigured = true
