@@ -44,7 +44,7 @@ For every Internet Exchange that needs to be configured, a section head combinat
 Several subsections with general options for the Exchange configuration or the peering list can be added.
 
 ### Example configuration 
-If you need to connect to the DE-CIX in Frankfurt you will add the "DE-CIX Franfurt" name and the network name [Main or Jumbo] separated with a _/_ as an section head in squared brackets.
+If you need to connect to the DE-CIX in Frankfurt you will add the "DE-CIX Franfurt" name and the network name [Main or Jumbo] separated with a _||_ as an section head in squared brackets.
     
     [DE-CIX Frankfurt||Main]
        
@@ -232,10 +232,10 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     - peer_group6=$string (if group6 is enabled, don't take the peer-group-name from the exchange options, instead take $string)
     - infoprefixes4 = number (number of prefixes for ipv4, only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
     - infoprefixes6 = number (number of prefixes for ipv6 , only usage is to overwrite the limit from peeringdb, because sometimes the values from peering are not reflecting current values)
-    - irrasset = (not implemented yet: macro to use for prefix-filter)
-    - prefix_filter=(not implemented yet: 2=build prefix filter, 1=generate prefix-statement with prefix_list)
-    - prefix_list=$name (prefix_listname for 1) generate or for 2) include statement (external generated)
-    - prefix_list6=$name (prefix_listname6 for statement with prefixname)
+    - irrasset = (overwrite AS-Macro to use for prefix-filter builder/bgpq3)
+    - prefix_filter=(1=build prefix filter, 0=generate prefix-statement with prefix_list from prefix_list or prefix_list6 if enabled )
+    - prefix_list=$name (listname for 1) generate or for 2) include statement (external generated)
+    - prefix_list6=$name (listname for statement with prefixname)
     - ipv4_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)
     - ipv6_addr=$addr (not implemented yet: only generate peering configuration for the specified neighbor address => fixed peering)
     - local_pref (not implemented yet: generate route-map setting local-preference values)
@@ -249,7 +249,9 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     -buildcache
     	download json files for caching from peeringdb
     -cacheDir string
-    	cache directory for json files from peeringdb (default "./cache")
+      	cache directory for json files from peeringdb (default "./cache")
+    -config string
+    	Path to peering configuration ini-file (default "./configuration/peering.ini")
     -exchange string
     	only generate configuration for given exchange, default: print all
     -exit
@@ -257,19 +259,21 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     -listenapi string
     	listenAddr for local api service (default "localhost:0")
     -myasn int
-    	exclude your own asn from the generator
+      	exclude your own asn from the generator
     -noapiservice
     	do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.
     -output string
     	if set, will output the configuration to a file, else STDOUT
-    -config string
-    	Path to peering configuration ini-file (default "./configuration/peering.ini")
+    -prefixfactor float
+    	factor for maximum-prefix numbers (default 1.2)
     -style string
-    	Style for routing-config by template, e.g. brocade, juniper, cisco... (default "brocade/netiron")
+    	Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures (default "brocade/netiron")
     -templates string
     	directory for templates (default "./templates")
     -version
     	prints version and exit
+   exit status 2
+
 
 
 ## Apiserver ##
@@ -362,7 +366,6 @@ Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a
  - REST API client support for Brocade SLX-family (REST also supports YANG-RPC-commands)
  - some basic netconf support, at least generate a xml-file? Contra: Enough netconf outside
  - implement route-maps for preference
- - implement prefix filter or include bgpq
  - implement fixed ip4/6 addr peering,  localPref
  - merge wildcardpeer + configured peer, too many double code
  - add webUI

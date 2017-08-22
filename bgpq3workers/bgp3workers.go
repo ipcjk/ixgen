@@ -31,7 +31,7 @@ func NewBGPQ3Worker(Config BGPQ3Config) BGPQ3Worker {
 	return BGPQ3Worker{BGPQ3Config: Config}
 }
 
-func (b *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol int) (ixtypes.PrefixFilters, error) {
+func (b *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol int, aggregateMax bool) (ixtypes.PrefixFilters, error) {
 	var w = new(bytes.Buffer)
 	var prefixFilters ixtypes.PrefixFilters
 	var extraArgs []string
@@ -42,7 +42,11 @@ func (b *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol i
 		extraArgs = append(extraArgs, "-6")
 	}
 
-	extraArgs = append(extraArgs, "-A", "-j", "-l", prefixListName, asMacro)
+	if aggregateMax == true {
+		extraArgs = append(extraArgs, "-A")
+	}
+
+	extraArgs = append(extraArgs, "-j", "-l", prefixListName, asMacro)
 
 	cmd := exec.Command(b.Executable, extraArgs[0:]...)
 	cmd.Stdout = w

@@ -209,7 +209,7 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 				var asMacro string
 				var err error
 
-				if exchanges[i].PeersReady[j].IsRs {
+				if exchanges[i].PeersReady[j].IsRs || exchanges[i].PeersReady[j].PrefixFilterEnabled == false {
 					continue
 				}
 
@@ -220,14 +220,14 @@ func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtype
 				}
 
 				if exchanges[i].PeersReady[j].Ipv4Enabled {
-					exchanges[i].PeersReady[j].PrefixFilters, err = bgpWorker.GenPrefixList(exchanges[i].PeersReady[j].PrefixList, asMacro, 4)
+					exchanges[i].PeersReady[j].PrefixFilters, err = bgpWorker.GenPrefixList(exchanges[i].PeersReady[j].PrefixList, asMacro, 4, exchanges[i].PeersReady[j].PrefixAggregateMax)
 					if err != nil {
 						log.Println(err)
 					}
 				}
 
 				if exchanges[i].PeersReady[j].Ipv6Enabled {
-					exchanges[i].PeersReady[j].PrefixFilters6, err = bgpWorker.GenPrefixList(exchanges[i].PeersReady[j].PrefixList6, asMacro, 6)
+					exchanges[i].PeersReady[j].PrefixFilters6, err = bgpWorker.GenPrefixList(exchanges[i].PeersReady[j].PrefixList6, asMacro, 6, exchanges[i].PeersReady[j].PrefixAggregateMax)
 					if err != nil {
 						log.Println(err)
 					}
