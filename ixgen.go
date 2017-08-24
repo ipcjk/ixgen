@@ -15,6 +15,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -77,8 +78,10 @@ func main() {
 
 	/* Merge PeeringDB */
 	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN, prefixFactor)
-	/* Merge BGPq3 prefixFilters */
-	exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)
+	/* Merge BGPq3 prefixFilters if we are on Mac or Linux */
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)
+	}
 
 	if !printOrExit {
 		if outputFile == "" {

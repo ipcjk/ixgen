@@ -1,23 +1,19 @@
 {{ if .PrefixAggregateMax }}
 {{ if .Ipv4Enabled }}{{ if .PrefixFilterEnabled }}
-{{ $prefixName := .PrefixFilters.Name }}
-delete policy-options policy-statement {{$prefixName}}{{ range .PrefixFilters.PrefixRules }}
+{{ $prefixName := .PrefixFilters.Name }}delete policy-options policy-statement {{$prefixName}}{{ range .PrefixFilters.PrefixRules }}
 set policy-options policy-statement {{$prefixName}} from route-filter {{ .Prefix}}{{ if .Exact }} exact{{ else if .GreaterEqual}} prefix-length-range /{{.GreaterEqual}}-/{{.LessEqual}}{{ else if .LessEqual }} upto {{.LessEqual}}{{ end }}{{end}}
 {{end}}{{end}}
 {{ if .Ipv6Enabled }}{{ if .PrefixFilterEnabled }}
-{{ $prefixName := .PrefixFilters6.Name }}
-delete policy-options policy-statement {{$prefixName}}{{ range .PrefixFilters6.PrefixRules }}
+{{ $prefixName := .PrefixFilters6.Name }}delete policy-options policy-statement {{$prefixName}}{{ range .PrefixFilters6.PrefixRules }}
 set policy-options policy-statement {{$prefixName}} from route-filter {{ .Prefix}}{{ if .Exact }} exact{{ else if .GreaterEqual}} prefix-length-range /{{.GreaterEqual}}-/{{.LessEqual}}{{ else if .LessEqual }} upto {{.LessEqual}}{{ end }}{{end}}
 {{end}}{{end}}
 {{ else }}
 {{ if .Ipv4Enabled }}{{ if .PrefixFilterEnabled }}
-{{ $prefixName := .PrefixFilters.Name }}
-delete policy-options prefix-list {{$prefixName}}{{ range .PrefixFilters.PrefixRules }}
+{{ $prefixName := .PrefixFilters.Name }}delete policy-options prefix-list {{$prefixName}}{{ range .PrefixFilters.PrefixRules }}
 set policy-options prefix-list {{$prefixName}} {{ .Prefix}}{{ end}}{{ end}}
 {{ end}}
 {{ if .Ipv6Enabled }}{{ if .PrefixFilterEnabled }}
-{{ $prefixName := .PrefixFilters6.Name }}
-delete policy-options prefix-list {{$prefixName}}{{ range .PrefixFilters6.PrefixRules }}
+{{ $prefixName := .PrefixFilters6.Name }}delete policy-options prefix-list {{$prefixName}}{{ range .PrefixFilters6.PrefixRules }}
 set policy-options prefix-list {{$prefixName}} {{ .Prefix}}{{ end}}{{ end}}
 {{ end}}
 {{ end}}

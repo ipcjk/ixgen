@@ -5,7 +5,7 @@
 # ixgen 
 Ixgen is yet-another open-source, multi-platform generator for peering configurations on IXs incorporating the global peeringdb api, but also is able to spin up its own "compatible" server for faster results. Ixgen is configured by an INI- or JSON-style format, producing custom template-driven or fixed json-style configurations, that can be printed on the terminal, to a file or served by HTTP. Direct access to routers REST-APIs and ssh/scp-upload is planned. 
 
-Ixgen is shipped with cross-compiled executables for Darwin, Linux and Windows.
+Ixgen is shipped with cross-compiled executables for Darwin, Linux and Windows. Only Linux and Darwin currently support the prefixfilter generator.
 
 # ixgen on docker
 Run ixgen from docker with your peering configuration as volume parameter:
@@ -361,17 +361,6 @@ Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a
      -templates string
        	directory for templates (default "./templates")
 
-   
-## todo 
-
- - REST API client support for Brocade SLX-family (REST also supports YANG-RPC-commands)
- - some basic netconf support, at least generate a xml-file? Contra: Enough netconf outside
- - implement route-maps for preference
- - implement fixed ip4/6 addr peering,  localPref
- - merge wildcardpeer + configured peer, too many double code
- - add webUI
- - check cacheFiles for timestamp, ... 
- - try out some alternative for INI (toml,yaml?)
 
  
  
