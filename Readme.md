@@ -282,7 +282,7 @@ It is possible to add custom lines, that are not interpreted by adding the subse
 Ixgen has a second standalone executable, called apiserver. Apiserver can run as a daemon or background thread and serve a few peeringdb-like requests, that are mandatory for using ixgen client from the command line. Also Apiserver is capable of generating your routing configurations if you can post the INI-file in text or JSON-format into the http request. That makes it easy to generate the configuration on the router itself (e.g. Brocade SLX with Ubuntu KVM-management). 
       
 ### Start an apiserver thread 
-     apiserver -listenAPI localhost:8563
+     ixapiserver -listenAPI localhost:8563
      
 Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a fraction of the original peeringdb-api, so in a sample query we can ask for the DE-CIX Frankfurt exchange:
 
