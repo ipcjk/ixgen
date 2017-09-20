@@ -20,6 +20,8 @@ type ExchangePeer struct {
 	IsRs                bool          `json:"isrs"`
 	IsRsPeer            bool          `json:"isrsper"`
 	LocalPreference     int           `json:"localpreference"`
+	Password4           string        `json:"password4"`
+	Password6           string        `json:"password6"`
 	PrefixFilterEnabled bool          `json:"prefixfilter"`
 	PrefixAggregateMax  bool          `json:"prefixfilteraggregate"`
 	PrefixFilters       PrefixFilters `json:"prefixfilters"`

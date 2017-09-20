@@ -7,7 +7,7 @@ import (
 )
 
 func TestParsePeerFunction(t *testing.T) {
-	Line := "196922 ipv4=1 ipv6=0 active=1 prefix_filter=1 local_pref=910 group6=0 group=0 peer_group6=mygroup6 peer_group=mygroup4"
+	Line := "196922 ipv4=1 ipv6=0 active=1 prefix_filter=1 local_pref=910 group6=0 group=0 peer_group6=mygroup6 peer_group=mygroup4 password4=session4 password6=session6"
 	Peer := inireader.ParsePeerLine(Line, 0)
 
 	if Peer.ASN != "196922" {
@@ -36,6 +36,12 @@ func TestParsePeerFunction(t *testing.T) {
 	}
 	if Peer.Group6 != "mygroup6" {
 		t.Error("Peer Group6 string is  different than expected")
+	}
+	if Peer.Password4 != "session4" {
+		t.Error("Peer Password string is  different than expected")
+	}
+	if Peer.Password6 != "session6" {
+		t.Error("Peer Password string is  different than expected")
 	}
 }
 
