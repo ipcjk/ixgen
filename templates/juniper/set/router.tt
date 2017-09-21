@@ -4,9 +4,11 @@
 {{ if .Ipv4Enabled }}{{if .GroupEnabled }}set protocols bgp group {{.Group}} type external
 set protocols bgp group {{.Group}} neighbor {{.Ipv4Addr}} peer-as {{ .ASN }}
 set protocols bgp group {{.Group}} neighbor {{.Ipv4Addr}} family inet unicast prefix-limit maximum {{.InfoPrefixes4}}
+{{if ne .Password4 ""}}set protocols bgp group {{.Group4}} neighbor {{.Ipv4Addr}} authentication-key {{.Password4}}{{end}}
 {{if ne .PrefixList ""}}set protocols bgp group {{.Group}} neighbor {{.Ipv4Addr}} import {{.PrefixList}}{{end}}
 {{end}}{{end}}{{ if .Ipv6Enabled }}{{if .Group6Enabled }}set protocols bgp group {{.Group6}} type external
 set protocols bgp group {{.Group6}} neighbor {{.Ipv6Addr}} peer-as {{ .ASN }}
+{{if ne .Password6 ""}}set protocols bgp group {{.Group6}} neighbor {{.Ipv6Addr}} authentication-key {{.Password6}}{{end}}
 set protocols bgp group {{.Group6}} neighbor {{.Ipv6Addr}} family inet6 unicast prefix-limit maximum {{.InfoPrefixes6}}
 {{if ne .PrefixList6 ""}}set protocols bgp group {{.Group}} neighbor {{.Ipv4Addr}} import {{.PrefixList6}}{{end}}
 {{end}}{{end}}{{end}}{{end}}
