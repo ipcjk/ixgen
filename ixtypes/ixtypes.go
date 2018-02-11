@@ -18,7 +18,7 @@ type ExchangePeer struct {
 	Ipv6Enabled         bool          `json:"ipv6enabled"`
 	IrrAsSet            string        `json:"irrasset"`
 	IsRs                bool          `json:"isrs"`
-	IsRsPeer            bool          `json:"isrsper"`
+	IsRsPeer            bool          `json:"isrspeer"`
 	LocalPreference     int           `json:"localpreference"`
 	Password4           string        `json:"password4"`
 	Password6           string        `json:"password6"`
