@@ -1,6 +1,6 @@
 package main
 
-// ixgen (C) 2017 by Jörg Kost, joerg.kost@gmx.com
+// ixgen (C) 2017 by Jörg Kost, jk@ip-clear.de
 // see LICENSE for LICENSING,  TERMS AND CONDITIONS
 
 import (
