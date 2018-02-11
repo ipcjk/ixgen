@@ -35,7 +35,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 				}
 				peerDbNetwork, err := peerDB.GetNetworkByAsN(peer.Asn)
 				if err != nil {
-					log.Printf("Error pulling ASN for peer: %s, error: %s", peer.Asn, err)
+					log.Printf("Error pulling ASN for peer: %d, error: %s", peer.Asn, err)
 					continue
 				}
 				if len(peerDbNetwork.Data) != 1 {
