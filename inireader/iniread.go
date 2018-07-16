@@ -175,6 +175,8 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Active = true
 		} else if value == "prefix_filter=1" {
 			Peer.PrefixFilterEnabled = true
+		} else if value == "prefix_filter=0" {
+			Peer.PrefixFilterEnabled = false
 		} else if value == "prefixfilter_aggregate=1" {
 			Peer.PrefixAggregateMax = true
 		} else if value == "prefixfilter_aggregate=0" {
