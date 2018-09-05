@@ -12,13 +12,16 @@ neighbor {{.Ipv4Addr}} password {{.Password4}}
 {{end}}
 {{if ne .PrefixList ""}}
 neighbor {{.Ipv4Addr}} prefix-list {{.PrefixList}} in{{end}}
+address-family ipv4 unicast
 neighbor {{.Ipv4Addr}} maximum-prefix {{.InfoPrefixes4}}
 no neighbor {{.Ipv4Addr}} shutdown
 exit
 {{ end}}
 {{ if .Ipv6Enabled }}address-family ipv6 unicast
 neighbor {{.Ipv6Addr}} remote-as {{ .ASN }}{{if .Group6Enabled }}
+address-family ipv6 unicast
 neighbor {{.Ipv6Addr}} peer-group {{.Group6}}{{- end}}
+address-family ipv6 unicast
 neighbor {{.Ipv6Addr}} maximum-prefix {{.InfoPrefixes6}}
 {{if ne .Password6 ""}}
 neighbor {{.Ipv6Addr}} password {{.Password6}}
@@ -29,4 +32,4 @@ no neighbor {{.Ipv6Addr}} shutdown
 neighbor {{.Ipv6Addr}}  activate
 exit{{- end}}{{- end}}
 {{- end}}
-end
+        
