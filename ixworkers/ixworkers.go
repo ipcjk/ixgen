@@ -97,7 +97,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 					}
 
 					if rs_auto && rsnOk && peerASN != string(rsnASN) {
-						log.Println("Ignoring probably route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
+						log.Printf("Ignoring probably route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
 					} else if rs_auto {
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
 					}
