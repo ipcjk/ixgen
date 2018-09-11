@@ -62,7 +62,6 @@ func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) error {
 	for i := range p.peerFiles {
 		_, err := os.Stat(p.peerFiles[i])
 		if err != nil {
-			log.Println("Cant open", p.peerFiles[i])
 			continue
 		}
 
