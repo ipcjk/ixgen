@@ -46,6 +46,7 @@ type Apiserver struct {
 	AddrPort    string
 	CacheDir    string
 	templateDir string
+	configDir   string
 }
 
 type getIX struct {
@@ -62,6 +63,7 @@ type postConfig struct {
 	match     *regexp.Regexp
 	addrPort  string
 	templates string
+	configDir string
 }
 
 type getIXLans struct{ handler }
@@ -78,8 +80,8 @@ type getStatus struct{}
 //
 // It also can take a POST request with an INI- or JSON-style configuration
 //
-func NewAPIServer(addrport, cacheDir string, templatedir string) *Apiserver {
-	return &Apiserver{addrport, cacheDir, templatedir}
+func NewAPIServer(addrport, cacheDir string, templatedir string, configDir string) *Apiserver {
+	return &Apiserver{addrport, cacheDir, templatedir, configDir}
 }
 
 // RunAPIServer starts the created Apiserver
@@ -179,7 +181,7 @@ func (h *getStatus) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var exchanges ixtypes.IXs
 	var myASN int64
-	var prefixFactor float64 = 1.0
+	var prefixFactor = 1.0
 	var err error
 
 	defer r.Body.Close()
@@ -211,7 +213,7 @@ func (h *postConfig) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	peerStyle := fmt.Sprintf("%s/%s", matches[1], matches[2])
-	peerGenerator := peergen.NewPeerGen(peerStyle, h.templates)
+	peerGenerator := peergen.NewPeerGen(peerStyle, h.templates, h.configDir)
 
 	/* JSON or plain incoming? */
 	if ct == "application/json" {

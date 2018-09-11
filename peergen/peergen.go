@@ -16,9 +16,10 @@ type Peergen struct {
 	prefixFiles []string
 }
 
-func NewPeerGen(style, templateDir string) *Peergen {
+func NewPeerGen(style, templateDir string, configDir string) *Peergen {
 	return &Peergen{style: style, templateDir: templateDir,
 		peerFiles: []string{
+			configDir + "/" + style + "/user.tt",
 			templateDir + "/" + style + "/header.tt",
 			templateDir + "/" + style + "/router.tt",
 			templateDir + "/" + style + "/footer.tt",
@@ -61,6 +62,7 @@ func (p *Peergen) GenerateIXConfiguration(ix ixtypes.Ix, w io.Writer) error {
 	for i := range p.peerFiles {
 		_, err := os.Stat(p.peerFiles[i])
 		if err != nil {
+			log.Println("Cant open", p.peerFiles[i])
 			continue
 		}
 
@@ -86,7 +88,7 @@ func (p *Peergen) GenerateIXPrefixFilter(exchanges ixtypes.IXs, w io.Writer) {
 }
 
 func (p *Peergen) GeneratePrefixFilter(ix ixtypes.Ix, w io.Writer) error {
-	var seenFilter map[string]bool = make(map[string]bool)
+	var seenFilter = make(map[string]bool)
 
 	for i := range p.prefixFiles {
 		_, err := os.Stat(p.prefixFiles[i])

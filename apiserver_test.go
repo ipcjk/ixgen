@@ -15,7 +15,7 @@ import (
 var Apiserver *libapiserver.Apiserver
 
 func init() {
-	Apiserver = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates")
+	Apiserver = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates", "./configuration")
 	Apiserver.RunAPIServer()
 }
 
@@ -27,7 +27,7 @@ func TestApiServer(t *testing.T) {
 }
 
 func TestPostOnApiServer(t *testing.T) {
-	var peering string = `[DE-CIX Frankfurt||Main]
+	var peering = `[DE-CIX Frankfurt||Main]
     [peers]
     714 ipv6=1 ipv4=1
     196922
@@ -91,7 +91,7 @@ func TestPostOnApiServer(t *testing.T) {
 }
 
 func TestPostJsonOnApiServer(t *testing.T) {
-	var peering string = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt||Main",
+	var peering = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt||Main",
 	"options":{"DE-CIX Frankfurt/Main":{"wildcard":"0"}},
 	"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"714":[{"active":
 	true,"asn":"714","group":"","group6":"","groupenabled":true,"group6_enabled":true,

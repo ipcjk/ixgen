@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"runtime/pprof"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ import (
 var exchangeOnly string
 var peeringConfigFileName string
 var peerStyleGenerator string
-var templateDir string
+var templateDir, configDir string
 var myASN int64
 var outputFile string
 var exchanges ixtypes.IXs
@@ -39,10 +40,14 @@ var noapiservice bool
 var localAPIServer string
 var apiServiceURL string
 
+/* profile vars */
+var cpuprofile, memprofile string
+
 func init() {
 	flag.StringVar(&peeringConfigFileName, "config", "./configuration/peering.ini", "Path to peering configuration ini-file")
 	flag.StringVar(&peerStyleGenerator, "style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
 	flag.StringVar(&templateDir, "templates", "./templates", "directory for templates")
+	flag.StringVar(&configDir, "configpath", "./configuration", "directory for user.tt to include for reach router type or router")
 	flag.StringVar(&cacheDirectory, "cacheDir", "./cache", "cache directory for json files from peeringdb")
 	flag.StringVar(&exchangeOnly, "exchange", "", "only generate configuration for given exchange, default: print all")
 	flag.StringVar(&outputFile, "output", "", "if set, will output the configuration to a file, else STDOUT")
@@ -56,6 +61,10 @@ func init() {
 	flag.BoolVar(&noapiservice, "noapiservice", false, "do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
 	flag.StringVar(&localAPIServer, "listenapi", "localhost:0", "listenAddr for local api service")
 	flag.StringVar(&apiServiceURL, "api", "https://www.peeringdb.com/api", "use a differnt server as sources instead local/api-service.")
+
+	/* profiling support */
+	flag.StringVar(&cpuprofile, "cpuprofile", "", "write cpu profile to `file`")
+	flag.StringVar(&memprofile, "memprofile", "", "write memory profile to `file`")
 
 	flag.Parse()
 
@@ -75,6 +84,30 @@ func init() {
 func main() {
 	var outputStream io.WriteCloser
 	var err error
+
+	/* profile support */
+	if cpuprofile != "" {
+		f, err := os.Create(cpuprofile)
+		if err != nil {
+			log.Fatal("could not create CPU profile: ", err)
+		}
+		if err := pprof.StartCPUProfile(f); err != nil {
+			log.Fatal("could not start CPU profile: ", err)
+		}
+		defer pprof.StopCPUProfile()
+	}
+
+	if memprofile != "" {
+		f, err := os.Create(memprofile)
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+		defer f.Close()
+	}
 
 	/* Merge PeeringDB */
 	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN, prefixFactor)
@@ -122,9 +155,9 @@ func loadConfig() {
 		exchanges = inireader.ReadPeeringConfig(file)
 	}
 
-	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir)
+	peerGenerator = peergen.NewPeerGen(peerStyleGenerator, templateDir, configDir)
 	if !noapiservice {
-		Apiserver := libapiserver.NewAPIServer(localAPIServer, cacheDirectory, templateDir)
+		Apiserver := libapiserver.NewAPIServer(localAPIServer, cacheDirectory, templateDir, configDir)
 		Apiserver.RunAPIServer()
 		apiServiceURL = fmt.Sprintf("http://%s/api", Apiserver.AddrPort)
 	}

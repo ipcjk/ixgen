@@ -10,7 +10,7 @@ import (
 var apiserverDbTest *libapiserver.Apiserver
 
 func init() {
-	apiserverDbTest = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates")
+	apiserverDbTest = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates", "./configuration")
 	apiserverDbTest.RunAPIServer()
 }
 

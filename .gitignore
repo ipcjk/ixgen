@@ -3,3 +3,10 @@
 .scripts/upload.sh
 .DS_Store
 .bin
+.configuration/brocade/slx/_user.tt
+.configuration/brocade/netiron/_user.tt
+.configuration/brocade/vdx/_user.tt
+.configuration/cisco/ios/_user.tt
+.configuration/juniper/set/_user.tt
+
+
