@@ -147,7 +147,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 					confPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
 					exchanges[i].PeersReady = append(exchanges[i].PeersReady, confPeer)
 				} else if exchanges[i].Options[exchanges[i].IxName]["wildcard"] == "1" {
-					// Wildcard, we take everything
+
 					wildPeer :=
 						ixtypes.ExchangePeer{
 							ASN:                 peerASN,
@@ -158,6 +158,13 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 							Ipv4Addr:            peer.Ipaddr4,
 							Ipv6Addr:            peer.Ipaddr6,
 						}
+
+					if exchanges[i].Options[exchanges[i].IxName]["wildcard_prefix_filter"] == "1" {
+						wildPeer.PrefixFilterEnabled = true
+						wildPeer.PrefixList = "wildcard" + peerASN + "-4"
+						wildPeer.PrefixList6 = "wildcard" + peerASN + "-6"
+					}
+
 					if peer.Ipaddr6 != nil {
 						wildPeer.Ipv6Enabled = true
 					}

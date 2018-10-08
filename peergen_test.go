@@ -18,6 +18,7 @@ func TestBrocadeIXTemplate(t *testing.T) {
 	var p = peergen.NewPeerGen("brocade/netiron", "./templates", "./configuration")
 	var Ix ixtypes.Ix
 	var buffer bytes.Buffer
+	var err error
 
 	Ix.PeersReady = []ixtypes.ExchangePeer{
 		{
@@ -71,7 +72,7 @@ func TestBrocadeIXTemplate(t *testing.T) {
 	}
 
 	writer := bufio.NewWriter(&buffer)
-	err := p.GenerateIXConfiguration(Ix, writer)
+	err = p.GenerateIXConfiguration(Ix, writer)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -85,7 +86,8 @@ func TestBrocadeIXTemplate(t *testing.T) {
 	var foundSample bool
 	reader := bufio.NewReader(&buffer)
 	for {
-		line, err := reader.ReadString('\n')
+		var line string
+		line, err = reader.ReadString('\n')
 
 		if strings.HasPrefix(line, "neighbor") {
 			countNeighbor++

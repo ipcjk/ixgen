@@ -60,7 +60,7 @@ func TestExchangeOption(t *testing.T) {
 	inireader.ParseOptionLine("routeserver_prefixes=10000", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_prefixes6=400", ixConfig, "testIX")
 	inireader.ParseOptionLine("rs_asn=6695", ixConfig, "testIX")
-	inireader.ParseOptionLine("bgpq3Aggregate=1", ixConfig, "testIX")
+	inireader.ParseOptionLine("wildcard_prefix_filter=1", ixConfig, "testIX")
 
 	/* Check that we covered all cases from inireader */
 	for k := range inireader.PossibleOptions {
@@ -97,5 +97,9 @@ func TestExchangeOption(t *testing.T) {
 
 	if ixConfig["testIX"]["rs_asn"] != "6695" {
 		t.Error("Route-Server ASN number is wrong")
+	}
+
+	if ixConfig["testIX"]["wildcard_prefix_filter"] != "1" {
+		t.Error("Prefix filter options for wildcards peers is not set")
 	}
 }

@@ -15,17 +15,18 @@ var splitBy = `\s+`
 var splitReg = regexp.MustCompile(splitBy)
 
 var PossibleOptions = map[string]bool{
-	"routeserver":           true,
-	"routeserver_group":     true,
-	"peer_group":            true,
-	"routeserver_group6":    true,
-	"peer_group6":           true,
-	"wildcard":              true,
-	"importpolicy":          true,
-	"exportpolicy":          true,
-	"routeserver_prefixes":  true,
-	"routeserver_prefixes6": true,
-	"rs_asn":                true,
+	"routeserver":            true,
+	"routeserver_group":      true,
+	"peer_group":             true,
+	"routeserver_group6":     true,
+	"peer_group6":            true,
+	"wildcard":               true,
+	"importpolicy":           true,
+	"exportpolicy":           true,
+	"routeserver_prefixes":   true,
+	"routeserver_prefixes6":  true,
+	"rs_asn":                 true,
+	"wildcard_prefix_filter": true,
 }
 
 const (

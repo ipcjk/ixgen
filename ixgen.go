@@ -83,7 +83,6 @@ func init() {
 
 func main() {
 	var outputStream io.WriteCloser
-	var err error
 
 	/* profile support */
 	if cpuprofile != "" {
@@ -91,7 +90,7 @@ func main() {
 		if err != nil {
 			log.Fatal("could not create CPU profile: ", err)
 		}
-		if err := pprof.StartCPUProfile(f); err != nil {
+		if err = pprof.StartCPUProfile(f); err != nil {
 			log.Fatal("could not start CPU profile: ", err)
 		}
 		defer pprof.StopCPUProfile()
@@ -117,8 +116,9 @@ func main() {
 	}
 
 	if !printOrExit {
+		var err error
+		outputStream = os.Stdout
 		if outputFile == "" {
-			outputStream = os.Stdout
 			defer os.Stdout.Close()
 		} else {
 			outputStream, err = os.Create(outputFile)
