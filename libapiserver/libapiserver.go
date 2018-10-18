@@ -146,14 +146,14 @@ func (a *Apiserver) RunAPIServer() {
 func getJSON(r io.Reader, i interface{}) {
 	err := json.NewDecoder(r).Decode(&i)
 	if err != nil {
-		log.Fatal("Problems decoding from json")
+		log.Fatal("Problems decoding from json", err)
 	}
 }
 
 func writeJSON(w io.Writer, i interface{}) {
 	err := json.NewEncoder(w).Encode(&i)
 	if err != nil {
-		log.Fatal("Problems encoding ix from json")
+		log.Fatal("Problems encoding ix from json", err)
 	}
 }
 
