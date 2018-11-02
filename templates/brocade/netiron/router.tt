@@ -7,7 +7,6 @@ router bgp
 {{ if .Unconfigured }}no neighbor {{.Ipv4Addr}} remote-as {{ .ASN }}{{ else }}
 neighbor {{.Ipv4Addr}} remote-as {{ .ASN }}{{if .GroupEnabled }}
 neighbor {{.Ipv4Addr}} peer-group {{.Group}}{{- end}}
-prefixes,remote-as {{ .ASN }},{{.InfoPrefixes4}},{{.InfoPrefixes6}}
 address-family ipv4 unicast
 {{if ne .Password4 ""}}
 neighbor {{.Ipv4Addr}} password {{.Password4}}
