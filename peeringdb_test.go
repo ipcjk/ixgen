@@ -115,7 +115,7 @@ func BenchmarkAPIserver(b *testing.B) {
 
 func TestGetPeersOnIX(t *testing.T) {
 	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
-	myPeers, err := peerDB.GetPeersOnIXByIxName("DE-CIX Frankfurt||Main")
+	myPeers, err := peerDB.GetPeersOnIXByIxName("DE-CIX Frankfurt")
 
 	if err != nil {
 		t.Errorf("Cant query the API for peers on IX: %s", err)

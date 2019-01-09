@@ -1,7 +1,7 @@
 [
   {
     "additionalconfig": null,
-    "ixname": "DE-CIX Frankfurt/Main",
+    "ixname": "DE-CIX Frankfurt",
     "options": {
       "DE-CIX Frankfurt/Main": {
         "peer_group": "decix-frankfurt",

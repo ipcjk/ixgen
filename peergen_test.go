@@ -176,9 +176,20 @@ func TestAllTemplates(t *testing.T) {
 	templateDir := "./templates/"
 	supportedTemplate := []string{
 		"brocade/netiron/router.tt",
-		"juniper/set/router.tt",
 		"brocade/netiron/prefix.tt",
 		"brocade/netiron/prefix6.tt",
+		"brocade/slx/prefix6.tt",
+		"brocade/slx/router.tt",
+		"brocade/slx/header.tt",
+		"brocade/slx/prefix.tt",
+		"brocade/vdx/header.tt",
+		"brocade/vdx/router.tt",
+		"cisco/ios/prefix.tt",
+		"cisco/ios/prefix6.tt",
+		"cisco/ios/router.tt",
+		"juniper/set/header.tt",
+		"juniper/set/prefix.tt",
+		"juniper/set/router.tt",
 	}
 
 	for _, v := range supportedTemplate {
@@ -192,7 +203,7 @@ func TestAllTemplates(t *testing.T) {
 }
 
 func TestIXConfigFromJson(t *testing.T) {
-	var testJSON = `{"additionalconfig":null,"ixname":"DE-CIX Frankfurt||Main","options":{},"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"196922":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":true,"group6_enabled":true,"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,"ipv6enabled":true,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}]}},"peersready":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":false,"group6_enabled":false,"infoprefixes4":64,"infoprefixes6":10,"ipv4addr":"80.81.194.25","ipv6addr":"2001:7f8::3:13a:0:1","ipv4enabled":true,"ipv6enabled":true,"irrasset":"AS-HOFMEIR","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}],"routeserverready":null}`
+	var testJSON = `{"additionalconfig":null,"ixname":"DE-CIX Frankfurt","options":{},"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt":{"196922":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":true,"group6_enabled":true,"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,"ipv6enabled":true,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}]}},"peersready":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":false,"group6_enabled":false,"infoprefixes4":64,"infoprefixes6":10,"ipv4addr":"80.81.194.25","ipv6addr":"2001:7f8::3:13a:0:1","ipv4enabled":true,"ipv6enabled":true,"irrasset":"AS-HOFMEIR","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}],"routeserverready":null}`
 	var p = peergen.NewPeerGen("brocade/netiron", "./templates", "./configuration")
 	var buffer bytes.Buffer
 
@@ -202,7 +213,7 @@ func TestIXConfigFromJson(t *testing.T) {
 		t.Errorf("error decoding JSON into format, some code has changed? Error %s", err)
 	}
 
-	if ix.IxName != "DE-CIX Frankfurt||Main" {
+	if ix.IxName != "DE-CIX Frankfurt" {
 		t.Error("IX-Name has changed, not expected")
 	}
 

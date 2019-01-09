@@ -21,7 +21,7 @@ func TestRunBGP3Worker(t *testing.T) {
 		t.Error("Cant find my home ipv4 PrefixName")
 	}
 
-	if len(prefixFilters.PrefixRules) <= 4 ||
+	if len(prefixFilters.PrefixRules) <= 2 ||
 		len(prefixFilters.PrefixRules) >= 30 {
 		t.Error("Found too less or too many ipv4 prefixes, cant be!")
 	}

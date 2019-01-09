@@ -27,7 +27,7 @@ func TestApiServer(t *testing.T) {
 }
 
 func TestPostOnApiServer(t *testing.T) {
-	var peering = `[DE-CIX Frankfurt||Main]
+	var peering = `[DE-CIX Frankfurt]
     [peers]
     714 ipv6=1 ipv4=1
     196922
@@ -91,9 +91,9 @@ func TestPostOnApiServer(t *testing.T) {
 }
 
 func TestPostJsonOnApiServer(t *testing.T) {
-	var peering = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt||Main",
-	"options":{"DE-CIX Frankfurt/Main":{"wildcard":"0"}},
-	"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt/Main":{"714":[{"active":
+	var peering = `[{"additionalconfig":null,"ixname":"DE-CIX Frankfurt",
+	"options":{"DE-CIX Frankfurt":{"wildcard":"0"}},
+	"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt":{"714":[{"active":
 	true,"asn":"714","group":"","group6":"","groupenabled":true,"group6_enabled":true,
 	"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,
 	"ipv6enabled":false,"irrasset":"AS-APPLE","isrs":false,"isrsper":false,"localpreference":0,
@@ -126,7 +126,7 @@ func TestPostJsonOnApiServer(t *testing.T) {
 		t.Errorf("Cant decode apiserver results: %s", err)
 	}
 
-	if ixs[0].IxName != "DE-CIX Frankfurt||Main" {
+	if ixs[0].IxName != "DE-CIX Frankfurt" {
 		t.Error("Wrong or no IX in result set")
 	}
 
