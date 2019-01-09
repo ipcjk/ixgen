@@ -32,3 +32,4 @@ no neighbor {{.Ipv6Addr}} shutdown
 neighbor {{.Ipv6Addr}}  activate
 exit level{{- end}}{{- end}}
 {{- end}}
+exit
