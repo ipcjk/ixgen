@@ -75,8 +75,9 @@ func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan, err
 				goto end
 			}
 		}
-		return Netixlan{}, fmt.Errorf("Attention, Net: %s given for %s, but not found", nameAndNet[1], nameAndNet[0])
+		return Netixlan{}, fmt.Errorf("attention, Net: %s given for %s, but not found", nameAndNet[1], nameAndNet[0])
 	} else if len(iX.Data[0].IxlanSet) > 1 {
+		fmt.Println(iX.Data)
 		return Netixlan{}, fmt.Errorf("There a multiple Nets to choose for %s, please specify in the ini-file\n", nameAndNet[0])
 	} else {
 		ixlanid = strconv.FormatInt(iX.Data[0].IxlanSet[0].ID, 10)
