@@ -23,7 +23,7 @@ func (p *peeringdb) callAPI(uri string, i interface{}) error {
 
 	req, err := http.NewRequest("GET", p.apiURL+uri, nil)
 	if err != nil {
-		return fmt.Errorf("Cant generate new http request: %s", err)
+		return fmt.Errorf("can not generate new http request: %s", err)
 	}
 
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
@@ -75,9 +75,9 @@ func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan, err
 				goto end
 			}
 		}
-		return Netixlan{}, fmt.Errorf("Attention, Net: %s given for %s, but not found", nameAndNet[1], nameAndNet[0])
+		return Netixlan{}, fmt.Errorf("attention, Net: %s given for %s, but not found", nameAndNet[1], nameAndNet[0])
 	} else if len(iX.Data[0].IxlanSet) > 1 {
-		return Netixlan{}, fmt.Errorf("There a multiple Nets to choose for %s, please specify in the ini-file\n", nameAndNet[0])
+		return Netixlan{}, fmt.Errorf("there a multiple Nets to choose for %s, please specify in the ini-file\n", nameAndNet[0])
 	} else {
 		ixlanid = strconv.FormatInt(iX.Data[0].IxlanSet[0].ID, 10)
 	}
