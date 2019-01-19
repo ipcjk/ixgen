@@ -2,6 +2,7 @@ package libapiserver
 
 import (
 	"bytes"
+	"compress/gzip"
 	"github.com/ipcjk/ixgen/peeringdb"
 	"io"
 	"log"
@@ -20,8 +21,8 @@ func DownloadCache(hostURL, cacheDir string) {
 		defer resp.Body.Close()
 
 		targetFile := cacheDir + "/" + v
-		writeCacheFile(targetFile+".download", resp.Body)
-		data := readFile(targetFile + ".download")
+		writeCacheFile(targetFile+".download.gz", resp.Body)
+		data := readFile(targetFile + ".download.gz")
 
 		if v == "ix" {
 			var apiResult peeringdb.Ix
@@ -42,12 +43,12 @@ func DownloadCache(hostURL, cacheDir string) {
 				log.Fatalf("Cant update %s, missing records?", v)
 			}
 		}
-		writeCacheFile(targetFile, bytes.NewBuffer(data))
-		err = os.Remove(targetFile + ".download")
+		writeCacheFile(targetFile + ".gz", bytes.NewBuffer(data))
+		err = os.Remove(targetFile + ".download.gz")
 		if err != nil {
 			log.Printf("Cant remove %s from fs", targetFile+".download")
 		}
-		log.Println("Updated " + targetFile)
+		log.Println("Updated " + targetFile + ".gz")
 		/*
 			FIXME
 			Check for meta-record and generation also
@@ -63,7 +64,11 @@ func writeCacheFile(fileName string, reader io.Reader) {
 	if err != nil {
 		log.Fatalf("Cant open cache file target %s:", fileName)
 	}
-	_, err = io.Copy(file, reader)
+
+	gzipFile := gzip.NewWriter(file)
+	defer gzipFile.Close()
+
+	_, err = io.Copy(gzipFile, reader)
 	if err != nil {
 		log.Fatalf("Could not copy file %s:", fileName)
 	}

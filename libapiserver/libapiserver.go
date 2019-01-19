@@ -2,6 +2,7 @@ package libapiserver
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"github.com/ipcjk/ixgen/inireader"
@@ -158,17 +159,27 @@ func writeJSON(w io.Writer, i interface{}) {
 }
 
 func readFile(fileName string) []byte {
-	file, err := os.Open(fileName)
+	var rCloser io.ReadCloser
+	rCloser, err := os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer file.Close()
+	defer rCloser.Close()
+
+	/* if fileName has  gz suffix, add a gzip reader */
+	if strings.HasSuffix(fileName, ".gz") {
+		gzipFile, err := gzip.NewReader(rCloser)
+		if err != nil {
+			log.Fatalf("Cant open gzip file: %s", fileName)
+		}
+		defer gzipFile.Close()
+		rCloser = gzipFile
+	}
 
 	buf := new(bytes.Buffer)
-
-	_, err = buf.ReadFrom(file)
+	_, err = buf.ReadFrom(rCloser)
 	if err != nil {
-		log.Fatalf("Cant read from file :%s", fileName)
+		log.Fatalf("Cant read from file: %s", fileName)
 	}
 	return buf.Bytes()
 }
@@ -247,7 +258,7 @@ func (h *getNet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mutex.Lock()
 	/* Only the first request, will load the file into our structure */
 	if len(h.Data) == 0 {
-		h.Data = readFile(h.CacheDir + "/net")
+		h.Data = readFile(h.CacheDir + "/net.gz")
 		getJSON(bytes.NewBuffer(h.Data), &h.NetData)
 	}
 	h.mutex.Unlock()
@@ -277,7 +288,7 @@ func (h *getNetIXLan) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.mutex.Lock()
 	if len(h.Data) == 0 {
-		h.Data = readFile(h.CacheDir + "/netixlan")
+		h.Data = readFile(h.CacheDir + "/netixlan.gz")
 	}
 	h.mutex.Unlock()
 
@@ -304,7 +315,7 @@ func (h *getIXLan) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	matches := h.match.FindStringSubmatch(r.RequestURI)
 	h.mutex.Lock()
 	if len(h.Data) == 0 {
-		h.Data = readFile(h.CacheDir + "/ixlan")
+		h.Data = readFile(h.CacheDir + "/ixlan.gz")
 	}
 	h.mutex.Unlock()
 
@@ -328,7 +339,7 @@ func (h *getIXLans) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.mutex.Lock()
 	if len(h.Data) == 0 {
-		h.Data = readFile(h.CacheDir + "/ixlan")
+		h.Data = readFile(h.CacheDir + "/ixlan.gz")
 	}
 	h.mutex.Unlock()
 
@@ -359,7 +370,7 @@ func (h *getIX) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.mutex.Lock()
 
 	if len(h.Data) == 0 {
-		h.Data = readFile(h.CacheDir + "/ix")
+		h.Data = readFile(h.CacheDir + "/ix.gz")
 	}
 	h.mutex.Unlock()
 
@@ -374,7 +385,7 @@ func (h *getIX) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	/* populate ixlan_set */
 	var ixLanData peeringdb.IxLAN
-	ixData := readFile(h.CacheDir + "/ixlan")
+	ixData := readFile(h.CacheDir + "/ixlan.gz")
 	getJSON(bytes.NewBuffer(ixData), &ixLanData)
 
 	for k := range ixLanData.Data {
@@ -395,7 +406,7 @@ func (h *getIXes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.mutex.Lock()
 	if len(h.Data) == 0 {
-		h.Data = readFile(h.CacheDir + "/ix")
+		h.Data = readFile(h.CacheDir + "/ix.gz")
 	}
 	h.mutex.Unlock()
 
