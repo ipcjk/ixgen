@@ -125,8 +125,8 @@ func main() {
 			}
 		}
 		defer outputStream.Close()
-		peerGenerator.GenerateIXs(exchanges, outputStream)
 		peerGenerator.GenerateIXPrefixFilter(exchanges, outputStream)
+		peerGenerator.GenerateIXs(exchanges, outputStream)
 
 	}
 }
