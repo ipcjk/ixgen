@@ -29,9 +29,7 @@ var myASN int64
 var outputFile string
 var exchanges ixtypes.IXs
 var peerGenerator *peergen.Peergen
-var printOrExit bool
-var buildCache bool
-var version bool
+var printOrExit, buildCache, version bool
 var prefixFactor float64
 
 /* Api server / uri */

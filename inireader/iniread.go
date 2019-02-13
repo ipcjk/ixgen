@@ -234,5 +234,16 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 		}
 	}
 
+	/* set prefixFilterNames automatically, if prefixfilter is enabled
+	but name is not given
+	*/
+	if Peer.PrefixFilterEnabled && Peer.Ipv4Enabled && Peer.PrefixList == "" {
+		Peer.PrefixList = fmt.Sprintf("as%s_filter_ip4_filter", Peer.ASN)
+	}
+
+	if Peer.PrefixFilterEnabled && Peer.Ipv6Enabled && Peer.PrefixList6 == "" {
+		Peer.PrefixList6 = fmt.Sprintf("as%s_filter_ip6_filter", Peer.ASN)
+	}
+
 	return Peer
 }
