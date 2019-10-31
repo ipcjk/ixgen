@@ -9,6 +9,7 @@ neighbor {{.Ipv4Addr}} peer-group {{.Group}}{{- end}}
 address-family ipv4 unicast
 {{if ne .Password4 ""}}
 neighbor {{.Ipv4Addr}} password {{.Password4}}
+address-family ipv4 unicast
 {{end}}
 {{if ne .PrefixList ""}}
 neighbor {{.Ipv4Addr}} prefix-list {{.PrefixList}} in{{end}}
@@ -25,6 +26,7 @@ address-family ipv6 unicast
 neighbor {{.Ipv6Addr}} maximum-prefix {{.InfoPrefixes6}}
 {{if ne .Password6 ""}}
 neighbor {{.Ipv6Addr}} password {{.Password6}}
+address-family ipv6 unicast
 {{end}}
 {{if ne .PrefixList6 ""}}
 neighbor {{.Ipv6Addr}} prefix-list {{.PrefixList6}} in{{end}}
