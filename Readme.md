@@ -26,7 +26,7 @@ Also you can start-up a standalone version called apiserver. Apiserver can answe
 
  
 ### flavor / templating 
-Ixgen can use different templates for generating router configurations, by default Brocade and Juniper style command line syntax is shipped. The flavor is given on the command line or in the http query with the _-style_ argument, else its always Brocade MLXE (Netiron)  by default. You can create your own templates in the _templates_-directory. Please see the section _Default output and templates_ for more information. 
+Ixgen can use different templates for generating router configurations, by default Extreme and Juniper style command line syntax is shipped. The flavor is given on the command line or in the http query with the _-style_ argument, else its always Brocade MLXE (Netiron)  by default. You can create your own templates in the _templates_-directory. Please see the section _Default output and templates_ for more information. 
  
 ## Quickstart 
 
@@ -145,8 +145,8 @@ The call will print out my DECIX-configuration for Frankfurt:
 ### Default output and templates 
 By default IXgen will output on the standard output channel. The output can be also redirected to a file with the  _-output_ parameter. Be aware, that the output is always sorted by peers ASN.
  
-### Default syntax and more info for Brocade Netiron 
-The default output syntax is  Brocade Netiron command line syntax, because this is my home box :D. If you are on one of the  Netiron platforms (MLX,CER,MLXE), you can also use my tool _brocadecli_ ( https://github.com/ipcjk/brocadecli) to automatically upload the configuration into your router, such as with an extra cronjob.
+### Default syntax and more info for Extreme Netiron 
+The default output syntax is   Netiron command line syntax, because this is my home box :D. If you are on one of the  Netiron platforms (MLX,CER,MLXE), you can also use my tool _mlxsh_ ( https://github.com/ipcjk/mlxsh) to automatically upload the configuration into your router, such as with an extra cronjob.
   
 ###  REST-APIs
 Newer routers like the Brocade SLX or JunOS 16.X support a configuration with REST and I will support it as soon as I get my hands on.
@@ -163,7 +163,7 @@ The templates directory is very easy structured and has a separate layer for ven
  - native
    - json
    - json_pretty
- - brocade 
+ - extreme 
    - netiron
  - juniper
    - set
@@ -279,7 +279,7 @@ It is possible to add custom lines, that are not interpreted by adding the subse
 
 ## Apiserver ##
 
-Ixgen has a second standalone executable, called apiserver. Apiserver can run as a daemon or background thread and serve a few peeringdb-like requests, that are mandatory for using ixgen client from the command line. Also Apiserver is capable of generating your routing configurations if you can post the INI-file in text or JSON-format into the http request. That makes it easy to generate the configuration on the router itself (e.g. Brocade SLX with Ubuntu KVM-management). 
+Ixgen has a second standalone executable, called apiserver. Apiserver can run as a daemon or background thread and serve a few peeringdb-like requests, that are mandatory for using ixgen client from the command line. Also Apiserver is capable of generating your routing configurations if you can post the INI-file in text or JSON-format into the http request. That makes it easy to generate the configuration on the router itself (e.g.  SLX with Ubuntu KVM-management). 
       
 ### Start an apiserver thread 
      ixapiserver -listenAPI localhost:8563
@@ -312,7 +312,7 @@ Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a
     
   Lets post it to apiserver and request a Brocade SLX-configuration:
   
-    $ curl -X POST --data-binary @peering.ini http://localhost:8563/ixgen/brocade/slx
+    $ curl -X POST --data-binary @peering.ini http://localhost:8563/ixgen/extreme/slx
     router bgp
     neighbor 80.81.193.223 remote-as 714
     address-family ipv4 unicast
@@ -330,7 +330,7 @@ Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a
      "ipv6addr":"","ipv4enabled":true,"ipv6enabled":false,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,
      "prefixfilter":false}]}}}]
      
-    $ curl -X POST --data-binary @peering.json http://localhost:8563/ixgen/brocade/netiron -H "Content-type: application/json"
+    $ curl -X POST --data-binary @peering.json http://localhost:8563/ixgen/extreme/netiron -H "Content-type: application/json"
     router bgp
     neighbor 80.81.193.223 remote-as 714
     address-family ipv4 unicast

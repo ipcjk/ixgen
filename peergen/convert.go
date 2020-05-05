@@ -12,7 +12,7 @@ import (
 
 // Functions that convert our Ix to different JSON / XML - configurations
 // ConvertIxToJuniperJSON -> Juniper JSON
-// ConvertIxToBrocadeSlxJSON -> Brocade SLX
+// ConvertIxToExtremeSLXJson -> Brocade SLX
 
 func (p *Peergen) ConvertIxToJson(ixs ixtypes.IXs, w io.Writer) {
 	res, err := json.Marshal(ixs)
@@ -30,7 +30,7 @@ func (p *Peergen) ConvertIxToJsonPretty(ixs ixtypes.IXs, w io.Writer) {
 	fmt.Fprint(w, string(res))
 }
 
-func (p *Peergen) ConvertIxToBrocadeSlxJSON(ixs ixtypes.IXs, w io.Writer) {
+func (p *Peergen) ConvertIxToExtremeSLXJson(ixs ixtypes.IXs, w io.Writer) {
 	fmt.Fprint(w, "Not done yet")
 }
 

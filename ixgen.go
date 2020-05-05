@@ -41,7 +41,7 @@ var apiServiceURL string
 /* profile vars */
 var cpuprofile, memprofile string
 
-func init() {
+func readArgumentsAndSetup() {
 	flag.StringVar(&peeringConfigFileName, "config", "./configuration/peering.ini", "Path to peering configuration ini-file")
 	flag.StringVar(&peerStyleGenerator, "style", "extreme/netiron", "Style for routing-config by template, e.g. extreme, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
 	flag.StringVar(&templateDir, "templates", "./templates", "directory for templates")
@@ -81,6 +81,8 @@ func init() {
 
 func main() {
 	var outputStream io.WriteCloser
+
+	readArgumentsAndSetup()
 
 	/* profile support */
 	if cpuprofile != "" {

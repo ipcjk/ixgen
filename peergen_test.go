@@ -14,7 +14,7 @@ import (
 	"testing"
 )
 
-func TestBrocadeIXTemplate(t *testing.T) {
+func TestExtremeNetworksIX(t *testing.T) {
 	var p = peergen.NewPeerGen("extreme/netiron", "./templates", "./configuration")
 	var Ix ixtypes.Ix
 	var buffer bytes.Buffer
@@ -127,7 +127,7 @@ func TestBrocadeIXTemplate(t *testing.T) {
 	}
 }
 
-func TestBrocadePrefixFilterTemplate(t *testing.T) {
+func TestExtremeNetironPrefixFilterTemplate(t *testing.T) {
 	var p = peergen.NewPeerGen("extreme/netiron", "./templates", "./configuration")
 	var Ix ixtypes.Ix
 

@@ -7,17 +7,17 @@ import (
 	"net/http"
 )
 
-type Brocade_SLX struct {
+type ExtremeSLX struct {
 	apiUrl   string
 	username string
 	password string
 }
 
-func NewBrocadeSLX(apiUrl, username, password string) Brocade_SLX {
-	return Brocade_SLX{apiUrl: apiUrl, username: username, password: password}
+func NewExtremeSLX(apiUrl, username, password string) ExtremeSLX {
+	return ExtremeSLX{apiUrl: apiUrl, username: username, password: password}
 }
 
-func (b *Brocade_SLX) postAPI(uri string, i interface{}) {
+func (b *ExtremeSLX) postAPI(uri string, i interface{}) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("POST", b.apiUrl+uri, nil)
@@ -46,19 +46,19 @@ func (b *Brocade_SLX) postAPI(uri string, i interface{}) {
 	}
 }
 
-func (b *Brocade_SLX) readConfiguration() {
+func (b *ExtremeSLX) readConfiguration() {
 
 }
 
-func (b *Brocade_SLX) configureBgpPeers(ix ixtypes.IXs) {
+func (b *ExtremeSLX) configureBgpPeers(ix ixtypes.IXs) {
 	/* Read ix and post configuration */
 
 }
 
-func (b *Brocade_SLX) unConfigureBgpPeer() {
+func (b *ExtremeSLX) unConfigureBgpPeer() {
 
 }
 
-func (b *Brocade_SLX) generatePrefixList() {
+func (b *ExtremeSLX) generatePrefixList() {
 
 }
