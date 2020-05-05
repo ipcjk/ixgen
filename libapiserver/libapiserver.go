@@ -21,6 +21,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 )
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
@@ -160,7 +161,19 @@ func writeJSON(w io.Writer, i interface{}) {
 
 func readFile(fileName string) []byte {
 	var rCloser io.ReadCloser
-	rCloser, err := os.Open(fileName)
+
+	nowTime := time.Now().Unix()
+
+	fi, err := os.Stat(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if fi.ModTime().Add(time.Second*86400).Unix() < nowTime {
+		log.Printf("Warning, cache file: %s is outdated, consider -buildcache", fileName)
+	}
+
+	rCloser, err = os.Open(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}

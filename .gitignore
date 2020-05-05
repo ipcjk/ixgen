@@ -8,5 +8,7 @@
 .configuration/brocade/vdx/_user.tt
 .configuration/cisco/ios/_user.tt
 .configuration/juniper/set/_user.tt
-
+.configuration/extreme/slx/_user.tt
+.configuration/extreme/netiron/_user.tt
+.configuration/extreme/vdx/_user.tt
 
