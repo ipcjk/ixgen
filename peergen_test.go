@@ -15,7 +15,7 @@ import (
 )
 
 func TestBrocadeIXTemplate(t *testing.T) {
-	var p = peergen.NewPeerGen("brocade/netiron", "./templates", "./configuration")
+	var p = peergen.NewPeerGen("extreme/netiron", "./templates", "./configuration")
 	var Ix ixtypes.Ix
 	var buffer bytes.Buffer
 	var err error
@@ -109,7 +109,7 @@ func TestBrocadeIXTemplate(t *testing.T) {
 		t.Error("Did not find bgp neighbor sample command in template buffer")
 	}
 	if countLines < 16 {
-		t.Error("Template too short or broken, not enough output lines for netiron/brocade")
+		t.Error("Template too short or broken, not enough output lines for netiron/extreme")
 	}
 	if countNeighbor < 8 {
 		t.Error("Template too short or broken, not enough bgp neighbor commands")
@@ -128,7 +128,7 @@ func TestBrocadeIXTemplate(t *testing.T) {
 }
 
 func TestBrocadePrefixFilterTemplate(t *testing.T) {
-	var p = peergen.NewPeerGen("brocade/netiron", "./templates", "./configuration")
+	var p = peergen.NewPeerGen("extreme/netiron", "./templates", "./configuration")
 	var Ix ixtypes.Ix
 
 	Ix.PeersReady = []ixtypes.ExchangePeer{
@@ -175,15 +175,15 @@ func TestBrocadePrefixFilterTemplate(t *testing.T) {
 func TestAllTemplates(t *testing.T) {
 	templateDir := "./templates/"
 	supportedTemplate := []string{
-		"brocade/netiron/router.tt",
-		"brocade/netiron/prefix.tt",
-		"brocade/netiron/prefix6.tt",
-		"brocade/slx/prefix6.tt",
-		"brocade/slx/router.tt",
-		"brocade/slx/header.tt",
-		"brocade/slx/prefix.tt",
-		"brocade/vdx/header.tt",
-		"brocade/vdx/router.tt",
+		"extreme/netiron/router.tt",
+		"extreme/netiron/prefix.tt",
+		"extreme/netiron/prefix6.tt",
+		"extreme/slx/prefix6.tt",
+		"extreme/slx/router.tt",
+		"extreme/slx/header.tt",
+		"extreme/slx/prefix.tt",
+		"extreme/vdx/header.tt",
+		"extreme/vdx/router.tt",
 		"cisco/ios/prefix.tt",
 		"cisco/ios/prefix6.tt",
 		"cisco/ios/router.tt",
@@ -204,7 +204,7 @@ func TestAllTemplates(t *testing.T) {
 
 func TestIXConfigFromJson(t *testing.T) {
 	var testJSON = `{"additionalconfig":null,"ixname":"DE-CIX Frankfurt","options":{},"peeringgroups":{},"peers_configured":{"DE-CIX Frankfurt":{"196922":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":true,"group6_enabled":true,"infoprefixes4":0,"infoprefixes6":0,"ipv4addr":"","ipv6addr":"","ipv4enabled":true,"ipv6enabled":true,"irrasset":"","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}]}},"peersready":[{"active":true,"asn":"196922","group":"","group6":"","groupenabled":false,"group6_enabled":false,"infoprefixes4":64,"infoprefixes6":10,"ipv4addr":"80.81.194.25","ipv6addr":"2001:7f8::3:13a:0:1","ipv4enabled":true,"ipv6enabled":true,"irrasset":"AS-HOFMEIR","isrs":false,"isrsper":false,"localpreference":0,"prefixfilter":false}],"routeserverready":null}`
-	var p = peergen.NewPeerGen("brocade/netiron", "./templates", "./configuration")
+	var p = peergen.NewPeerGen("extreme/netiron", "./templates", "./configuration")
 	var buffer bytes.Buffer
 
 	ix := ixtypes.Ix{}
@@ -252,7 +252,7 @@ func TestIXConfigFromJson(t *testing.T) {
 	}
 
 	if countLines < 8 {
-		t.Error("Template too short or broken, not enough output lines for netiron/brocade")
+		t.Error("Template too short or broken, not enough output lines for netiron/extreme")
 	}
 	if countNeighbor < 2 {
 		t.Error("Template too short or broken, not enough bgp neighbor commands")

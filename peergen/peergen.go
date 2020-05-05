@@ -39,7 +39,7 @@ func (p *Peergen) GenerateIXs(exchanges ixtypes.IXs, w io.Writer) {
 	} else if p.style == "juniper/json_pretty" {
 		p.ConvertIxToJuniperJSON(exchanges, w, true)
 		return
-	} else if p.style == "brocade/slx_json" {
+	} else if p.style == "extreme/slx_json" {
 		p.ConvertIxToBrocadeSlxJSON(exchanges, w)
 		return
 	} else if p.style == "native/json" {

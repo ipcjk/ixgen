@@ -43,7 +43,7 @@ var cpuprofile, memprofile string
 
 func init() {
 	flag.StringVar(&peeringConfigFileName, "config", "./configuration/peering.ini", "Path to peering configuration ini-file")
-	flag.StringVar(&peerStyleGenerator, "style", "brocade/netiron", "Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
+	flag.StringVar(&peerStyleGenerator, "style", "extreme/netiron", "Style for routing-config by template, e.g. extreme, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures")
 	flag.StringVar(&templateDir, "templates", "./templates", "directory for templates")
 	flag.StringVar(&configDir, "configpath", "./configuration", "directory for user.tt to include for reach router type or router")
 	flag.StringVar(&cacheDirectory, "cacheDir", "./cache", "cache directory for json files from peeringdb")
