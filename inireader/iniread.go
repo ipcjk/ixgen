@@ -229,6 +229,8 @@ func ParsePeerLine(line string, lineNumber int) ixtypes.ExchangePeer {
 			Peer.Password4 = strings.TrimPrefix(value, "password4=")
 		} else if strings.HasPrefix(value, "password6=") {
 			Peer.Password6 = strings.TrimPrefix(value, "password6=")
+		} else if strings.HasPrefix(value, "irrasset=") {
+			Peer.IrrAsSet = strings.TrimPrefix(value, "irrasset=")
 		} else {
 			log.Printf("Unknown parameter %s for peer on line %d ", value, lineNumber)
 		}

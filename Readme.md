@@ -169,7 +169,7 @@ The templates directory is very easy structured and has a separate layer for ven
    - set
    - json (fixed in code, no template)
  - cisco
-   - (currently almost an one-to-one-copy from the Brocade-template)
+   - (currently almost an one-to-one-copy from the Extreme-template)
    
    The last layer always has a _router.tt_-, an optional _header.tt_-  and _footer.tt_-file. 
    
@@ -268,7 +268,7 @@ It is possible to add custom lines, that are not interpreted by adding the subse
     -prefixfactor float
     	factor for maximum-prefix numbers (default 1.2)
     -style string
-    	Style for routing-config by template, e.g. brocade, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures (default "brocade/netiron")
+    	Style for routing-config by template, e.g. extreme, juniper, cisco. Also possible: native/json or native/json_pretty for outputting the inside structures (default "extreme/netiron")
     -templates string
     	directory for templates (default "./templates")
     -version
@@ -309,8 +309,8 @@ Apiserver is now listening on a localhost socket and port 8563. Apiserver runs a
       [options]
       [peers]
       714 ipv6=0
-    
-  Lets post it to apiserver and request a Brocade SLX-configuration:
+
+Lets post it to apiserver and request a Extreme SLX-configuration:
   
     $ curl -X POST --data-binary @peering.ini http://localhost:8563/ixgen/extreme/slx
     router bgp

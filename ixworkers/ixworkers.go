@@ -144,7 +144,9 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 					} else if confPeer.Group6 == "" {
 						confPeer.Group6Enabled = false
 					}
-					confPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
+					if confPeer.IrrAsSet == "" {
+						confPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
+					}
 					exchanges[i].PeersReady = append(exchanges[i].PeersReady, confPeer)
 				} else if exchanges[i].Options[exchanges[i].IxName]["wildcard"] == "1" {
 
