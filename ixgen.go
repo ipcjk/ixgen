@@ -67,7 +67,7 @@ func readArgumentsAndSetup() {
 	flag.Parse()
 
 	if version {
-		fmt.Println("ixgen 0.5 (C) 2018 by Jörg Kost, jk@ip-clear.de")
+		fmt.Println("ixgen 0.6 (C) 2021 by Jörg Kost, jk@ip-clear.de")
 		os.Exit(0)
 	}
 

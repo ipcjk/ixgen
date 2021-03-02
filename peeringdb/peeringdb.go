@@ -140,7 +140,7 @@ func (p *peeringdb) SearchIXByIxId(ixId string) (apiResult Ix, err error) {
 	}
 
 	if len(apiResult.Data) == 0 {
-		return Ix{}, fmt.Errorf("%d is not a valid ixID or was not found on peeringdb", ixId)
+		return Ix{}, fmt.Errorf("%s is not a valid ixID or was not found on peeringdb", ixId)
 	}
 
 	if err = p.callAPI("/ix/"+strconv.FormatInt(apiResult.Data[0].ID, 10), &apiResult); err != nil {
