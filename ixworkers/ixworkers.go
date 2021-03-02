@@ -20,10 +20,13 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
 				return
 			}
-			_, rs_auto := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
+			_, rsAuto := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
 			rsnASN, rsnOk := exchanges[i].Options[exchanges[i].IxName]["rs_asn"]
 
-			myPeers, err := peerDB.GetPeersOnIXByIxName(exchanges[i].IxName)
+			/* check for pinned ixID */
+			ixId, ixOk := exchanges[i].Options[exchanges[i].IxName]["ixid"]
+
+			myPeers, err := peerDB.GetPeersOnIX(exchanges[i].IxName, string(ixId), ixOk)
 			if err != nil {
 				log.Printf("Cant get Peers for IX: %s, error: %s", exchanges[i].IxName, err)
 				return
@@ -96,9 +99,9 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, e
 						rsPeer.InfoPrefixes6 = int64(prefixFactor * float64(rsPeer.InfoPrefixes6))
 					}
 
-					if rs_auto && rsnOk && peerASN != string(rsnASN) {
+					if rsAuto && rsnOk && peerASN != string(rsnASN) {
 						log.Printf("Ignoring probably route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
-					} else if rs_auto {
+					} else if rsAuto {
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
 					}
 					continue

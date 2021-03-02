@@ -49,6 +49,7 @@ func TestExchangeOption(t *testing.T) {
 	/* Init test object */
 	var ixConfig = make(ixtypes.ExchangeOptions)
 	ixConfig["testIX"] = make(map[string]ixtypes.ExchangeOption, 10)
+	inireader.ParseOptionLine("ixid=12222", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver=1", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_group=IX", ixConfig, "testIX")
 	inireader.ParseOptionLine("routeserver_group6=IX6", ixConfig, "testIX")

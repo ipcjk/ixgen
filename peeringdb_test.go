@@ -14,7 +14,7 @@ func init() {
 	apiserverDbTest.RunAPIServer()
 }
 
-func TestGetIX(t *testing.T) {
+func TestGetIXByName(t *testing.T) {
 	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api")
 	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 	if err != nil {
@@ -23,6 +23,18 @@ func TestGetIX(t *testing.T) {
 
 	if ix.Data[0].Name != "DE-CIX Frankfurt" {
 		t.Error("Cant find the DE-CIX Frankfurt, something wrong the data-set!")
+	}
+}
+
+func TestGetIXByID(t *testing.T) {
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api")
+	ix, err := peerDB.SearchIXByIxId("73")
+	if err != nil {
+		t.Errorf("Cant search by IxID: %s", err)
+	}
+
+	if ix.Data[0].Name != "ECIX-MUC" {
+		t.Error("Cant find the INXS, something wrong the data-set!")
 	}
 }
 
@@ -69,13 +81,13 @@ func TestRunAPIserver(t *testing.T) {
 
 func TestQueryAPIserver(t *testing.T) {
 	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
-	ix, err := peerDB.SearchIXByIxName("ECIX-MUC / INXS by ecix")
+	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 
 	if err != nil {
 		t.Errorf("Cant search by the IxName: %s", err)
 	}
 
-	if ix.Data[0].Name != "ECIX-MUC / INXS by ecix" {
+	if ix.Data[0].Name != "DE-CIX Frankfurt" {
 		t.Error("Cant find the INXS, something wrong the data-set!")
 	}
 }
@@ -115,7 +127,7 @@ func BenchmarkAPIserver(b *testing.B) {
 
 func TestGetPeersOnIX(t *testing.T) {
 	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
-	myPeers, err := peerDB.GetPeersOnIXByIxName("DE-CIX Frankfurt")
+	myPeers, err := peerDB.GetPeersOnIX("DE-CIX Frankfurt", "0", false)
 
 	if err != nil {
 		t.Errorf("Cant query the API for peers on IX: %s", err)
@@ -124,4 +136,16 @@ func TestGetPeersOnIX(t *testing.T) {
 	if len(myPeers.Data) < 700 {
 		t.Error("DE-CIX Frankfurt||Main too small")
 	}
+
+	/* Query by static id */
+	myPeers, err = peerDB.GetPeersOnIX("", "73", true)
+
+	if err != nil {
+		t.Errorf("Cant query the API for peers on IX: %s", err)
+	}
+
+	if len(myPeers.Data) < 30 {
+		t.Error("ECIX-MUC too small")
+	}
+
 }

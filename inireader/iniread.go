@@ -15,6 +15,7 @@ var splitBy = `\s+`
 var splitReg = regexp.MustCompile(splitBy)
 
 var PossibleOptions = map[string]bool{
+	"ixid":                   true,
 	"routeserver":            true,
 	"routeserver_group":      true,
 	"peer_group":             true,

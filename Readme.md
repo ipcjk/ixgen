@@ -187,22 +187,28 @@ Exported to the template is the type "IX", that is a struct of the member variab
 - PeersReady (Peers that have processed and are ready for the templating)
 - RouteServerReady (Routeserver records that have been processed and are ready)
 
-## INI-Configuration 
- 
-### exchange configuration parameters 
+## INI-Configuration
 
-When adding an exchange, there are several options and parameters you can add each on a separate line in the 
-_[options]_-subsection. Please avoid special characters or whitespaces/tabs inside strings. 
+### exchange configuration parameters
 
-#### ipv4 
- - routeserver_group=$rs_group (group used for peering with $rs_group )
- - peer_group=$peer_group (group used for peering with neighbors for the _[peers]_-list)
- - routeserver_prefixes=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
+When adding an exchange, there are several options and parameters you can add each on a separate line in the
+_[options]_-subsection. Please avoid special characters or whitespaces/tabs inside strings.
 
-#### ipv6  
- - routeserver_group6=$rs_group6 (group used for ipv6-peering with $rs_group6 )
- - peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
- - routeserver_prefixes6=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
+#### ixid
+
+- some Ixes change their names too frequently, with the ixid= option, you can pin it to the peering-db database id
+
+#### ipv4
+
+- routeserver_group=$rs_group (group used for peering with $rs_group )
+- peer_group=$peer_group (group used for peering with neighbors for the _[peers]_-list)
+- routeserver_prefixes=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
+
+#### ipv6
+
+- routeserver_group6=$rs_group6 (group used for ipv6-peering with $rs_group6 )
+- peer_group6=$peer_group6 (group used for ipv6-peering with neighbors for the _[peers]_-list)
+- routeserver_prefixes6=$number ($number is used to overwrite the maximum prefix limit from peeringdb)
 
 #### iv6 | ipv4 
  - routeserver=(0=disable, 1=auto-detect and configure neighbor statements for route-servers)

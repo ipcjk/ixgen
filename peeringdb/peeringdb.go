@@ -57,13 +57,22 @@ func (p *peeringdb) GetPeersOnIXByIxLanID(ixLanID int64) (apiResult Netixlan, er
 	return apiResult, nil
 }
 
-func (p *peeringdb) GetPeersOnIXByIxName(ixName string) (apiResult Netixlan, err error) {
+func (p *peeringdb) GetPeersOnIX(ixName string, ixId string, byId bool) (apiResult Netixlan, err error) {
 	var ixlanid string
-	nameAndNet := strings.Split(ixName, "||")
+	var iX Ix
+	var nameAndNet []string
 
-	iX, err := p.SearchIXByIxName(nameAndNet[0])
-	if err != nil {
-		return Netixlan{}, err
+	if byId {
+		iX, err = p.SearchIXByIxId(ixId)
+		if err != nil {
+			return Netixlan{}, err
+		}
+	} else {
+		nameAndNet = strings.Split(ixName, "||")
+		iX, err = p.SearchIXByIxName(nameAndNet[0])
+		if err != nil {
+			return Netixlan{}, err
+		}
 	}
 
 	v := url.Values{}
@@ -114,6 +123,24 @@ func (p *peeringdb) SearchIXByIxName(ixName string) (apiResult Ix, err error) {
 
 	if len(apiResult.Data) == 0 {
 		return Ix{}, fmt.Errorf("%s is not a valid ixName or was not found on peeringdb", ixName)
+	}
+
+	if err = p.callAPI("/ix/"+strconv.FormatInt(apiResult.Data[0].ID, 10), &apiResult); err != nil {
+		return Ix{}, err
+
+	}
+	return apiResult, nil
+}
+
+func (p *peeringdb) SearchIXByIxId(ixId string) (apiResult Ix, err error) {
+	v := url.Values{}
+	v.Set("id", ixId)
+	if err = p.callAPI("/ix?"+v.Encode(), &apiResult); err != nil {
+		return Ix{}, err
+	}
+
+	if len(apiResult.Data) == 0 {
+		return Ix{}, fmt.Errorf("%d is not a valid ixID or was not found on peeringdb", ixId)
 	}
 
 	if err = p.callAPI("/ix/"+strconv.FormatInt(apiResult.Data[0].ID, 10), &apiResult); err != nil {
