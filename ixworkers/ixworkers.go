@@ -9,9 +9,9 @@ import (
 	"sync"
 )
 
-func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, exchangeOnly string, myASN int64, prefixFactor float64) ixtypes.IXs {
+func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, apiKey string, exchangeOnly string, myASN int64, prefixFactor float64) ixtypes.IXs {
 	var wg sync.WaitGroup
-	peerDB := peeringdb.Peeringdb(apiServiceURL)
+	peerDB := peeringdb.Peeringdb(apiServiceURL, apiKey)
 	wg.Add(len(exchanges))
 	for k := range exchanges {
 		var i = k

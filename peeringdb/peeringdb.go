@@ -12,10 +12,11 @@ import (
 
 type peeringdb struct {
 	apiURL string
+	apiKey string
 }
 
-func Peeringdb(apiURL string) peeringdb {
-	return peeringdb{apiURL}
+func Peeringdb(apiURL, apiKey string) peeringdb {
+	return peeringdb{apiURL, apiKey}
 }
 
 func (p *peeringdb) callAPI(uri string, i interface{}) error {
@@ -27,7 +28,12 @@ func (p *peeringdb) callAPI(uri string, i interface{}) error {
 	}
 
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
-	req.Header.Add("User-Agent", "ixgen/golang")
+	req.Header.Add("User-Agent", "https://github.com/ipcjk/ixgen")
+
+	/* PeeringDB API key */
+	if p.apiKey != "" {
+		req.Header.Add("Authorization", "Api-Key "+p.apiKey)
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {

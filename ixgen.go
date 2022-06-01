@@ -37,6 +37,7 @@ var cacheDirectory string
 var noapiservice bool
 var localAPIServer string
 var apiServiceURL string
+var peeringDBAPIKey string
 
 /* profile vars */
 var cpuprofile, memprofile string
@@ -59,6 +60,7 @@ func readArgumentsAndSetup() {
 	flag.BoolVar(&noapiservice, "noapiservice", false, "do NOT create a local thread for the http api server that uses the json file as sources instead peeringdb.com/api-service.")
 	flag.StringVar(&localAPIServer, "listenapi", "localhost:0", "listenAddr for local api service")
 	flag.StringVar(&apiServiceURL, "api", "https://www.peeringdb.com/api", "use a differnt server as sources instead local/api-service.")
+	flag.StringVar(&peeringDBAPIKey, "apikey", "", "Peering DB API-Key")
 
 	/* profiling support */
 	flag.StringVar(&cpuprofile, "cpuprofile", "", "write cpu profile to `file`")
@@ -72,7 +74,7 @@ func readArgumentsAndSetup() {
 	}
 
 	if buildCache {
-		libapiserver.DownloadCache("https://www.peeringdb.com/api", cacheDirectory)
+		libapiserver.DownloadCache("https://www.peeringdb.com/api", cacheDirectory, peeringDBAPIKey)
 		os.Exit(0)
 	}
 
@@ -109,7 +111,7 @@ func main() {
 	}
 
 	/* Merge PeeringDB */
-	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, exchangeOnly, myASN, prefixFactor)
+	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, peeringDBAPIKey, exchangeOnly, myASN, prefixFactor)
 	/* Merge BGPq3 prefixFilters if we are on Mac or Linux */
 	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
 		exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)

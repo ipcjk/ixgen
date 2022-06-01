@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if *buildCache {
-		libapiserver.DownloadCache("https://www.peeringdb.com/api", *cacheDirectory)
+		libapiserver.DownloadCache("https://www.peeringdb.com/api", *cacheDirectory, "")
 		os.Exit(0)
 	}
 

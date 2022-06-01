@@ -15,7 +15,7 @@ func init() {
 }
 
 func TestGetIXByName(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api")
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", "")
 	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 	if err != nil {
 		t.Errorf("Cant search by IxName: %s", err)
@@ -27,7 +27,7 @@ func TestGetIXByName(t *testing.T) {
 }
 
 func TestGetIXByID(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api")
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", "")
 	ix, err := peerDB.SearchIXByIxId("73")
 	if err != nil {
 		t.Errorf("Cant search by IxID: %s", err)
@@ -46,7 +46,7 @@ func TestRechabilityPeeringDB(t *testing.T) {
 }
 
 func TestGetASN(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api")
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", "")
 	peer, err := peerDB.GetNetworkByAsN(196922)
 
 	if err != nil {
@@ -57,8 +57,8 @@ func TestGetASN(t *testing.T) {
 		t.Error("Cant find my home asn, something is wrong!")
 	}
 
-	if peer.Data[0].Name != "Hofmeir Media GmbH" {
-		t.Error("Cant find my home network name, something is wrong!")
+	if peer.Data[0].Name != "Hofmeir Media" {
+		t.Error("Cant find my home network name, something is wrong! Found ", peer.Data[0].Name)
 	}
 
 	peer, err = peerDB.GetNetworkByAsN(2914)
@@ -80,7 +80,7 @@ func TestRunAPIserver(t *testing.T) {
 }
 
 func TestQueryAPIserver(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
 	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 
 	if err != nil {
@@ -93,7 +93,7 @@ func TestQueryAPIserver(t *testing.T) {
 }
 
 func TestGetASNLocalApi(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
 	peer, err := peerDB.GetNetworkByAsN(196922)
 
 	if err != nil {
@@ -104,7 +104,7 @@ func TestGetASNLocalApi(t *testing.T) {
 		t.Error("Cant find my home asn, something is wrong!")
 	}
 
-	if peer.Data[0].Name != "Hofmeir Media GmbH" {
+	if peer.Data[0].Name != "Hofmeir Media" {
 		t.Error("Cant find my home network name, something is wrong!")
 	}
 
@@ -119,14 +119,14 @@ func TestGetASNLocalApi(t *testing.T) {
 }
 
 func BenchmarkAPIserver(b *testing.B) {
-	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
 	for i := 0; i < b.N; i++ {
 		peerDB.GetNetworkByAsN(196922)
 	}
 }
 
 func TestGetPeersOnIX(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://" + apiserverDbTest.AddrPort + "/api")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
 	myPeers, err := peerDB.GetPeersOnIX("DE-CIX Frankfurt", "0", false)
 
 	if err != nil {

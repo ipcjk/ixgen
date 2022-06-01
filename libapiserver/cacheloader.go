@@ -12,9 +12,20 @@ import (
 
 var peeringDBfiles = []string{"fac", "ix", "ixfac", "ixlan", "ixpfx", "net", "netfac", "netixlan", "org", "poc"}
 
-func DownloadCache(hostURL, cacheDir string) {
+func DownloadCache(hostURL, cacheDir, apiKey string) {
 	for _, v := range peeringDBfiles {
-		resp, err := http.Get(hostURL + "/" + v)
+		client := http.Client{}
+		req, err := http.NewRequest("GET", hostURL+"/"+v, nil)
+		if err != nil {
+			log.Fatalf("Cant build http request for peering db %s", err)
+		}
+
+		/* PeeringDB API key */
+		if apiKey != "" {
+			req.Header.Add("Authorization", "Api-Key "+apiKey)
+		}
+
+		resp, err := client.Do(req)
 		if err != nil {
 			log.Fatalf("Cant download %s", peeringDBfiles)
 		}
@@ -43,7 +54,7 @@ func DownloadCache(hostURL, cacheDir string) {
 				log.Fatalf("Cant update %s, missing records?", v)
 			}
 		}
-		writeCacheFile(targetFile + ".gz", bytes.NewBuffer(data))
+		writeCacheFile(targetFile+".gz", bytes.NewBuffer(data))
 		err = os.Remove(targetFile + ".download.gz")
 		if err != nil {
 			log.Printf("Cant remove %s from fs", targetFile+".download")
