@@ -296,7 +296,9 @@ Whitespaces or tabs delimit all options or parameters. The future reader will be
 #### Overview of the command line options ####
     ixgen:
     -api string
-       use a differnt server as sources instead local/api-service. (default "https://www.peeringdb.com/api")
+       use a differnt server as sources instead local/api-service. (default "https://www.peeringdb.com/api") 
+    -apikey string
+      Peering DB API-Key
     -buildcache
        download json files for caching from peeringdb
     -cacheDir string
