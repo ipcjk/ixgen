@@ -12,10 +12,17 @@ import (
 func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, apiKey string, exchangeOnly string, myASN int64, prefixFactor float64) ixtypes.IXs {
 	var wg sync.WaitGroup
 	peerDB := peeringdb.Peeringdb(apiServiceURL, apiKey)
+
+	/* thread shared lists of asked ASNs, save resources */
+	var lockASNList = sync.Mutex{}
+	var ASNList = make(map[int64]peeringdb.NetData)
+
 	wg.Add(len(exchanges))
 	for k := range exchanges {
 		var i = k
 		go func() {
+			var asnQueryList []string
+			var asnQuery = make(map[string]bool)
 			defer wg.Done()
 			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
 				return
@@ -25,26 +32,90 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 
 			/* check for pinned ixID */
 			ixId, ixOk := exchanges[i].Options[exchanges[i].IxName]["ixid"]
-
 			myPeers, err := peerDB.GetPeersOnIX(exchanges[i].IxName, string(ixId), ixOk)
 			if err != nil {
-				log.Printf("Cant get Peers for IX: %s, error: %s", exchanges[i].IxName, err)
+				log.Printf("Cant get Peers for IX: %s, error: %s\n", exchanges[i].IxName, err)
 				return
 			}
+
+			/* peering DB api change, pull asns into a local query list,
+			respect other threads if necessary */
+			for _, peer := range myPeers.Data {
+				/* Check if we or some other thread already know this peer,
+				push it to our query list, if we need, else ignore it
+				*/
+				lockASNList.Lock()
+				if _, peerOk := ASNList[peer.Asn]; !peerOk {
+					/* We have not seen the peer yet, lets save it to our query list */
+					asnQuery[strconv.FormatInt(peer.Asn, 10)] = true
+				}
+				lockASNList.Unlock()
+			}
+
+			/* map to slice */
+			for s := range asnQuery {
+				asnQueryList = append(asnQueryList, s)
+			}
+
+			/* ask for information about every ASN in our local list, save the information
+			into the shared thread list */
+			for {
+				/* limit myself to 150 asns at maximi, */
+				mincut := 150
+
+				/* nothing left to do? fine, break the loop */
+				if len(asnQueryList) == 0 {
+					break
+				}
+
+				/* something still to do? fine */
+				if len(asnQueryList) < mincut {
+					mincut = len(asnQueryList)
+				}
+
+				/* reshape our view on the slices */
+				questionASN := asnQueryList[:mincut]
+				asnQueryList = asnQueryList[mincut:]
+
+				/* send our wishlist to the peering db service */
+				data, err := peerDB.GetASNsbyList(questionASN)
+				if err != nil {
+					log.Println(err)
+				}
+
+				/* check if we received the same amount of ASNs that we asked for */
+				if len(questionASN) != len(data.Data) {
+					log.Printf("Attention, mismatch between askedASNs (%d) and receivedASNs (%d)\n",
+						len(questionASN), len(data.Data))
+				}
+
+				/* copy data into our ASN map */
+				for index := range data.Data {
+					lockASNList.Lock()
+					ASNList[data.Data[index].Asn] = data.Data[index]
+					lockASNList.Unlock()
+				}
+			}
+
 			for _, peer := range myPeers.Data {
 				peerASN := strconv.FormatInt(peer.Asn, 10)
+
 				if peer.Asn == myASN {
 					continue
 				}
-				peerDbNetwork, err := peerDB.GetNetworkByAsN(peer.Asn)
+
+				if _, exists := ASNList[peer.Asn]; !exists {
+					log.Printf("Error pulling ASN for peer: %d\n", peer.Asn)
+					continue
+				}
+
+				peerDbNetwork := ASNList[peer.Asn]
 				if err != nil {
 					log.Printf("Error pulling ASN for peer: %d, error: %s", peer.Asn, err)
 					continue
 				}
-				if len(peerDbNetwork.Data) != 1 {
-					continue
-				}
-				if peerDbNetwork.Data[0].InfoType == "Route Server" {
+
+				if peerDbNetwork.InfoType == "Route Server" {
 					rgroup, rgOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_group"]
 					rgroup6, rg6Ok := exchanges[i].Options[exchanges[i].IxName]["routeserver_group6"]
 					infoprefixes4, rprefixOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_prefixes"]
@@ -62,7 +133,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 							IsRs:                true, IsRsPeer: false,
 							Ipv4Addr: peer.Ipaddr4,
 							Ipv6Addr: peer.Ipaddr6,
-							IrrAsSet: peerDbNetwork.Data[0].IrrAsSet,
+							IrrAsSet: peerDbNetwork.IrrAsSet,
 						}
 					if peer.Ipaddr6 != nil {
 						rsPeer.Ipv6Enabled = true
@@ -79,8 +150,8 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 						rsPeer.Group6Enabled = true
 					}
 
-					rsPeer.InfoPrefixes4 = peerDbNetwork.Data[0].InfoPrefixes4
-					rsPeer.InfoPrefixes6 = peerDbNetwork.Data[0].InfoPrefixes6
+					rsPeer.InfoPrefixes4 = peerDbNetwork.InfoPrefixes4
+					rsPeer.InfoPrefixes6 = peerDbNetwork.InfoPrefixes6
 
 					if rprefixOk {
 						rsPeer.InfoPrefixes4, _ = strconv.ParseInt(string(infoprefixes4), 10, 64)
@@ -116,10 +187,10 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 
 					/* take care of values from the INI-file */
 					if confPeer.InfoPrefixes4 == 0 {
-						confPeer.InfoPrefixes4 = peerDbNetwork.Data[0].InfoPrefixes4
+						confPeer.InfoPrefixes4 = peerDbNetwork.InfoPrefixes4
 					}
 					if confPeer.InfoPrefixes6 == 0 {
-						confPeer.InfoPrefixes6 = peerDbNetwork.Data[0].InfoPrefixes6
+						confPeer.InfoPrefixes6 = peerDbNetwork.InfoPrefixes6
 					}
 					if confPeer.Ipv6Addr == nil {
 						confPeer.Ipv6Addr = peer.Ipaddr6
@@ -148,7 +219,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 						confPeer.Group6Enabled = false
 					}
 					if confPeer.IrrAsSet == "" {
-						confPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
+						confPeer.IrrAsSet = peerDbNetwork.IrrAsSet
 					}
 					exchanges[i].PeersReady = append(exchanges[i].PeersReady, confPeer)
 				} else if exchanges[i].Options[exchanges[i].IxName]["wildcard"] == "1" {
@@ -187,14 +258,11 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 						wildPeer.Group6Enabled = false
 					}
 
-					if peerDbNetwork.Data != nil {
-						wildPeer.IrrAsSet = peerDbNetwork.Data[0].IrrAsSet
-						wildPeer.InfoPrefixes4 = peerDbNetwork.Data[0].InfoPrefixes4
-						wildPeer.InfoPrefixes6 = peerDbNetwork.Data[0].InfoPrefixes6
-						exchanges[i].PeersReady = append(exchanges[i].PeersReady, wildPeer)
-					} else {
-						log.Printf("No data for ASN %s", peerASN)
-					}
+					wildPeer.IrrAsSet = peerDbNetwork.IrrAsSet
+					wildPeer.InfoPrefixes4 = peerDbNetwork.InfoPrefixes4
+					wildPeer.InfoPrefixes6 = peerDbNetwork.InfoPrefixes6
+					exchanges[i].PeersReady = append(exchanges[i].PeersReady, wildPeer)
+
 				}
 			}
 		}()

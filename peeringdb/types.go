@@ -91,33 +91,39 @@ func (a netsIxLanDataSortedByASN) Less(i, j int) bool { return a[i].Asn < a[j].A
 // NetData is the struct,
 // that is used for decoding the ASN object
 type NetData struct {
-	ID              int64     `json:"id"`
-	Aka             string    `json:"aka"`
-	Asn             int64     `json:"asn"`
-	Created         time.Time `json:"created"`
-	InfoIpv6        bool      `json:"info_ipv6"`
-	InfoMulticast   bool      `json:"info_multicast"`
-	InfoPrefixes4   int64     `json:"info_prefixes4"`
-	InfoPrefixes6   int64     `json:"info_prefixes6"`
-	InfoRatio       string    `json:"info_ratio"`
-	InfoScope       string    `json:"info_scope"`
-	InfoTraffic     string    `json:"info_traffic"`
-	InfoType        string    `json:"info_type"`
-	InfoUnicast     bool      `json:"info_unicast"`
-	IrrAsSet        string    `json:"irr_as_set"`
-	LookingGlass    string    `json:"looking_glass"`
-	Name            string    `json:"name"`
-	Notes           string    `json:"notes"`
-	OrgID           int64     `json:"org_id"`
-	PolicyContracts string    `json:"policy_contracts"`
-	PolicyGeneral   string    `json:"policy_general"`
-	PolicyLocations string    `json:"policy_locations"`
-	PolicyRatio     bool      `json:"policy_ratio"`
-	PolicyURL       string    `json:"policy_url"`
-	RouteServer     string    `json:"route_server"`
-	Status          string    `json:"status"`
-	Updated         time.Time `json:"updated"`
-	Website         string    `json:"website"`
+	ID                       int64     `json:"id"`
+	Aka                      string    `json:"aka"`
+	AllowIxpUpdate           bool      `json:"allow_ixp_update"`
+	Asn                      int64     `json:"asn"`
+	Created                  time.Time `json:"created"`
+	InfoIpv6                 bool      `json:"info_ipv6"`
+	InfoMulticast            bool      `json:"info_multicast"`
+	InfoNeverViaRouteServers bool      `json:"info_never_via_route_servers"`
+	InfoPrefixes4            int64     `json:"info_prefixes4"`
+	InfoPrefixes6            int64     `json:"info_prefixes6"`
+	InfoRatio                string    `json:"info_ratio"`
+	InfoScope                string    `json:"info_scope"`
+	InfoTraffic              string    `json:"info_traffic"`
+	InfoType                 string    `json:"info_type"`
+	InfoUnicast              bool      `json:"info_unicast"`
+	IrrAsSet                 string    `json:"irr_as_set"`
+	LookingGlass             string    `json:"looking_glass"`
+	Name                     string    `json:"name"`
+	NameLong                 string    `json:"name_long"`
+	NetixlanUpdated          time.Time `json:"netixlan_updated"`
+	NetFacUpdated            time.Time `json:"netfac_updated"`
+	Notes                    string    `json:"notes"`
+	OrgID                    int64     `json:"org_id"`
+	PocUpdated               time.Time `json:"poc_updated"`
+	PolicyContracts          string    `json:"policy_contracts"`
+	PolicyGeneral            string    `json:"policy_general"`
+	PolicyLocations          string    `json:"policy_locations"`
+	PolicyRatio              bool      `json:"policy_ratio"`
+	PolicyURL                string    `json:"policy_url"`
+	RouteServer              string    `json:"route_server"`
+	Status                   string    `json:"status"`
+	Updated                  time.Time `json:"updated"`
+	Website                  string    `json:"website"`
 }
 
 // IxData is the struct,

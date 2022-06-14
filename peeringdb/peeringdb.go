@@ -2,21 +2,24 @@ package peeringdb
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type peeringdb struct {
-	apiURL string
-	apiKey string
+	apiURL       string
+	apiKey       string
+	apiCallsSync sync.Mutex
 }
 
 func Peeringdb(apiURL, apiKey string) peeringdb {
-	return peeringdb{apiURL, apiKey}
+	return peeringdb{apiURL, apiKey, sync.Mutex{}}
 }
 
 func (p *peeringdb) callAPI(uri string, i interface{}) error {
@@ -64,6 +67,7 @@ func (p *peeringdb) GetPeersOnIXByIxLanID(ixLanID int64) (apiResult Netixlan, er
 }
 
 func (p *peeringdb) GetPeersOnIX(ixName string, ixId string, byId bool) (apiResult Netixlan, err error) {
+
 	var ixlanid string
 	var iX Ix
 	var nameAndNet []string
@@ -157,6 +161,7 @@ func (p *peeringdb) SearchIXByIxId(ixId string) (apiResult Ix, err error) {
 }
 
 func (p *peeringdb) ListFaculty() (apiResult Ix, err error) {
+
 	if err = p.callAPI("/fac", &apiResult); err != nil {
 		return Ix{}, err
 	}
@@ -164,6 +169,7 @@ func (p *peeringdb) ListFaculty() (apiResult Ix, err error) {
 }
 
 func (p *peeringdb) SearchFacultyByFacName(facultyName string) (apiResult Ix, err error) {
+
 	v := url.Values{}
 	v.Set("name", facultyName)
 	if err = p.callAPI("/fac?"+v.Encode(), &apiResult); err != nil {
@@ -173,8 +179,37 @@ func (p *peeringdb) SearchFacultyByFacName(facultyName string) (apiResult Ix, er
 }
 
 func (p *peeringdb) GetNetworkByAsN(asn int64) (apiResult Net, err error) {
+
 	v := url.Values{}
 	v.Set("asn", strconv.FormatInt(asn, 10))
+	if err = p.callAPI("/net?"+v.Encode(), &apiResult); err != nil {
+		return Net{}, err
+	}
+	return apiResult, nil
+}
+
+func (p *peeringdb) GetASNsbyList(asnsList []string) (apiResult Net, err error) {
+
+	if len(asnsList) > 150 {
+		return Net{}, errors.New("too many ASNs in Query, peeringBD supports only 150 maximum")
+	}
+
+	if len(asnsList) == 0 {
+		return Net{}, errors.New("No ASNs in list")
+	}
+
+	v := url.Values{}
+	var asnscomplete string
+
+	/* concat the slow way */
+	for i, value := range asnsList {
+		if i != 0 {
+			asnscomplete += ","
+		}
+		asnscomplete += value
+	}
+
+	v.Set("asn__in", asnscomplete)
 	if err = p.callAPI("/net?"+v.Encode(), &apiResult); err != nil {
 		return Net{}, err
 	}

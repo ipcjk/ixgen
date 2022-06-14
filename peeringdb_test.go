@@ -8,6 +8,7 @@ import (
 )
 
 var apiserverDbTest *libapiserver.Apiserver
+var apikey = "29Rln1SH.AfvG0jhVczbYVdPsVGnKbwtr2g9Y7qit"
 
 func init() {
 	apiserverDbTest = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates", "./configuration")
@@ -15,7 +16,7 @@ func init() {
 }
 
 func TestGetIXByName(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", "")
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", apikey)
 	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 	if err != nil {
 		t.Errorf("Cant search by IxName: %s", err)
@@ -27,7 +28,7 @@ func TestGetIXByName(t *testing.T) {
 }
 
 func TestGetIXByID(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", "")
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", apikey)
 	ix, err := peerDB.SearchIXByIxId("73")
 	if err != nil {
 		t.Errorf("Cant search by IxID: %s", err)
@@ -46,7 +47,7 @@ func TestRechabilityPeeringDB(t *testing.T) {
 }
 
 func TestGetASN(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", "")
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", apikey)
 	peer, err := peerDB.GetNetworkByAsN(196922)
 
 	if err != nil {
@@ -80,7 +81,7 @@ func TestRunAPIserver(t *testing.T) {
 }
 
 func TestQueryAPIserver(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", apikey)
 	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 
 	if err != nil {
@@ -93,7 +94,7 @@ func TestQueryAPIserver(t *testing.T) {
 }
 
 func TestGetASNLocalApi(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", apikey)
 	peer, err := peerDB.GetNetworkByAsN(196922)
 
 	if err != nil {
@@ -119,14 +120,14 @@ func TestGetASNLocalApi(t *testing.T) {
 }
 
 func BenchmarkAPIserver(b *testing.B) {
-	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", apikey)
 	for i := 0; i < b.N; i++ {
 		peerDB.GetNetworkByAsN(196922)
 	}
 }
 
 func TestGetPeersOnIX(t *testing.T) {
-	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", "")
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", apikey)
 	myPeers, err := peerDB.GetPeersOnIX("DE-CIX Frankfurt", "0", false)
 
 	if err != nil {
@@ -146,6 +147,49 @@ func TestGetPeersOnIX(t *testing.T) {
 
 	if len(myPeers.Data) < 30 {
 		t.Error("ECIX-MUC too small")
+	}
+
+}
+
+func mini(a int, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
+}
+
+func TestSplitASN(t *testing.T) {
+	var list []int
+	for x := 0; x < 120; x++ {
+		list = append(list, x)
+	}
+
+	for {
+		if len(list) == 0 {
+			break
+		}
+		mincut := mini(9, len(list))
+		list = list[mincut:]
+	}
+
+}
+
+func TestGetASNsbyList(t *testing.T) {
+	asnList := []string{"196922", "3356"}
+
+	peerDB := peeringdb.Peeringdb("https://www.peeringdb.com/api", apikey)
+	peers, err := peerDB.GetASNsbyList(asnList)
+
+	if err != nil {
+		t.Errorf("Cant query the API for peers on IX: %s", err)
+	}
+
+	if peers.Data[0].Asn != 3356 {
+		t.Error("Cant find Lumen in the peering db?")
+	}
+
+	if peers.Data[1].Asn != 196922 {
+		t.Error("Cant find myself in the peering db?")
 	}
 
 }

@@ -276,19 +276,39 @@ func (h *getNet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	h.mutex.Unlock()
 
+	/*  Search for a single network or a lot of network asns */
+	if params.Has("asn__in") {
+		asnList := map[string]bool{}
+		asnIn := strings.Split(params.Get("asn__in"), ",")
+		/* hash map for faster check */
+		for _, s := range asnIn {
+			asnList[s] = true
+		}
+		/* loop the asns, search for our parties */
+		/* optimize: counter, if we found all asnLists, just end the looping */
+		for k := range h.NetData.Data {
+			if _, exists := asnList[strconv.FormatInt(h.NetData.Data[k].Asn, 10)]; exists {
+				apiResult.Data = append(apiResult.Data, h.NetData.Data[k])
+				// asnList[strconv.FormatInt(h.NetData.Data[k].Asn, 10)] = false
+			}
+		}
+		goto end
+	} else if params.Has("asn") {
+		/* Search for a single network, can be optimized by loading things into a HASH */
+		for k := range h.NetData.Data {
+			if params["asn"][0] == strconv.FormatInt(h.NetData.Data[k].Asn, 10) {
+				apiResult.Data = append(apiResult.Data, h.NetData.Data[k])
+				goto end
+			}
+		}
+	}
+
 	/* No params? Then write out all */
 	if len(params) == 0 {
 		apiResult = h.NetData
 		goto end
 	}
 
-	/* Search for the network, can be optimized by loading things into a HASH */
-	for k := range h.NetData.Data {
-		if params["asn"][0] == strconv.FormatInt(h.NetData.Data[k].Asn, 10) {
-			apiResult.Data = append(apiResult.Data, h.NetData.Data[k])
-			break
-		}
-	}
 end:
 	writeJSON(w, &apiResult)
 }
