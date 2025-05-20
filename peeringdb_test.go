@@ -4,11 +4,19 @@ import (
 	"github.com/ipcjk/ixgen/libapiserver"
 	"github.com/ipcjk/ixgen/peeringdb"
 	"net/http"
+	"os"
 	"testing"
 )
 
 var apiserverDbTest *libapiserver.Apiserver
-var apikey = "29Rln1SH.AfvG0jhVczbYVdPsVGnKbwtr2g9Y7qit"
+var apikey string
+
+func TestApiKey(t *testing.T) {
+	apikey = os.Getenv("PEERINGDB_APIKEY")
+	if apikey == "" {
+		t.Fatal("Please set the PEERINGDB_APIKEY environment variable to your apikey")
+	}
+}
 
 func init() {
 	apiserverDbTest = libapiserver.NewAPIServer("localhost:0", "./cache", "./templates", "./configuration")
@@ -20,10 +28,10 @@ func TestGetIXByName(t *testing.T) {
 	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
 	if err != nil {
 		t.Errorf("Cant search by IxName: %s", err)
-	}
-
-	if ix.Data[0].Name != "DE-CIX Frankfurt" {
-		t.Error("Cant find the DE-CIX Frankfurt, something wrong the data-set!")
+	} else {
+		if ix.Data[0].Name != "DE-CIX Frankfurt" {
+			t.Error("Cant find the DE-CIX Frankfurt, something wrong the data-set!")
+		}
 	}
 }
 
@@ -32,10 +40,11 @@ func TestGetIXByID(t *testing.T) {
 	ix, err := peerDB.SearchIXByIxId("73")
 	if err != nil {
 		t.Errorf("Cant search by IxID: %s", err)
+		return
 	}
 
-	if ix.Data[0].Name != "ECIX-MUC" {
-		t.Error("Cant find the INXS, something wrong the data-set!")
+	if ix.Data[0].Name != "MegaIX Munich" {
+		t.Error("Cant find the MegaIX Munich, something wrong inside the data-set!")
 	}
 }
 
@@ -52,13 +61,14 @@ func TestGetASN(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Cant search by the target ASN: %s", err)
+		return
 	}
 
 	if peer.Data[0].Asn != 196922 {
 		t.Error("Cant find my home asn, something is wrong!")
 	}
 
-	if peer.Data[0].Name != "Hofmeir Media" {
+	if peer.Data[0].Name != "Hofmeir Media GmbH" {
 		t.Error("Cant find my home network name, something is wrong! Found ", peer.Data[0].Name)
 	}
 
@@ -105,7 +115,7 @@ func TestGetASNLocalApi(t *testing.T) {
 		t.Error("Cant find my home asn, something is wrong!")
 	}
 
-	if peer.Data[0].Name != "Hofmeir Media" {
+	if peer.Data[0].Name != "Hofmeir Media GmbH" {
 		t.Error("Cant find my home network name, something is wrong!")
 	}
 
@@ -182,6 +192,7 @@ func TestGetASNsbyList(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Cant query the API for peers on IX: %s", err)
+		return
 	}
 
 	if peers.Data[0].Asn != 3356 {

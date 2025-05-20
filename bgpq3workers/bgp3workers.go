@@ -23,7 +23,11 @@ func NewBGPQ3Worker(Config BGPQ3Config) BGPQ3Worker {
 	if runtime.GOOS == "linux" {
 		Config.Executable = "bgpq3.linux"
 	} else if runtime.GOOS == "darwin" {
-		Config.Executable = "bgpq3.mac"
+		if runtime.GOARCH == "arm64" {
+			Config.Executable = "bgpq3_arm64.mac"
+		} else {
+			Config.Executable = "bgpq3.mac"
+		}
 	}
 
 	Config.Executable = findExecutable(Config.Executable)

@@ -9,6 +9,14 @@ import (
 	"sync"
 )
 
+/* helper function to convert string like 1 or 0 to a boolean */
+func isTrue(value string) bool {
+	if value == "true" || value == "1" {
+		return true
+	}
+	return false
+}
+
 func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, apiKey string, exchangeOnly string, myASN int64, prefixFactor float64) ixtypes.IXs {
 	var wg sync.WaitGroup
 	peerDB := peeringdb.Peeringdb(apiServiceURL, apiKey)
@@ -23,11 +31,18 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 		go func() {
 			var asnQueryList []string
 			var asnQuery = make(map[string]bool)
+			var rsAuto bool
 			defer wg.Done()
 			if exchangeOnly != "" && exchangeOnly != exchanges[i].IxName {
 				return
 			}
-			_, rsAuto := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
+			/* check if routeserver options is set and also if its true or false */
+			rsnEnabled, rsnExist := exchanges[i].Options[exchanges[i].IxName]["routeserver"]
+			if rsnExist {
+				if isTrue(string(rsnEnabled)) {
+					rsAuto = true
+				}
+			}
 			rsnASN, rsnOk := exchanges[i].Options[exchanges[i].IxName]["rs_asn"]
 
 			/* check for pinned ixID */
@@ -135,10 +150,10 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 							Ipv6Addr: peer.Ipaddr6,
 							IrrAsSet: peerDbNetwork.IrrAsSet,
 						}
-					if peer.Ipaddr6 != nil {
+					if rsPeer.Ipv6Addr.To16() != nil {
 						rsPeer.Ipv6Enabled = true
 					}
-					if peer.Ipaddr4 != nil {
+					if rsPeer.Ipv4Addr.To4() != nil {
 						rsPeer.Ipv4Enabled = true
 					}
 					if rgOk {
@@ -171,7 +186,7 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 					}
 
 					if rsAuto && rsnOk && peerASN != string(rsnASN) {
-						log.Printf("Ignoring probably route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
+						log.Printf("Ignoring route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
 					} else if rsAuto {
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
 					}
@@ -192,11 +207,25 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 					if confPeer.InfoPrefixes6 == 0 {
 						confPeer.InfoPrefixes6 = peerDbNetwork.InfoPrefixes6
 					}
-					if confPeer.Ipv6Addr == nil {
-						confPeer.Ipv6Addr = peer.Ipaddr6
+					// Valid Ipv6? Then, don't load from peerDB
+					if confPeer.Ipv6Addr.To16() == nil {
+						confPeer.Ipv6Enabled = false
+						// if peerDB contains a valid IPv6 address, take the struct
+						// and enable the output
+						if peer.Ipaddr6.To16() != nil {
+							confPeer.Ipv6Addr = peer.Ipaddr6
+							confPeer.Ipv6Enabled = true
+						}
 					}
-					if confPeer.Ipv4Addr == nil {
-						confPeer.Ipv4Addr = peer.Ipaddr4
+					// Valid Ipv4? Then, don't load from peerDB
+					if confPeer.Ipv4Addr.To4() == nil {
+						confPeer.Ipv4Enabled = false
+						// if peerDB contains a valid IPv4 address, take the struct
+						// and enable the output
+						if peer.Ipaddr4.To4() != nil {
+							confPeer.Ipv4Addr = peer.Ipaddr4
+							confPeer.Ipv4Enabled = true
+						}
 					}
 
 					/* take care of prefix factor if given */
@@ -241,10 +270,10 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 						wildPeer.PrefixList6 = "wildcard" + peerASN + "-6"
 					}
 
-					if peer.Ipaddr6 != nil {
+					if wildPeer.Ipv6Addr.To16() != nil {
 						wildPeer.Ipv6Enabled = true
 					}
-					if peer.Ipaddr4 != nil {
+					if wildPeer.Ipv4Addr.To4() != nil {
 						wildPeer.Ipv4Enabled = true
 					}
 					if pgOk && wildPeer.GroupEnabled == true && wildPeer.Group == "" {

@@ -69,13 +69,17 @@ func readArgumentsAndSetup() {
 	flag.Parse()
 
 	if version {
-		fmt.Println("ixgen 0.6 (C) 2021 by Jörg Kost, jk@ip-clear.de")
+		log.Println("ixgen 0.8 (C) 2025 by Jörg Kost, jk@ip-clear.de")
 		os.Exit(0)
 	}
 
 	if buildCache {
 		libapiserver.DownloadCache("https://www.peeringdb.com/api", cacheDirectory, peeringDBAPIKey)
 		os.Exit(0)
+	}
+
+	if peeringDBAPIKey == "" {
+		peeringDBAPIKey = os.Getenv("PEERINGDB_APIKEY")
 	}
 
 	loadConfig()
@@ -133,6 +137,7 @@ func main() {
 		peerGenerator.GenerateIXs(exchanges, outputStream)
 
 	}
+
 }
 
 func loadConfig() {

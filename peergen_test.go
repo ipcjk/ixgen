@@ -31,7 +31,7 @@ func TestExtremeNetworksIX(t *testing.T) {
 			Group6Enabled:       true,
 			IsRs:                false, IsRsPeer: true,
 			Ipv4Addr:        net.ParseIP("127.0.0.1"),
-			Ipv6Addr:        net.ParseIP("3ffe:ffff::/32"),
+			Ipv6Addr:        net.ParseIP("3ffe:ffff::/128"),
 			InfoPrefixes6:   10,
 			InfoPrefixes4:   100,
 			LocalPreference: 90,
@@ -49,7 +49,7 @@ func TestExtremeNetworksIX(t *testing.T) {
 			Group6Enabled:       true,
 			IsRs:                false, IsRsPeer: true,
 			Ipv4Addr:        net.ParseIP("127.3.3.56"),
-			Ipv6Addr:        net.ParseIP("3ffe:ffff:3356::/32"),
+			Ipv6Addr:        net.ParseIP("3ffe:ffff:3356::"),
 			InfoPrefixes6:   10,
 			InfoPrefixes4:   100,
 			LocalPreference: 90,
@@ -71,6 +71,26 @@ func TestExtremeNetworksIX(t *testing.T) {
 		},
 	}
 
+	// validate ipv4/ipv6 like peergen would to
+	for x := range Ix.PeersReady {
+		// Valid Ipv6? Then, don't load from peerDB
+		if Ix.PeersReady[x].Ipv6Addr.To16() == nil {
+			Ix.PeersReady[x].Ipv6Enabled = false
+		}
+		// Valid Ipv4? Then, don't load from peerDB
+		if Ix.PeersReady[x].Ipv4Addr.To4() == nil {
+			Ix.PeersReady[x].Ipv4Enabled = false
+		}
+	}
+
+	for _, peer := range Ix.PeersReady {
+		if peer.Ipv4Enabled && peer.Ipv4Addr.To4() == nil {
+			t.Errorf("IPv4 is enabled for %s but IPv4 is not set", peer.ASN)
+		}
+		if peer.Ipv6Enabled && peer.Ipv6Addr.To16() == nil {
+			t.Errorf("IPv6 is enabled for %s but IPv6 is not set", peer.ASN)
+		}
+	}
 	writer := bufio.NewWriter(&buffer)
 	err = p.GenerateIXConfiguration(Ix, writer)
 	if err != nil {
