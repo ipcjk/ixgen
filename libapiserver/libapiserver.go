@@ -5,11 +5,6 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"github.com/ipcjk/ixgen/inireader"
-	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/ixworkers"
-	"github.com/ipcjk/ixgen/peergen"
-	"github.com/ipcjk/ixgen/peeringdb"
 	"io"
 	"log"
 	"net"
@@ -22,6 +17,12 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/ipcjk/ixgen/inireader"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/ixworkers"
+	"github.com/ipcjk/ixgen/peergen"
+	"github.com/ipcjk/ixgen/peeringdb"
 )
 
 var matchIxRegex = `\/api\/ix\/(\d+)$`
@@ -81,7 +82,6 @@ type getStatus struct{}
 // to serve the object files from as arguments.
 //
 // It also can take a POST request with an INI- or JSON-style configuration
-//
 func NewAPIServer(addrport, cacheDir string, templatedir string, configDir string) *Apiserver {
 	return &Apiserver{addrport, cacheDir, templatedir, configDir}
 }
@@ -169,8 +169,13 @@ func readFile(fileName string) []byte {
 		log.Fatal(err)
 	}
 
+	var outdatedFiles []string
 	if fi.ModTime().Add(time.Second*86400).Unix() < nowTime {
-		log.Printf("Warning, cache file: %s is outdated, consider -buildcache", fileName)
+		outdatedFiles = append(outdatedFiles, fileName)
+	}
+
+	if len(outdatedFiles) > 0 {
+		log.Printf("Warning, cache files are outdated, consider -buildcache - outdated files: %s", strings.Join(outdatedFiles, ", "))
 	}
 
 	rCloser, err = os.Open(fileName)

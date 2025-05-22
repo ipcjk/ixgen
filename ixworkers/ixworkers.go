@@ -1,12 +1,13 @@
 package ixworkers
 
 import (
-	"github.com/ipcjk/ixgen/bgpq3workers"
-	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/peeringdb"
 	"log"
 	"strconv"
 	"sync"
+
+	"github.com/ipcjk/ixgen/bgpqworkers"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/peeringdb"
 )
 
 /* helper function to convert string like 1 or 0 to a boolean */
@@ -300,10 +301,10 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 	return exchanges
 }
 
-func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string) ixtypes.IXs {
+func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string, bgpqVersion int) ixtypes.IXs {
 	var wg sync.WaitGroup
 
-	bgpWorker := bgpqworkers.NewBGPQ3Worker(bgpqworkers.BGPQ3Config{})
+	bgpWorker := bgpqworkers.NewBGPQWorker(bgpqVersion)
 
 	wg.Add(len(exchanges))
 	for k := range exchanges {

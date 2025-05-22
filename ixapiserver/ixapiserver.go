@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
-	"github.com/ipcjk/ixgen/libapiserver"
 	"log"
 	"os"
+
+	"github.com/ipcjk/ixgen/libapiserver"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 	templateDir := flag.String("templates", "./templates", "directory for templates")
 	configDir := flag.String("configpath", "./configuration", "subdirectories for a user.tt to include general configuration commands, that will be expanded by the style - argument (not git tracked)")
 	buildCache := flag.Bool("buildcache", false, "download json files for caching from peeringdb")
+	peeringDBAPIKey := flag.String("apikey", "", "Peering DB API-Key")
 
 	flag.Parse()
 
@@ -25,7 +27,7 @@ func main() {
 	}
 
 	if *buildCache {
-		libapiserver.DownloadCache("https://www.peeringdb.com/api", *cacheDirectory, "")
+		libapiserver.DownloadCache("https://www.peeringdb.com/api", *cacheDirectory, *peeringDBAPIKey)
 		os.Exit(0)
 	}
 

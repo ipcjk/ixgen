@@ -7,17 +7,18 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/ipcjk/ixgen/inireader"
-	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/ixworkers"
-	"github.com/ipcjk/ixgen/libapiserver"
-	"github.com/ipcjk/ixgen/peergen"
 	"io"
 	"log"
 	"os"
 	"runtime"
 	"runtime/pprof"
 	"strings"
+
+	"github.com/ipcjk/ixgen/inireader"
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/ixworkers"
+	"github.com/ipcjk/ixgen/libapiserver"
+	"github.com/ipcjk/ixgen/peergen"
 )
 
 /* Some globals for flag-parsing */
@@ -31,6 +32,7 @@ var exchanges ixtypes.IXs
 var peerGenerator *peergen.Peergen
 var printOrExit, buildCache, version bool
 var prefixFactor float64
+var bgpqVersion int
 
 /* Api server / uri */
 var cacheDirectory string
@@ -61,6 +63,7 @@ func readArgumentsAndSetup() {
 	flag.StringVar(&localAPIServer, "listenapi", "localhost:0", "listenAddr for local api service")
 	flag.StringVar(&apiServiceURL, "api", "https://www.peeringdb.com/api", "use a differnt server as sources instead local/api-service.")
 	flag.StringVar(&peeringDBAPIKey, "apikey", "", "Peering DB API-Key")
+	flag.IntVar(&bgpqVersion, "bgpq", 3, "BGPQ version to use (3 or 4)")
 
 	/* profiling support */
 	flag.StringVar(&cpuprofile, "cpuprofile", "", "write cpu profile to `file`")
@@ -73,13 +76,13 @@ func readArgumentsAndSetup() {
 		os.Exit(0)
 	}
 
+	if peeringDBAPIKey == "" {
+		peeringDBAPIKey = os.Getenv("PEERINGDB_APIKEY")
+	}
+
 	if buildCache {
 		libapiserver.DownloadCache("https://www.peeringdb.com/api", cacheDirectory, peeringDBAPIKey)
 		os.Exit(0)
-	}
-
-	if peeringDBAPIKey == "" {
-		peeringDBAPIKey = os.Getenv("PEERINGDB_APIKEY")
 	}
 
 	loadConfig()
@@ -116,9 +119,9 @@ func main() {
 
 	/* Merge PeeringDB */
 	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, peeringDBAPIKey, exchangeOnly, myASN, prefixFactor)
-	/* Merge BGPq3 prefixFilters if we are on Mac or Linux */
+	/* Merge BGPq prefixFilters if we are on Mac or Linux */
 	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly)
+		exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly, bgpqVersion)
 	}
 
 	if !printOrExit {

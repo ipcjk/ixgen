@@ -33,11 +33,12 @@ type ExchangePeer struct {
 
 type ExchangeOption string
 
-/* Ix, is the whole definition of the exchange
+/*
+	Ix, is the whole definition of the exchange
+
 read by the ini-configuration, and then completed
 by filling PeersReady. This type will be exported
 to the template function.
-
 */
 type Ix struct {
 	AdditionalConfig []string        `json:"additionalconfig"`
@@ -48,8 +49,10 @@ type Ix struct {
 	PeersReady       []ExchangePeer  `json:"peersready"`
 }
 
-/* PrefixFilters is part of structure to load and
-template filters from bgpq3
+/*
+	PrefixFilters is part of structure to load and
+
+template filters from bgpq3 or bgpq4
 */
 type PrefixRule struct {
 	Exact        bool   `json:"exact"`
@@ -59,7 +62,7 @@ type PrefixRule struct {
 }
 
 /* PrefixFilter is a structure to load and
-template PrefixFilters from bgpq3
+template PrefixFilters from bgpq3 or bgpq4
 */
 
 type PrefixFilters struct {
