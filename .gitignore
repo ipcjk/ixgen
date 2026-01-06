@@ -11,4 +11,5 @@
 .configuration/extreme/slx/_user.tt
 .configuration/extreme/netiron/_user.tt
 .configuration/extreme/vdx/_user.tt
+.env
 

@@ -3,6 +3,7 @@ package bgpqworkers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -50,6 +51,10 @@ func (b *baseBGPQWorker) runCommand(args []string) (ixtypes.PrefixFilters, error
 	}
 
 	// Extract the first (and only) key from the map
+	if len(rawOutput) == 0 {
+		return filters, fmt.Errorf("empty response from bgpq command")
+	}
+
 	for name, rules := range rawOutput {
 		filters.Name = name
 		filters.PrefixRules = rules
@@ -71,6 +76,9 @@ func NewBGPQ3Worker() *BGPQ3Worker {
 // GenPrefixList generates the prefix lists in bgqp3 way
 func (w *BGPQ3Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol int, aggregateMax bool) (ixtypes.PrefixFilters, error) {
 	args := buildCommonArgs(prefixListName, asMacro, ipProtocol, aggregateMax)
+	if len(args) == 0 {
+		return ixtypes.PrefixFilters{}, fmt.Errorf("invalid arguments for prefix list generation")
+	}
 	return w.runCommand(args)
 }
 
@@ -97,6 +105,9 @@ func NewBGPQWorker(version int) BGPQ {
 // GenPrefixList generates the prefix lists in bgqp4 way
 func (w *BGPQ4Worker) GenPrefixList(prefixListName, asMacro string, ipProtocol int, aggregateMax bool) (ixtypes.PrefixFilters, error) {
 	args := buildCommonArgs(prefixListName, asMacro, ipProtocol, aggregateMax)
+	if len(args) == 0 {
+		return ixtypes.PrefixFilters{}, fmt.Errorf("invalid arguments for prefix list generation")
+	}
 	return w.runCommand(args)
 }
 
@@ -119,16 +130,32 @@ func buildCommonArgs(prefixListName, IrrAsSet string, ipProtocol int, aggregateM
 	if strings.Contains(IrrAsSet, "::") {
 		parts := strings.Split(IrrAsSet, "::")
 		if len(parts) == 2 {
-			IrrAsSet = parts[0]
+			source := parts[0]
+			if source == "" {
+				log.Printf("Warning: Empty source in IRR format: %s", IrrAsSet)
+				return []string{}
+			}
 			// Split AS sets by : and pass them as separate arguments
 			asSets := strings.Split(parts[1], ":")
-			args = append(args, "-S", IrrAsSet)
+			// Filter out empty AS sets
+			var validAsSets []string
+			for _, asSet := range asSets {
+				if strings.TrimSpace(asSet) != "" {
+					validAsSets = append(validAsSets, asSet)
+				}
+			}
+			if len(validAsSets) == 0 {
+				log.Printf("Warning: No valid AS sets found in: %s", IrrAsSet)
+				return []string{}
+			}
+			args = append(args, "-S", source)
 			args = append(args, "-j", "-l", prefixListName)
-			args = append(args, asSets...)
+			args = append(args, validAsSets...)
 			return args
 		} else {
 			log.Printf("Warning: Invalid/Unknown IRR source format: %s", IrrAsSet)
-			return nil
+			// Return empty args instead of nil to avoid panic
+			return []string{}
 		}
 	}
 

@@ -70,6 +70,7 @@ func TestRunBGPQ3WorkerWithSource(t *testing.T) {
 		len(prefixFilters.PrefixRules) > 400 {
 		t.Error("Found too less or too many ipv6 prefixes, cant be!")
 	}
+
 }
 
 func TestRunBGPQ4Worker(t *testing.T) {
