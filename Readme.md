@@ -13,9 +13,41 @@ the prefix filter generator.
 
 # ixgen on docker
 
+## Running ixgen from Docker
+
 Run ixgen from docker with your peering configuration as volume parameter:
 
-docker run -v /Users/joerg/peering.ini:/ixgen/release/configuration/peering.ini joerg/ixgen:latest
+```bash
+docker run -v /path/to/peering.ini:/ixgen/configuration/peering.ini joerg/ixgen:latest
+```
+
+## Building from source with Docker
+
+Build ixgen from source using the Dockerfile.git:
+
+```bash
+# Build without API key (skips buildcache)
+docker build -f docker/Dockerfile.git -t ixgen:git .
+
+# Build with API key (runs buildcache during build)
+docker build --build-arg PEERINGDB_APIKEY=your-api-key -f docker/Dockerfile.git -t ixgen:git .
+
+# Run buildcache at runtime (alternative, avoids storing API key in image)
+docker run -e PEERINGDB_APIKEY=your-api-key ixgen:git /ixgen/ixgen -buildcache
+```
+
+### Using the built image
+
+```bash
+# Run with your configuration
+docker run -v /path/to/peering.ini:/ixgen/configuration/peering.ini ixgen:git
+
+# Run with custom cache directory
+docker run -v /path/to/peering.ini:/ixgen/configuration/peering.ini \
+           -v /path/to/cache:/ixgen/cache \
+           -e PEERINGDB_APIKEY=your-api-key \
+           ixgen:git
+```
 
 ## how it works
 

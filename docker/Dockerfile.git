@@ -19,6 +19,9 @@ COPY --from=0 /build/bgpq4.linux  /ixgen/bgpq4.linux
 COPY --from=0 /build/bgpq4.license  /ixgen/bgpq4.license
 COPY --from=0 /build/templates  /ixgen/templates
 COPY --from=0 /build/LICENSE  /ixgen/LICENSE
-RUN /ixgen/ixgen -buildcache
+# Set PEERINGDB_APIKEY as build argument (optional, can be passed via --build-arg)
+ARG PEERINGDB_APIKEY=""
+ENV PEERINGDB_APIKEY=${PEERINGDB_APIKEY}
+RUN if [ -n "$PEERINGDB_APIKEY" ]; then /ixgen/ixgen -buildcache; else echo "Skipping buildcache (no API key provided)"; fi
 LABEL maintainer="Joerg Kost <jk@ip-clear.de>"
 
