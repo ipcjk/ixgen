@@ -8,7 +8,7 @@ import (
 
 func TestRunBGPQ3Worker(t *testing.T) {
 	testAsMacro := "AS196922"
-	bgpWorker := NewBGPQ3Worker()
+	bgpWorker := NewBGPQ3Worker("")
 
 	prefixFilters, err := bgpWorker.GenPrefixList("as196922p4", testAsMacro, 4, true)
 	if err != nil {
@@ -41,7 +41,7 @@ func TestRunBGPQ3Worker(t *testing.T) {
 
 func TestRunBGPQ3WorkerWithSource(t *testing.T) {
 	testAsMacro := "RIPE::AS16097:AS-HLKOMM"
-	bgpWorker := NewBGPQ3Worker()
+	bgpWorker := NewBGPQ3Worker("")
 
 	prefixFilters, err := bgpWorker.GenPrefixList("as16097p4", testAsMacro, 4, true)
 	if err != nil {
@@ -75,7 +75,7 @@ func TestRunBGPQ3WorkerWithSource(t *testing.T) {
 
 func TestRunBGPQ4Worker(t *testing.T) {
 	testAsMacro := "AS196922"
-	bgpWorker := NewBGPQ4Worker()
+	bgpWorker := NewBGPQ4Worker("")
 
 	prefixFilters, err := bgpWorker.GenPrefixList("as196922p4", testAsMacro, 4, true)
 	if err != nil {
@@ -109,7 +109,7 @@ func TestRunBGPQ4Worker(t *testing.T) {
 
 func TestRunBGPQ4WorkerWithSource(t *testing.T) {
 	testAsMacro := "RIPE::AS16097:AS-HLKOMM"
-	bgpWorker := NewBGPQ4Worker()
+	bgpWorker := NewBGPQ4Worker("")
 
 	prefixFilters, err := bgpWorker.GenPrefixList("as16097p4", testAsMacro, 4, true)
 	if err != nil {

@@ -64,10 +64,23 @@ func (b *baseBGPQWorker) runCommand(args []string) (ixtypes.PrefixFilters, error
 	return filters, nil
 }
 
-func NewBGPQ3Worker() *BGPQ3Worker {
+func NewBGPQ3Worker(path string) *BGPQ3Worker {
+	var executable string
+	if path != "" {
+		if _, err := os.Stat(path); err == nil {
+			// check if path is executable on linux or mac
+			executable = path
+		} else {
+			log.Printf("Warning: %s is not a valid executable file, will use default executable", path)
+			executable = findExecutable(getExecutableName("bgpq3"))
+		}
+	} else {
+		executable = findExecutable(getExecutableName("bgpq3"))
+	}
+
 	return &BGPQ3Worker{
 		baseBGPQWorker{config: BGPQConfig{
-			Executable: findExecutable(getExecutableName("bgpq3")),
+			Executable: executable,
 			Version:    3,
 		}},
 	}
@@ -86,20 +99,33 @@ type BGPQ4Worker struct {
 	baseBGPQWorker
 }
 
-func NewBGPQ4Worker() *BGPQ4Worker {
+func NewBGPQ4Worker(path string) *BGPQ4Worker {
+	var executable string
+	if path != "" {
+		if _, err := os.Stat(path); err == nil {
+			// check if path is executable on linux or mac
+			executable = path
+		} else {
+			log.Printf("Warning: %s is not a valid executable file, will use default executable", path)
+			executable = findExecutable(getExecutableName("bgpq4"))
+		}
+	} else {
+		executable = findExecutable(getExecutableName("bgpq4"))
+	}
+
 	return &BGPQ4Worker{
 		baseBGPQWorker{config: BGPQConfig{
-			Executable: findExecutable(getExecutableName("bgpq4")),
+			Executable: executable,
 			Version:    4,
 		}},
 	}
 }
 
-func NewBGPQWorker(version int) BGPQ {
+func NewBGPQWorker(version int, path string) BGPQ {
 	if version == 4 {
-		return NewBGPQ4Worker()
+		return NewBGPQ4Worker(path)
 	}
-	return NewBGPQ3Worker()
+	return NewBGPQ3Worker(path)
 }
 
 // GenPrefixList generates the prefix lists in bgqp4 way

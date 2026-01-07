@@ -1,0 +1,24 @@
+FROM alpine:latest
+RUN apk update && apk upgrade
+RUN apk add  --virtual .build-deps --no-cache unzip ca-certificates openssl go git libc-dev
+WORKDIR /build
+RUN git clone https://github.com/ipcjk/ixgen.git .
+RUN go install ./...
+# RUN apk del .build-deps
+FROM alpine:latest
+WORKDIR /ixgen
+RUN apk update && apk upgrade && apk add ca-certificates
+RUN mkdir /ixgen/configuration && mkdir /ixgen/cache
+COPY --from=0 /root/go/bin/ixgen /ixgen/ixgen
+COPY --from=0 /root/go/bin/ixapiserver /ixgen/ixapiserver
+COPY --from=0 /build/configuration/*  /ixgen/configuration/
+COPY --from=0 /build/Readme.md  /ixgen/README
+COPY --from=0 /build/bgpq3.linux  /ixgen/bgpq3.linux
+COPY --from=0 /build/bgpq3.license  /ixgen/bgpq3.license
+COPY --from=0 /build/bgpq4.linux  /ixgen/bgpq4.linux
+COPY --from=0 /build/bgpq4.license  /ixgen/bgpq4.license
+COPY --from=0 /build/templates  /ixgen/templates
+COPY --from=0 /build/LICENSE  /ixgen/LICENSE
+RUN /ixgen/ixgen -buildcache
+LABEL maintainer="Joerg Kost <jk@ip-clear.de>"
+

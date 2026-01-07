@@ -299,10 +299,10 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 	return exchanges
 }
 
-func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string, bgpqVersion int) ixtypes.IXs {
+func WorkerMergePrefixFilters(exchanges ixtypes.IXs, exchangeOnly string, bgpqVersion int, bgpqPath string) ixtypes.IXs {
 	var wg sync.WaitGroup
 
-	bgpWorker := bgpqworkers.NewBGPQWorker(bgpqVersion)
+	bgpWorker := bgpqworkers.NewBGPQWorker(bgpqVersion, bgpqPath)
 
 	wg.Add(len(exchanges))
 	for k := range exchanges {

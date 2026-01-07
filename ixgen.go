@@ -33,6 +33,7 @@ var peerGenerator *peergen.Peergen
 var printOrExit, buildCache, version bool
 var prefixFactor float64
 var bgpqVersion int
+var bgpqPath string
 
 /* Api server / uri */
 var cacheDirectory string
@@ -64,6 +65,7 @@ func readArgumentsAndSetup() {
 	flag.StringVar(&apiServiceURL, "api", "https://www.peeringdb.com/api", "use a differnt server as sources instead local/api-service.")
 	flag.StringVar(&peeringDBAPIKey, "apikey", "", "Peering DB API-Key")
 	flag.IntVar(&bgpqVersion, "bgpq", 3, "BGPQ version to use (3 or 4)")
+	flag.StringVar(&bgpqPath, "bgpqpath", "", "path to bgpq binary, default use auto-detection")
 
 	/* profiling support */
 	flag.StringVar(&cpuprofile, "cpuprofile", "", "write cpu profile to `file`")
@@ -72,7 +74,7 @@ func readArgumentsAndSetup() {
 	flag.Parse()
 
 	if version {
-		log.Println("ixgen 0.8 (C) 2025 by Jörg Kost, jk@ip-clear.de")
+		log.Println("ixgen 0.8a (C) 2026 by Jörg Kost, jk@ip-clear.de")
 		os.Exit(0)
 	}
 
@@ -121,7 +123,7 @@ func main() {
 	exchanges = ixworkers.WorkerMergePeerConfiguration(exchanges, apiServiceURL, peeringDBAPIKey, exchangeOnly, myASN, prefixFactor)
 	/* Merge BGPq prefixFilters if we are on Mac or Linux */
 	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
-		exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly, bgpqVersion)
+		exchanges = ixworkers.WorkerMergePrefixFilters(exchanges, exchangeOnly, bgpqVersion, bgpqPath)
 	}
 
 	if !printOrExit {
