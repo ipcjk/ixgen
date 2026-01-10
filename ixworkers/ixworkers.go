@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"sync"
 
+	"strings"
+
 	"github.com/ipcjk/ixgen/bgpqworkers"
 	"github.com/ipcjk/ixgen/ixtypes"
 	"github.com/ipcjk/ixgen/peeringdb"
@@ -14,6 +16,16 @@ import (
 func isTrue(value string) bool {
 	if value == "true" || value == "1" {
 		return true
+	}
+	return false
+}
+
+/* helper function to check if a string slice contains a value */
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
 	}
 	return false
 }
@@ -52,6 +64,16 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 			if err != nil {
 				log.Printf("Cant get Peers for IX: %s, error: %s\n", exchanges[i].IxName, err)
 				return
+			}
+
+			/* Parse routeserver_info_types from config into a map for fast lookup */
+			rsInfoTypesMap := make(map[string]bool)
+			rsInfoTypesMap["Route Server"] = true // default
+
+			if rsInfoTypes, rsInfoTypesOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_info_types"]; rsInfoTypesOk && string(rsInfoTypes) != "" {
+				for _, rsInfoType := range strings.Split(string(rsInfoTypes), ",") {
+					rsInfoTypesMap[strings.TrimSpace(rsInfoType)] = true
+				}
 			}
 
 			/* peering DB api change, pull asns into a local query list,
@@ -129,7 +151,38 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 					continue
 				}
 
-				if peerDbNetwork.InfoType == "Route Server" {
+				/* Check both info_type (legacy) and info_types (array) for configured route server types */
+				isRouteServerType := false
+				hasRouteServerType := false
+
+				// Check InfoTypes array
+				for _, infoType := range peerDbNetwork.InfoTypes {
+					if rsInfoTypesMap[infoType] {
+						isRouteServerType = true
+						if infoType == "Route Server" {
+							hasRouteServerType = true
+						}
+					}
+				}
+
+				// Check legacy InfoType string
+				if rsInfoTypesMap[peerDbNetwork.InfoType] {
+					isRouteServerType = true
+					if peerDbNetwork.InfoType == "Route Server" {
+						hasRouteServerType = true
+					}
+				}
+
+				// Legacy behavior: if "Route Server" type found and rs_asn configured, validate ASN match
+				if hasRouteServerType && rsnOk && peerASN != string(rsnASN) {
+					log.Printf("Ignoring route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
+					continue
+				}
+
+				// Set as route server only if type matches AND rs_asn matches (if configured)
+				isRouteServer := isRouteServerType && (!rsnOk || peerASN == string(rsnASN))
+
+				if isRouteServer {
 					rgroup, rgOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_group"]
 					rgroup6, rg6Ok := exchanges[i].Options[exchanges[i].IxName]["routeserver_group6"]
 					infoprefixes4, rprefixOk := exchanges[i].Options[exchanges[i].IxName]["routeserver_prefixes"]
@@ -184,11 +237,10 @@ func WorkerMergePeerConfiguration(exchanges ixtypes.IXs, apiServiceURL string, a
 						rsPeer.InfoPrefixes6 = int64(prefixFactor * float64(rsPeer.InfoPrefixes6))
 					}
 
-					if rsAuto && rsnOk && peerASN != string(rsnASN) {
-						log.Printf("Ignoring route-server advertised from ASN %s, but IX ASN shall be %s\n", peerASN, rsnASN)
-					} else if rsAuto {
+					if rsAuto {
 						exchanges[i].PeersReady = append(exchanges[i].PeersReady, rsPeer)
 					}
+					// continue to the next peer
 					continue
 				}
 				_, ok := exchanges[i].PeersINI[exchanges[i].IxName][peerASN]

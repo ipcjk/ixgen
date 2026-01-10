@@ -105,6 +105,7 @@ type NetData struct {
 	InfoScope                string    `json:"info_scope"`
 	InfoTraffic              string    `json:"info_traffic"`
 	InfoType                 string    `json:"info_type"`
+	InfoTypes                []string  `json:"info_types"`
 	InfoUnicast              bool      `json:"info_unicast"`
 	IrrAsSet                 string    `json:"irr_as_set"`
 	LookingGlass             string    `json:"looking_glass"`

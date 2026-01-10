@@ -3,12 +3,13 @@ package inireader
 import (
 	"bufio"
 	"fmt"
-	"github.com/ipcjk/ixgen/ixtypes"
 	"io"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/ipcjk/ixgen/ixtypes"
 )
 
 var splitBy = `\s+`
@@ -28,6 +29,7 @@ var PossibleOptions = map[string]bool{
 	"routeserver_prefixes6":  true,
 	"rs_asn":                 true,
 	"wildcard_prefix_filter": true,
+	"routeserver_info_types": true,
 }
 
 const (
@@ -102,6 +104,9 @@ func ReadPeeringConfig(r io.Reader) ixtypes.IXs {
 			}
 			if ix.Options[currentHead]["peer_group"] != "" {
 				ix.PeeringGroups[string(ix.Options[currentHead]["peer_group"])] = true
+			}
+			if ix.Options[currentHead]["routeserver_info_types"] != "" {
+				ix.PeeringGroups[string(ix.Options[currentHead]["routeserver_info_types"])] = true
 			}
 		} else if line != "" && whichSection == peers {
 			Peer := ParsePeerLine(line, lineNum)

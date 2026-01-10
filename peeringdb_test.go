@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/ipcjk/ixgen/libapiserver"
-	"github.com/ipcjk/ixgen/peeringdb"
 	"net/http"
 	"os"
+	"strconv"
 	"testing"
+
+	"github.com/ipcjk/ixgen/libapiserver"
+	"github.com/ipcjk/ixgen/peeringdb"
 )
 
 var apiserverDbTest *libapiserver.Apiserver
@@ -161,11 +163,69 @@ func TestGetPeersOnIX(t *testing.T) {
 
 }
 
-func mini(a int, b int) int {
-	if a <= b {
-		return a
+func TestGetRouteServersOnIX(t *testing.T) {
+	peerDB := peeringdb.Peeringdb("http://"+apiserverDbTest.AddrPort+"/api", apikey)
+	ix, err := peerDB.SearchIXByIxName("DE-CIX Frankfurt")
+
+	if err != nil {
+		t.Errorf("Cant search by the IxName: %s", err)
 	}
-	return b
+
+	if ix.Data[0].Name != "DE-CIX Frankfurt" {
+		t.Error("Cant find the DE-CIX Frankfurt, something wrong the data-set!")
+	}
+
+	// Route Server ASN for DE-CIX Frankfurt is 6695
+	var decixRsAsn int64 = 6695
+
+	// get all peers on DE-CIX Frankfurt
+	myPeers, err := peerDB.GetPeersOnIX(ix.Data[0].Name, strconv.FormatInt(ix.Data[0].ID, 10), false)
+	if err != nil {
+		t.Errorf("Cant query the API for peers on IX: %s", err)
+	}
+
+	if len(myPeers.Data) == 0 {
+		t.Error("No peers found for DE-CIX Frankfurt")
+	}
+
+	for _, peer := range myPeers.Data {
+		// check if the peer is a route server
+		if peer.Asn == decixRsAsn {
+			// Get NetData to access InfoType, InfoTypes, and prefix information
+			netData, err := peerDB.GetNetworkByAsN(peer.Asn)
+			if err != nil {
+				t.Errorf("Cant get network data for ASN %d: %s", peer.Asn, err)
+				continue
+			}
+
+			if len(netData.Data) == 0 {
+				t.Errorf("No network data found for ASN %d", peer.Asn)
+				continue
+			}
+
+			/* Check both info_type (legacy) and info_types (array) for Route Server on DE-CIX Frankfurt
+			maybe need convert this into a function to avoid code duplication*/
+			var isLegacyRouteServer bool = false
+			var isArrayRouteServer bool = false
+			if netData.Data[0].InfoType == "Route Server" {
+				isLegacyRouteServer = true
+			}
+			if contains(netData.Data[0].InfoTypes, "Route Server") {
+				isArrayRouteServer = true
+			}
+			if !isLegacyRouteServer {
+				t.Logf("Expected Route Server for DE-CIX Frankfurt is not a Route Server: %s", peer.Name)
+			}
+			if !isArrayRouteServer {
+				t.Logf("Array Field is not a possible Route Server for DE-CIX Frankfurt: %s", peer.Name)
+			}
+
+			if !isLegacyRouteServer && !isArrayRouteServer {
+				t.Logf("Expected Route Server for DE-CIX Frankfurt is not a Route Server: %s", peer.Name)
+			}
+
+		}
+	}
 }
 
 func TestSplitASN(t *testing.T) {
@@ -182,6 +242,13 @@ func TestSplitASN(t *testing.T) {
 		list = list[mincut:]
 	}
 
+}
+
+func mini(a int, b int) int {
+	if a <= b {
+		return a
+	}
+	return b
 }
 
 func TestGetASNsbyList(t *testing.T) {
@@ -203,4 +270,14 @@ func TestGetASNsbyList(t *testing.T) {
 		t.Error("Cant find myself in the peering db?")
 	}
 
+}
+
+/* helper function to check if a string slice contains a value */
+func contains(slice []string, value string) bool {
+	for _, item := range slice {
+		if item == value {
+			return true
+		}
+	}
+	return false
 }

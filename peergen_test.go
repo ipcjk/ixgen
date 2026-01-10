@@ -4,14 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"github.com/ipcjk/ixgen/ixtypes"
-	"github.com/ipcjk/ixgen/peergen"
 	"html/template"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"testing"
+
+	"github.com/ipcjk/ixgen/ixtypes"
+	"github.com/ipcjk/ixgen/peergen"
 )
 
 func TestExtremeNetworksIX(t *testing.T) {

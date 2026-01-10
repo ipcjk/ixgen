@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/ipcjk/ixgen/inireader"
 	"github.com/ipcjk/ixgen/ixtypes"
-	"testing"
 )
 
 func TestParsePeerFunction(t *testing.T) {
@@ -62,6 +63,7 @@ func TestExchangeOption(t *testing.T) {
 	inireader.ParseOptionLine("routeserver_prefixes6=400", ixConfig, "testIX")
 	inireader.ParseOptionLine("rs_asn=6695", ixConfig, "testIX")
 	inireader.ParseOptionLine("wildcard_prefix_filter=1", ixConfig, "testIX")
+	inireader.ParseOptionLine("routeserver_info_types=Route Server,NSP", ixConfig, "testIX")
 
 	/* Check that we covered all cases from inireader */
 	for k := range inireader.PossibleOptions {
@@ -102,5 +104,9 @@ func TestExchangeOption(t *testing.T) {
 
 	if ixConfig["testIX"]["wildcard_prefix_filter"] != "1" {
 		t.Error("Prefix filter options for wildcards peers is not set")
+	}
+
+	if ixConfig["testIX"]["routeserver_info_types"] != "Route Server,NSP" {
+		t.Error("Routeserver info types are wrong")
 	}
 }

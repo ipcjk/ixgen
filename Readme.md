@@ -293,6 +293,13 @@ Setting wildcard to enableAll will configure all neighbors from the Exchange, no
 good for configuration testing, benchmarking, and history ...! Be sure to set the _-myasn_ parameter on start, so that
 neighbor statements for your network will be omitted.
 
+### routeserver info types
+
+Some IXs have the network type set to "NSP", in which case the route servers are not recognized despite a correct ASN. This allows you to override the info types with a comma-separated list for the IX. For example:
+
+- routeserver_info_types=NSP,Route Server 
+
+
 #### additional configuration
 
 You can use this code to generate peer-group configuration or anything else you want to add before the single peer
